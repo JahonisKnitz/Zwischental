@@ -267,13 +267,14 @@ const GRID_DIRECTION = { 0:'NW', 1:'N', 2:'NO', 3:'W', 5:'O', 6:'SW', 7:'S', 8:'
 const CLOCKWISE_ORDER = [0, 1, 2, 5, 8, 7, 6, 3];
 
 function calcAttackDirection() {
-  // Gelber Würfel bestimmt Startfeld (1–8 → eine der 8 Außenpositionen)
-  const yellowVal = G.dice.yellow;
-  // Startposition: Würfelwert 1-8 → Index in CLOCKWISE_ORDER
-  const startIdx  = (yellowVal - 1) % 8;
-  let startCell   = CLOCKWISE_ORDER[startIdx];
-  // Laufrichtung: gelber Würfel gerade → ↻, ungerade → ↺
-  let clockwise   = yellowVal % 2 === 0;
+  // Gelber Bag gibt direkt einen startIdx (0–7) → alle 8 Richtungen möglich
+  const yellowDraw = drawFromBag('yellow');
+  const startIdx   = yellowDraw !== null ? yellowDraw : Math.floor(Math.random() * 8);
+  DRAW_BAGS.yellow.lastIdx = startIdx; // merken für Ausschluss beim nächsten Refill
+  G.dice.yellow = startIdx + 1;        // Würfelanzeige: 1–8 (für UI und Σ-Formeln)
+  let startCell  = CLOCKWISE_ORDER[startIdx];
+  // Laufrichtung: Index gerade → ↻, ungerade → ↺
+  let clockwise  = startIdx % 2 === 0;
 
   // Fragile-Verteidigungskarten anwenden (für die Vorab-Anzeige korrekt)
   ({ startCell, clockwise } = applyFragileDefenses({ startCell, clockwise }));
@@ -336,14 +337,23 @@ G.attackChampion = null;
 
 // Shuffle-Bags für Überfall-Pools — keine Duplikate pro Durchlauf
 const DRAW_BAGS = {
-  yellow:   { pool: [], used: [] },
+  yellow:   { pool: [], used: [], lastIdx: null }, // lastIdx: zuletzt gespielte Richtung (0–7)
   blue:     { pool: [], used: [] },
   champion: { pool: [], used: [] },
 };
 
 function refillBag(key) {
   const bag = DRAW_BAGS[key];
-  bag.pool = [...bag.used].sort(() => Math.random() - 0.5);
+  if (key === 'yellow') {
+    // Alle 8 Richtungsindizes außer der zuletzt gespielten
+    const all = [0,1,2,3,4,5,6,7];
+    const candidates = bag.lastIdx !== null
+      ? all.filter(i => i !== bag.lastIdx)
+      : all;
+    bag.pool = candidates.sort(() => Math.random() - 0.5);
+  } else {
+    bag.pool = [...bag.used].sort(() => Math.random() - 0.5);
+  }
   bag.used = [];
 }
 
@@ -357,9 +367,10 @@ function drawFromBag(key) {
 }
 
 function initDrawBags() {
-  // Gelbe Würfelwerte 1-6 (echter Würfel, keine Duplikate pro Runde)
-  DRAW_BAGS.yellow.used  = [1,2,3,4,5,6].sort(() => Math.random() - 0.5);
-  DRAW_BAGS.yellow.pool  = [];
+  // Gelber Bag: alle 8 Richtungsindizes, kein Ausschluss beim Start
+  DRAW_BAGS.yellow.lastIdx = null;
+  DRAW_BAGS.yellow.used    = [];
+  DRAW_BAGS.yellow.pool    = [0,1,2,3,4,5,6,7].sort(() => Math.random() - 0.5);
   // Blaue Angreifer-Karten
   DRAW_BAGS.blue.used    = [...ATTACKER_POOL].sort(() => Math.random() - 0.5);
   DRAW_BAGS.blue.pool    = [];
@@ -368,11 +379,9 @@ function initDrawBags() {
   DRAW_BAGS.champion.pool = [];
 }
 
-function rollDice() {
-  // Gelber Würfel: aus Bag (keine Duplikate)
-  const yellowDraw = drawFromBag('yellow');
-  G.dice.yellow = yellowDraw !== null ? yellowDraw : Math.ceil(Math.random() * 6);
 
+
+function rollDice() {
   // Blau und Rot: freie Würfel (1-6)
   G.dice.blue = Math.ceil(Math.random() * 6);
   G.dice.red  = Math.ceil(Math.random() * 6);
@@ -390,8 +399,8 @@ function rollDice() {
     G.diceConcealed = new Set(DICE_COLORS.filter(c => G.dice[c] === maxVal));
   }
 
-  G.attackDir  = calcAttackDirection();
-  G.attackerOverride = null; // reset bei neuem Wurf
+  G.attackDir  = calcAttackDirection(); // setzt auch G.dice.yellow
+  G.attackerOverride = null;
 
   // Angreifer: aus Bag (keine Duplikate)
   G.attackBlue = drawFromBag('blue');
