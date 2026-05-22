@@ -315,12 +315,6 @@ function makeCard(card, w, h, isRathaus, score, fortified, boosted, plundered, a
     return '';
   })()}
 
-  <!-- INNOVATION BLITZ — etwas tiefer unter Banner-Spitze, weiß -->
-  ${card.inno ? `
-  <g transform="translate(${w*0.2 - 5}, ${h*0.38})">
-    ${makeLightningSVG(10, plundered ? 'rgba(120,116,110,0.4)' : 'white')}
-  </g>` : ''}
-
   <!-- UPGRADE PIP oder SPEZIALKARTEN-BAUBEDINGUNG -->
   ${card.isSpecialOffer && card.diceColor ? (() => {
     const baseCost = G.diceRolled ? G.dice[card.diceColor] : '?';

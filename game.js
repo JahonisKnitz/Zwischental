@@ -228,6 +228,7 @@ const DICE_COLORS = ['yellow', 'blue', 'red'];
 
 // ── Tauschverhältnis — fest 2:1 ──
 const RATIO = 2;
+const VERSION = '0.9.2';
 
 // ── Überfall-Mechaniken ──────────────────────────────────────────
 // Angreifer-Anzahl Formeln (blau)
@@ -271,7 +272,7 @@ function calcAttackDirection() {
   const yellowDraw = drawFromBag('yellow');
   const startIdx   = yellowDraw !== null ? yellowDraw : Math.floor(Math.random() * 8);
   DRAW_BAGS.yellow.lastIdx = startIdx; // merken für Ausschluss beim nächsten Refill
-  G.dice.yellow = startIdx + 1;        // Würfelanzeige: 1–8 (für UI und Σ-Formeln)
+  G.dice.yellow = startIdx + 1;        // Würfelanzeige: 1–6 (Index 0–5)
   let startCell  = CLOCKWISE_ORDER[startIdx];
   // Laufrichtung: Index gerade → ↻, ungerade → ↺
   let clockwise  = startIdx % 2 === 0;
@@ -346,7 +347,7 @@ function refillBag(key) {
   const bag = DRAW_BAGS[key];
   if (key === 'yellow') {
     // Alle 8 Richtungsindizes außer der zuletzt gespielten
-    const all = [0,1,2,3,4,5,6,7];
+    const all = [0,1,2,3,4,5];
     const candidates = bag.lastIdx !== null
       ? all.filter(i => i !== bag.lastIdx)
       : all;
@@ -370,7 +371,7 @@ function initDrawBags() {
   // Gelber Bag: alle 8 Richtungsindizes, kein Ausschluss beim Start
   DRAW_BAGS.yellow.lastIdx = null;
   DRAW_BAGS.yellow.used    = [];
-  DRAW_BAGS.yellow.pool    = [0,1,2,3,4,5,6,7].sort(() => Math.random() - 0.5);
+  DRAW_BAGS.yellow.pool    = [0,1,2,3,4,5].sort(() => Math.random() - 0.5);
   // Blaue Angreifer-Karten
   DRAW_BAGS.blue.used    = [...ATTACKER_POOL].sort(() => Math.random() - 0.5);
   DRAW_BAGS.blue.pool    = [];
@@ -704,18 +705,18 @@ function showDefenseOverlay() {
 
   const conversions = [
     { rawIcon:'🪵', rawLabel:'Holz',    rawTotal: prod.holz,
-      defIcon:'🛡', defLabel:'Barrieren', defKey:'barrierHand', convert: 3 },
+      defIcon:'🛡', defLabel:'Barrieren', defKey:'barrierHand', convert: RATIO },
     { rawIcon:'🌾', rawLabel:'Nahrung', rawTotal: prod.nahrung,
-      defIcon:'⚔',  defLabel:'Ritter',    defKey:'knights',     convert: 3 },
+      defIcon:'⚔',  defLabel:'Ritter',    defKey:'knights',     convert: RATIO },
     { rawIcon:'🫙', rawLabel:'Glas',    rawTotal: prod.glas,
       defIcon:`<svg width="14" height="11" viewBox="0 0 16 12"><ellipse cx="8" cy="9.5" rx="6" ry="2" fill="#8a6200" opacity="0.6"/><ellipse cx="8" cy="7.5" rx="6" ry="2.4" fill="#f0c030" stroke="#a07000" stroke-width="0.5"/><ellipse cx="7.5" cy="6.5" rx="3.5" ry="1.2" fill="#f8e060" opacity="0.7"/></svg>`,
-      defLabel:'Münzen', defKey:'coins', convert: 3 },
+      defLabel:'Münzen', defKey:'coins', convert: RATIO },
   ];
 
   // Rows aufbauen — rechts NUR der Zuwachs (+N), darunter Gesamtbestand
   rowsEl.innerHTML = '';
   const rowEls = conversions.map((c, i) => {
-    const gain = c.isInno ? c.rawTotal : Math.floor(c.rawTotal / RATIO);
+    const gain = Math.floor(c.rawTotal / RATIO);
     const row  = document.createElement('div');
     row.className = 'do-row';
 
@@ -988,7 +989,6 @@ function getCardPlayability(card) {
   // Spezialkarte mit Würfelkosten — Rathaus-Level gibt Rabatt
   if (card.isSpecialOffer && card.diceColor && G.diceRolled) {
     const baseCost = G.dice[card.diceColor];
-    const discount = G.rathausLevel - 1; // Level 1 = kein Rabatt, Level 6 = 5 Münzen Rabatt
     const finalCost = Math.max(0, baseCost - discount);
     if (finalCost > 0 && G.coins < finalCost) {
       return {
@@ -1459,7 +1459,18 @@ function discardSelected(idx) {
 
     // Hand erst nach Animation neu rendern
     setTimeout(() => {
-      renderHand();
+      if (G.builtThisSeason >= 5) {
+        DRAFT.active = false;
+        G.hand = [];
+        setHint('5 Aktionen — Bauphase beendet · › für Rüsten', true);
+        renderHand();
+      } else if (DRAFT.active) {
+        G.hand = G.hand.filter(c => c !== null);
+        advanceDraft(-1);
+      } else {
+        renderHand();
+      }
+      renderGrid(true);
     }, 350);
     return;
   } else {
@@ -2747,8 +2758,8 @@ function onCellClick(idx) {
 
   // Spezialkarte: Würfelkosten minus Rathaus-Rabatt in Münzen zahlen
   if (selCard && selCard.isSpecialOffer && selCard.diceColor && G.diceRolled) {
-    const baseCost = G.dice[selCard.diceColor];
-    const discount = G.rathausLevel - 1;
+    const baseCost  = G.dice[selCard.diceColor];
+    const discount  = G.rathausLevel - 1;
     const finalCost = Math.max(0, baseCost - discount);
     if (finalCost > G.coins) {
       showToast(`Kostet ${finalCost} Münzen (fehlen ${finalCost - G.coins})`);
@@ -3492,15 +3503,69 @@ buildSeasonPools();
 initDrawBags();
 dealHand(); renderGrid(); renderHand(); addDemoControls(); renderPhaseBar(); renderVP(); renderPlaceRow(); renderProductionPanel();
 setHint(PHASE_DESCRIPTIONS[G.phase], false);
-startSeasonParticles(G.season);
 
-// Splash Screen — Start-Button
-const splashEl = document.getElementById('splash-screen');
-const splashStartBtn = document.getElementById('splash-start');
-function dismissSplash() {
-  splashEl.classList.add('fade-out');
-  splashEl.addEventListener('animationend', () => splashEl.remove(), {once:true});
+// Version anzeigen
+const splashVersion = document.getElementById('splash-version');
+const headerTitle   = document.getElementById('header-title');
+if (splashVersion) splashVersion.textContent = `v${VERSION}`;
+if (headerTitle)   headerTitle.textContent   = `Murmeltal v${VERSION}`;
+
+// ── Rules Screen ────────────────────────────────────────────────
+const rulesEl   = document.getElementById('rules-screen');
+let rulesPage   = 0;
+
+function renderRulesPage(idx) {
+  const page = RULES_PAGES[idx];
+  const pips = document.getElementById('rules-progress');
+  pips.innerHTML = RULES_PAGES.map((_,i) =>
+    `<div class="rules-pip${i === idx ? ' active' : ''}"></div>`
+  ).join('');
+  document.getElementById('rules-icon').textContent  = page.icon;
+  document.getElementById('rules-title').textContent = page.title;
+  document.getElementById('rules-body').innerHTML = page.sections.map(s => `
+    <div>
+      <div class="rules-section-heading">${s.heading}</div>
+      <div class="rules-section-text">${s.text}</div>
+    </div>
+  `).join('');
+  const back = document.getElementById('rules-back');
+  const next = document.getElementById('rules-next');
+  back.classList.toggle('ghost', idx === 0);
+  const isLast = idx === RULES_PAGES.length - 1;
+  next.textContent = isLast ? 'Los geht\'s ✦' : 'Weiter →';
+  next.classList.toggle('primary', isLast);
+}
+
+function showRules() {
+  rulesPage = 0;
+  renderRulesPage(0);
+  rulesEl.classList.add('active');
+}
+
+function dismissRules() {
+  rulesEl.classList.remove('active');
   startSeasonParticles(G.season);
+}
+
+document.getElementById('rules-back').addEventListener('click', () => {
+  if (rulesPage > 0) { rulesPage--; renderRulesPage(rulesPage); }
+});
+document.getElementById('rules-next').addEventListener('click', () => {
+  if (rulesPage < RULES_PAGES.length - 1) {
+    rulesPage++;
+    renderRulesPage(rulesPage);
+  } else {
+    dismissRules();
+  }
+});
+
+// ── Splash Screen ────────────────────────────────────────────────
+const splashEl       = document.getElementById('splash-screen');
+const splashStartBtn = document.getElementById('splash-start');
+
+function dismissSplash() {
+  splashEl.remove();
+  showRules();
 }
 splashStartBtn.addEventListener('click', dismissSplash);
 splashStartBtn.addEventListener('touchend', (e) => { e.preventDefault(); dismissSplash(); }, {passive:false});

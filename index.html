@@ -27,6 +27,7 @@
 
 html, body {
   height: 100%;
+  width: 100%;
   background: #e8e4dc;
   font-family: 'Crimson Text', Georgia, serif;
   overflow: hidden;
@@ -37,6 +38,7 @@ html, body {
   display: flex;
   flex-direction: column;
   height: 100%;
+  width: 100%;
   max-width: 640px;
   margin: 0 auto;
   background: var(--white);
@@ -1760,7 +1762,125 @@ header.scoring-flash {
   display: inline-block;
 }
 
-/* ── SPLASH SCREEN ── */
+/* ── RULES SCREEN ── */
+#rules-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  background: #0e0b08;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+#rules-screen.active { display: flex; }
+#rules-screen .rules-frame {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  height: 100%;
+  max-height: 680px;
+  display: flex;
+  flex-direction: column;
+  padding: 48px 36px 36px;
+  border: 1px solid rgba(200,160,68,0.15);
+  background: rgba(255,255,255,0.02);
+}
+#rules-screen .rules-progress {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  margin-bottom: 32px;
+}
+#rules-screen .rules-pip {
+  width: 24px; height: 2px;
+  background: rgba(200,160,68,0.2);
+  border-radius: 1px;
+  transition: background 0.3s;
+}
+#rules-screen .rules-pip.active {
+  background: #c8a044;
+}
+#rules-screen .rules-icon {
+  font-size: 2rem;
+  text-align: center;
+  margin-bottom: 12px;
+}
+#rules-screen .rules-title {
+  font-family: 'Cinzel', serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: #f0e0b0;
+  text-align: center;
+  text-transform: uppercase;
+  margin-bottom: 28px;
+}
+#rules-screen .rules-body {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+#rules-screen .rules-section-heading {
+  font-family: 'Cinzel', serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #c8a044;
+  margin-bottom: 6px;
+  opacity: 0.8;
+}
+#rules-screen .rules-section-text {
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: rgba(245,234,216,0.85);
+  font-weight: 300;
+}
+#rules-screen .rules-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 28px;
+  gap: 12px;
+}
+#rules-screen .rules-btn {
+  font-family: 'Cinzel', serif;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #f0e0b0;
+  padding: 12px 24px;
+  border-radius: 3px;
+  border: 1px solid rgba(240,224,176,0.3);
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  min-width: 90px;
+}
+#rules-screen .rules-btn:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(240,224,176,0.6);
+}
+#rules-screen .rules-btn.primary {
+  background: rgba(200,160,68,0.15);
+  border-color: rgba(200,160,68,0.5);
+  color: #e8d090;
+}
+#rules-screen .rules-btn.primary:hover {
+  background: rgba(200,160,68,0.25);
+  border-color: #c8a044;
+}
+#rules-screen .rules-btn.ghost {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+
 #splash-screen {
   position: fixed;
   inset: 0;
@@ -1786,6 +1906,22 @@ header.scoring-flash {
   align-items: center;
   justify-content: space-between;
   padding: 10% 32px 64px;
+}
+#splash-screen .splash-version {
+  font-family: 'Cinzel', serif;
+  font-size: 0.55rem;
+  letter-spacing: 0.25em;
+  color: rgba(240,224,176,0.3);
+  margin-top: 12px;
+  text-align: center;
+}
+.logo-version {
+  font-family: 'Cinzel', serif;
+  font-size: 0.5rem;
+  letter-spacing: 0.2em;
+  color: rgba(240,224,176,0.3);
+  margin-left: 8px;
+  vertical-align: middle;
 }
 #splash-screen .splash-eyebrow {
   font-family: 'Cinzel', serif;
@@ -1863,13 +1999,26 @@ header.scoring-flash {
         <div class="splash-subtitle">Bauen. Plündern. Bauen.</div>
       </div>
       <button class="splash-start" id="splash-start">Spiel starten</button>
+      <div class="splash-version" id="splash-version"></div>
+    </div>
+  </div>
+
+  <div id="rules-screen">
+    <div class="rules-frame">
+      <div class="rules-progress" id="rules-progress"></div>
+      <div class="rules-icon" id="rules-icon"></div>
+      <div class="rules-title" id="rules-title"></div>
+      <div class="rules-body" id="rules-body"></div>
+      <div class="rules-nav">
+        <button class="rules-btn" id="rules-back">← Zurück</button>
+        <button class="rules-btn primary" id="rules-next">Weiter →</button>
+      </div>
     </div>
   </div>
 
 <div id="app">
-
   <header>
-    <div class="logo">Murmeltal<span class="logo-sub">Bauen. Plündern. Bauen.</span></div>
+    <div class="logo"><span id="header-title">Murmeltal</span><span class="logo-sub">Bauen. Plündern. Bauen.</span></div>
     <div id="vp-display">
       <span class="vp-star">★</span>
       <span class="vp-label">Siegpunkte</span>
@@ -1956,6 +2105,7 @@ header.scoring-flash {
 </div>
 
 <script src="cards.js"></script>
+<script src="rules.js"></script>
 <script src="game.js"></script>
 </body>
 </html>
