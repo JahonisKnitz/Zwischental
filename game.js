@@ -226,8 +226,8 @@ G.diceConcealed = new Set();
 
 const DICE_COLORS = ['yellow', 'blue', 'red'];
 
-// ── Tauschverhältnis — 2:1 oder 3:1 (per Splash Toggle wählbar) ──
-let RATIO = 3;
+// ── Tauschverhältnis — fest 2:1 ──
+const RATIO = 2;
 
 // ── Überfall-Mechaniken ──────────────────────────────────────────
 // Angreifer-Anzahl Formeln (blau)
@@ -933,7 +933,7 @@ function canUpgrade(existingIdx, newCard) {
   if (isDualRes(existing) || isDualRes(newCard)) return false;
   const stack = G.stacks[existingIdx];
   const stackSize = stack ? stack.length : 1;
-  if (stackSize >= RATIO) return false;
+  if (stackSize >= 3) return false;
   if (!existing.upgrade) return false;
   if (!existing.res || !newCard.res) return false;
   return existing.res === newCard.res;
