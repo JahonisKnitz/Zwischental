@@ -437,7 +437,9 @@ header {
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   min-height: 0;
+  scrollbar-width: none;
 }
+#stage::-webkit-scrollbar { display: none; }
 
 /* Überfall-Overlay — fade via opacity */
 #raid-overlay {
@@ -1060,9 +1062,18 @@ header {
   gap: 10px;
   margin-top: 14px;
   padding-top: 10px;
-  padding-right: 36px;
   border-top: 1px solid var(--ink-10);
   position: relative;
+}
+
+#hand-action-btns {
+  position: absolute;
+  right: 12px;
+  bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
 }
 .res-chip {
   display: flex;
@@ -1097,12 +1108,9 @@ header {
   outline: 1.5px solid rgba(18,14,10,0.2);
 }
 
-/* ── INFO-BUTTON ── */
-#btn-rules-info {
-  position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
+/* ── INFO & GLOSSAR BUTTONS ── */
+#btn-rules-info,
+#btn-glossar {
   width: 26px;
   height: 26px;
   border-radius: 50%;
@@ -1112,7 +1120,6 @@ header {
   font-family: 'Cinzel', serif;
   font-size: 0.72rem;
   font-weight: 700;
-  font-style: italic;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -1120,13 +1127,17 @@ header {
   line-height: 1;
   transition: background 0.15s, color 0.15s, border-color 0.15s;
   padding: 0;
+  position: static;
+  transform: none;
 }
-#btn-rules-info:hover {
+#btn-rules-info:hover,
+#btn-glossar:hover {
   background: rgba(18,14,10,0.06);
   color: var(--ink);
   border-color: rgba(18,14,10,0.3);
 }
-#btn-rules-info:active { transform: translateY(-50%) scale(0.92); }
+#btn-rules-info:active { transform: scale(0.92); }
+#btn-glossar:active    { transform: scale(0.92); }
 
 /* ── SCHACHTURM IN DER HAND ── */
 .hand-tower {
@@ -2031,6 +2042,7 @@ header.scoring-flash {
   background: #0e0b08;
   display: none;
   flex-direction: column;
+  align-items: center;
   overflow: hidden;
 }
 #glossar-screen.active { display: flex; }
@@ -2040,6 +2052,9 @@ header.scoring-flash {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  width: 100%;
+  max-width: 640px;
+  position: relative;
 }
 
 #glossar-header {
@@ -2086,7 +2101,10 @@ header.scoring-flash {
 
 #glossar-grid {
   flex: 1;
-  overflow-y: auto;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: auto;
+  overscroll-behavior: contain;
   padding: 14px 12px;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -2129,7 +2147,10 @@ header.scoring-flash {
   align-items: center;
   gap: 16px;
   max-height: 72vh;
-  overflow-y: auto;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: auto;
+  overscroll-behavior: contain;
   z-index: 10;
 }
 #glossar-detail.open { transform: translateY(0); }
@@ -2225,6 +2246,7 @@ header.scoring-flash {
   padding: 14px;
   cursor: pointer;
   width: 100%;
+  max-width: 640px;
   transition: color 0.15s;
 }
 #glossar-close:hover { color: rgba(240,224,176,0.7); }
@@ -2266,12 +2288,12 @@ header.scoring-flash {
         <div id="glossar-filter-row"></div>
       </div>
       <div id="glossar-grid"></div>
-    </div>
-    <!-- Karten-Detail Panel -->
-    <div id="glossar-detail">
-      <button id="glossar-detail-close" onclick="closeGlossarDetail()">✕</button>
-      <div id="glossar-detail-card"></div>
-      <div id="glossar-detail-text"></div>
+      <!-- Detail-Panel innerhalb des Screens -->
+      <div id="glossar-detail">
+        <button id="glossar-detail-close" onclick="closeGlossarDetail()">✕</button>
+        <div id="glossar-detail-card"></div>
+        <div id="glossar-detail-text"></div>
+      </div>
     </div>
     <button id="glossar-close" onclick="hideGlossar()">✕ Schließen</button>
   </div>
@@ -2332,8 +2354,10 @@ header.scoring-flash {
   <div id="hand-area">
     <div id="hand-label">Deine Hand · <span id="draft-indicator"></span><span id="barrier-count"></span><span id="discard-hint"></span></div>
     <div id="hand-cards"></div>
-    <div id="resource-row">
+    <div id="resource-row"></div>
+    <div id="hand-action-btns">
       <button id="btn-rules-info" onclick="showRules()" title="Spielanleitung">i</button>
+      <button id="btn-glossar" onclick="showGlossar()" title="Kartenglossár">▤</button>
     </div>
   </div>
 
@@ -2499,11 +2523,21 @@ function showGlossar() {
   renderGlossarGrid();
   closeGlossarDetail();
   document.getElementById('glossar-screen').classList.add('active');
+  // Stage-Scroll sperren
+  const stage = document.getElementById('stage');
+  if (stage) { stage._scrollTop = stage.scrollTop; stage.style.overflow = 'hidden'; }
 }
 
 function hideGlossar() {
   document.getElementById('glossar-screen').classList.remove('active');
-  // Info-Button aus Spiel: kein rules-screen zurück
+  // Stage-Scroll wiederherstellen
+  const stage = document.getElementById('stage');
+  if (stage) {
+    stage.style.overflow = '';
+    stage.style.overflowY = 'auto';
+    stage.style.overflowX = 'hidden';
+    if (stage._scrollTop !== undefined) stage.scrollTop = stage._scrollTop;
+  }
 }
 
 function renderGlossarFilter() {

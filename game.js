@@ -3540,6 +3540,11 @@ function showRules() {
   rulesPage = 0;
   renderRulesPage(0);
   rulesEl.classList.add('active');
+  // Touch-Guard: Buttons für 400ms nach Splash-Dismiss sperren
+  if (Date.now() - _splashDismissedAt < 600) {
+    rulesEl.style.pointerEvents = 'none';
+    setTimeout(() => { rulesEl.style.pointerEvents = ''; }, 400);
+  }
 }
 
 function dismissRules() {
@@ -3562,8 +3567,10 @@ document.getElementById('rules-next').addEventListener('click', () => {
 // ── Splash Screen ────────────────────────────────────────────────
 const splashEl       = document.getElementById('splash-screen');
 const splashStartBtn = document.getElementById('splash-start');
+let _splashDismissedAt = 0;
 
 function dismissSplash() {
+  _splashDismissedAt = Date.now();
   splashEl.remove();
   showRules();
 }
