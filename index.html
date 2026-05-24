@@ -1949,33 +1949,69 @@ header.scoring-flash {
   overflow: hidden;
 }
 
-/* Hintergrundbild — volle Fläche */
+/* Hintergrundbild — nie größer als Original */
 #splash-screen .splash-bg {
   position: absolute;
   inset: 0;
   background-image: url('zwischental-splash.png');
-  background-size: cover;
+  background-size: auto;
   background-position: center center;
   background-repeat: no-repeat;
+  background-color: #0a0806;
   z-index: 0;
 }
 
-/* Blur-Overlay im unteren Viertel */
+/* Blur-Overlay — nur hinter dem Button, nicht volle Fläche */
 #splash-screen .splash-blur {
-  position: absolute;
-  bottom: 0;
-  left: 0; right: 0;
-  height: 30%;
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  background: linear-gradient(
-    to bottom,
-    rgba(10,8,6,0) 0%,
-    rgba(10,8,6,0.55) 40%,
-    rgba(10,8,6,0.72) 100%
-  );
-  z-index: 1;
+  display: none;
 }
+
+/* Button — Blur nur auf den Button selbst begrenzt via backdrop-filter */
+#splash-screen .splash-start {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  font-family: 'Cinzel', serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #f0e0b0;
+  padding: 13px 40px;
+  border-radius: 7px;
+  border: none;
+  background: rgba(10,8,6,0.45);
+  backdrop-filter: blur(16px) brightness(0.7);
+  -webkit-backdrop-filter: blur(16px) brightness(0.7);
+  box-shadow:
+    0 1px 12px rgba(0,0,0,0.5),
+    0 0 0 0.5px rgba(52,30,12,0.6);
+  cursor: pointer;
+  transition: transform 0.12s;
+}
+#splash-screen .splash-start::before {
+  content: '';
+  position: absolute; inset: 0; border-radius: inherit;
+  background: linear-gradient(175deg,
+    rgba(255,255,255,0.18) 0%,
+    rgba(255,255,255,0.02) 30%,
+    rgba(255,255,255,0)    100%
+  );
+  border-top:    1px solid rgba(255,255,255,0.32);
+  border-left:   1px solid rgba(255,255,255,0.16);
+  border-right:  1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid rgba(0,0,0,0.18);
+  pointer-events: none; z-index: 1;
+}
+#splash-screen .splash-start::after {
+  content: '';
+  position: absolute; top: 0; left: 10px; right: 10px; height: 1px;
+  background: rgba(255,255,255,0.45);
+  z-index: 2; pointer-events: none;
+}
+#splash-screen .splash-start span { position: relative; z-index: 3; }
+#splash-screen .splash-start:hover { background: rgba(10,8,6,0.6); }
+#splash-screen .splash-start:active { transform: scale(0.975); }
 
 /* Titel — oberes Sechstel */
 #splash-screen .splash-head {
@@ -2050,47 +2086,6 @@ header.scoring-flash {
 }
 
 /* Glas-Button — gleicher Stil wie der Rest des Spiels */
-#splash-screen .splash-start {
-  position: relative;
-  overflow: hidden;
-  isolation: isolate;
-  font-family: 'Cinzel', serif;
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: #f0e0b0;
-  padding: 13px 40px;
-  border-radius: 7px;
-  border: none;
-  background: rgba(52,30,12,0.78);
-  box-shadow: 0 1px 12px rgba(52,30,12,0.4), 0 0 0 0.5px rgba(52,30,12,0.6);
-  cursor: pointer;
-  transition: transform 0.12s;
-}
-#splash-screen .splash-start::before {
-  content: '';
-  position: absolute; inset: 0; border-radius: inherit;
-  background: linear-gradient(175deg,
-    rgba(255,255,255,0.18) 0%,
-    rgba(255,255,255,0.02) 30%,
-    rgba(255,255,255,0)    100%
-  );
-  border-top:    1px solid rgba(255,255,255,0.32);
-  border-left:   1px solid rgba(255,255,255,0.16);
-  border-right:  1px solid rgba(255,255,255,0.06);
-  border-bottom: 1px solid rgba(0,0,0,0.18);
-  pointer-events: none; z-index: 1;
-}
-#splash-screen .splash-start::after {
-  content: '';
-  position: absolute; top: 0; left: 10px; right: 10px; height: 1px;
-  background: rgba(255,255,255,0.45);
-  z-index: 2; pointer-events: none;
-}
-#splash-screen .splash-start span { position: relative; z-index: 3; }
-#splash-screen .splash-start:hover { background: rgba(52,30,12,0.90); }
-#splash-screen .splash-start:active { transform: scale(0.975); }
 #splash-screen.fade-out {
   animation: splashFadeOut 0.5s ease-in forwards;
 }
