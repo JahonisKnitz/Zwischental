@@ -77,6 +77,7 @@ const DRAFT = {
   round:      0,    // 0..4 (5 Runden)
   direction:  1,    // +1 = links, -1 = rechts (wechselt jede Jahreszeit)
   active:     false,
+  handIdx:    0,    // welche der 3 Original-Hände gerade beim Spieler liegt (0/1/2)
 };
 
 /**
@@ -107,12 +108,14 @@ function startDraft(season) {
   }
 
   DRAFT.round     = 0;
-  DRAFT.direction = season % 2 === 0 ? 1 : -1; // abwechselnde Richtung
+  DRAFT.direction = season % 2 === 0 ? 1 : -1;
   DRAFT.active    = true;
+  DRAFT.handIdx   = 0;
 
   // Spieler bekommt Hand 0
   G.hand = [...DRAFT.hands[0]];
   setHint(`Drafting — Runde 1/5 · Wähle eine Karte zum Behalten`, true);
+  setHandColor(0);
   renderHand();
 }
 
@@ -151,6 +154,7 @@ function advanceDraft() {
     if (DRAFT.round >= 5 || DRAFT.hands[0].length === 0) {
       DRAFT.active = false;
       G.hand = [];
+      setHandColor(-1);
       renderHand();
       setHint('Karten gedraftet — tippe › für Rüsten', true);
       return;
@@ -159,11 +163,13 @@ function advanceDraft() {
     // Rotieren
     const [h0, h1, h2] = DRAFT.hands;
     DRAFT.hands = DRAFT.direction === 1 ? [h2, h0, h1] : [h1, h2, h0];
+    DRAFT.handIdx = (DRAFT.handIdx + (DRAFT.direction === 1 ? 2 : 1)) % 3;
     G.hand = [...DRAFT.hands[0]];
 
     // Slide-In
     el.style.setProperty('--slide-from', `${inDir}px`);
-    renderHand(); // füllt el mit neuen Karten
+    setHandColor(DRAFT.handIdx);
+    renderHand();
     el.classList.add('slide-in');
     el.addEventListener('animationend', () => el.classList.remove('slide-in'), {once: true});
 
@@ -228,7 +234,7 @@ const DICE_COLORS = ['yellow', 'blue', 'red'];
 
 // ── Tauschverhältnis — fest 2:1 ──
 const RATIO = 2;
-const VERSION = '0.9.23';
+const VERSION = '0.9.28';
 
 // ── Überfall-Mechaniken ──────────────────────────────────────────
 // Angreifer-Anzahl Formeln (blau)
@@ -1201,7 +1207,7 @@ function renderGrid(skipGlows) {
       cell.appendChild(topDiv);
 
       // Karten-Modus: belegte Felder als Upgrade/Replace-Target anzeigen
-      if (G.mode === 'card' && G.selectedHandIdx >= 0 && G.selectedCellIdx < 0 && i !== 4) {
+      if (G.mode === 'card' && G.selectedHandIdx >= 0 && i !== 4) {
         cell.classList.add('upgrade-target');
         cell.addEventListener('click', () => onCellClick(i));
         cell.addEventListener('touchend', (e) => { e.preventDefault(); onCellClick(i); }, { passive: false });
@@ -1336,6 +1342,23 @@ function makeHandTowerSVG() {
   </svg>`;
 }
 
+// 3 dezente Farben für die 3 Draft-Hände
+const HAND_COLORS = ['#c07830', '#4a7fb5', '#5a9a5a'];
+
+function setHandColor(handIndex) {
+  const area  = document.getElementById('hand-area');
+  const label = document.getElementById('hand-id');
+  if (!area || !label) return;
+  if (handIndex < 0 || !DRAFT.active) {
+    area.style.setProperty('--hand-color', 'transparent');
+    label.textContent = '';
+    return;
+  }
+  const col = HAND_COLORS[handIndex % 3];
+  area.style.setProperty('--hand-color', col);
+  label.textContent = `Hand ${handIndex + 1} · `;
+}
+
 function renderHand() {
   const el = document.getElementById('hand-cards');
   el.innerHTML = '';
@@ -1454,7 +1477,7 @@ function discardSelected(idx) {
     SFX.coin && SFX.coin();
     spawnColoredFloat(4, '+1 <svg width="13" height="10" viewBox="0 0 16 12" style="vertical-align:middle"><ellipse cx="8" cy="9.5" rx="6" ry="2" fill="#8a6200" opacity="0.6"/><ellipse cx="8" cy="7.5" rx="6" ry="2.4" fill="#f0c030" stroke="#a07000" stroke-width="0.5"/><ellipse cx="7.5" cy="6.5" rx="3.5" ry="1.2" fill="#f8e060" opacity="0.7"/></svg>', '#c8900a');
     showToast(`Rathaus Level ${G.rathausLevel} · +1 Münze`);
-    renderDefenseChips();
+    renderResources();
     renderGrid(true); // Rathaus-Level sofort aktualisieren
 
     // Hand erst nach Animation neu rendern
@@ -1466,7 +1489,7 @@ function discardSelected(idx) {
         renderHand();
       } else if (DRAFT.active) {
         G.hand = G.hand.filter(c => c !== null);
-        advanceDraft(-1);
+        advanceDraft();
       } else {
         renderHand();
       }
@@ -1487,7 +1510,7 @@ function discardSelected(idx) {
     setHint('5 Aktionen — Bauphase beendet · › für Rüsten', true);
   } else if (DRAFT.active) {
     G.hand = G.hand.filter(c => c !== null);
-    advanceDraft(-1);
+    advanceDraft();
     return;
   } else {
     // Hand kompaktieren — null-Lücken entfernen damit idx-Referenzen stimmen
@@ -2659,6 +2682,7 @@ function clearSelection() {
   G.selectedCellIdx    = -1;
   G.selectedBarrierKey = null;
   G.mode = 'card';
+  hideCardPreview();
   renderGapZones(false);
   renderPlaceRow();
   document.querySelectorAll('.cell-build-overlay').forEach(e => e.remove());
@@ -2686,6 +2710,129 @@ const SPECIAL_MECHANIC_DESC = {
   sonder_count:      'Punkte = Anzahl Sonderkarten auf dem Feld × 2',
 };
 
+const CARD_INFO = {
+  // Winter
+  holzfaeller_b:       { name: 'Holzfäller',         desc: 'Produziert Holz. Stapelbar bis ×3.' },
+  bauernhof_b:         { name: 'Bauernhof',           desc: 'Produziert Nahrung. Stapelbar bis ×3.' },
+  glasblaeserei_b:     { name: 'Glashütte',           desc: 'Produziert Glas. Stapelbar bis ×3.' },
+  holzfaeller_inno:    { name: 'Holzfäller ⚡',       desc: 'Produziert Holz. Punkte skalieren mit Rathaus-Level.' },
+  bauernhof_inno:      { name: 'Bauernhof ⚡',        desc: 'Produziert Nahrung. Punkte skalieren mit Rathaus-Level.' },
+  ratskeller:          { name: 'Ratskeller',           desc: 'Produziert nichts — gibt Siegpunkte und Innovation.' },
+  grundschule:         { name: 'Grundschule',          desc: 'Gibt Siegpunkte.' },
+  wachposten:          { name: 'Wachposten',           desc: 'Verteidigung +2. Kein Rohstoff.' },
+  wachturm_b:          { name: 'Wachturm',             desc: 'Solide Verteidigung. Stapelbar.' },
+  // Frühling
+  saegerei_b:          { name: 'Sägemühle',            desc: 'Produziert Holz. Stapelbar.' },
+  muehle_b:            { name: 'Mühle',                desc: 'Produziert Nahrung. Stapelbar.' },
+  glashuette_a:        { name: 'Glashütte',            desc: 'Produziert Glas. Stapelbar.' },
+  forsthaus_a:         { name: 'Forsthaus',             desc: 'Produziert Holz. Innovation.' },
+  erntehof_a:          { name: 'Erntehof',              desc: 'Produziert Nahrung. Innovation.' },
+  schmelze_a:          { name: 'Schmelze',              desc: 'Produziert Glas. Innovation.' },
+  marktplatz:          { name: 'Marktplatz',            desc: 'Produziert Holz und Nahrung. Doppelressource.' },
+  brauerei:            { name: 'Brauerei',              desc: 'Gibt Siegpunkte.' },
+  zimmerwerk:          { name: 'Zimmerwerk',            desc: 'Gibt Siegpunkte und Verteidigung.' },
+  // Sommer
+  forstwirtschaft:     { name: 'Forstwirtschaft',       desc: 'Starke Holzproduktion.' },
+  kornkammer:          { name: 'Kornkammer',            desc: 'Starke Nahrungsproduktion.' },
+  markthalle:          { name: 'Markthalle',            desc: 'Holz und Nahrung. Doppelressource.' },
+  handelsgilde:        { name: 'Handelsgilde',          desc: 'Gibt Siegpunkte.' },
+  akademie:            { name: 'Akademie',              desc: 'Innovation: Punkte skalieren mit Rathaus-Level.' },
+  bibliothek:          { name: 'Bibliothek',            desc: 'Gibt viele Siegpunkte.' },
+  burg:                { name: 'Burg',                  desc: 'Hohe Verteidigung. Gibt Punkte.' },
+  // Herbst
+  grossbasar:          { name: 'Großbasar',             desc: 'Holz und Nahrung. Stark.' },
+  palast:              { name: 'Palast',                desc: 'Viele Siegpunkte.' },
+  schloss:             { name: 'Schloss',               desc: 'Hohe Punkte und Verteidigung.' },
+  handelszentrum:      { name: 'Handelszentrum',        desc: 'Rohstoffe und Punkte.' },
+  observatorium:       { name: 'Observatorium',         desc: 'Innovation: skaliert mit Rathaus.' },
+  sternwarte:          { name: 'Sternwarte',            desc: 'Innovation: skaliert mit Rathaus.' },
+  zwillingsturm:       { name: 'Zwillingsturm',         desc: 'Doppelte Verteidigung.' },
+  // Sonderkarten
+  bogenwacht:          { name: 'Bogenwacht',            desc: '−2 Angreifer vor dem Überfall.' },
+  schildwall:          { name: 'Schildwall',            desc: 'Nachbarn erhalten +1 Verteidigung.' },
+  versicherung:        { name: 'Versicherung',          desc: '0 Punkte aktiv — 8 Punkte wenn geplündert.' },
+  offene_tore:         { name: 'Offene Tore',           desc: 'Kostenlos bauen — zählt nicht zum Limit.' },
+  ritterburg:          { name: 'Ritterburg',            desc: 'Gibt sofort +2 Ritter.' },
+  muenzpraegung:       { name: 'Münzprägung',           desc: 'Gibt sofort +2 Münzen.' },
+  bankhaus:            { name: 'Bankhaus',              desc: 'Gibt Münzen je Jahreszeit.' },
+  schatzkammer:        { name: 'Schatzkammer',          desc: 'Gibt sofort +2 Barrieren.' },
+  schild_des_rates:    { name: 'Schild des Rates',      desc: 'Gibt sofort +2 Barrieren.' },
+  orakel_gelb:         { name: 'Orakel',                desc: 'Deckt Angriffsrichtung auf.' },
+  orakel_blau:         { name: 'Orakel',                desc: 'Deckt Angreiferzahl auf.' },
+  seher_gelb:          { name: 'Seher',                 desc: 'Deckt Angriffsrichtung auf.' },
+  seher_blau:          { name: 'Seher',                 desc: 'Deckt Angreiferzahl auf.' },
+  prophet_gelb:        { name: 'Prophet',               desc: 'Deckt Angriffsrichtung auf.' },
+  prophet_blau:        { name: 'Prophet',               desc: 'Deckt Angreiferzahl auf.' },
+  fernkundschafter:    { name: 'Fernkundschafter',      desc: 'Deckt Angriffsrichtung auf.' },
+  zahlmeister:         { name: 'Zahlmeister',           desc: 'Deckt Angreiferzahl auf.' },
+  nebelbastei:         { name: 'Nebelbastei',           desc: 'Alle Würfel werden verborgen.' },
+  kristallpalast:      { name: 'Kristallpalast',        desc: '15 Punkte — wird bei Deaktivierung zerstört.' },
+  diamanthaendler:     { name: 'Diamanthändler',        desc: 'Punkte = Sonderkarten × 2.' },
+  juwelenhaendler:     { name: 'Juwelenhändler',        desc: 'Punkte nach Jahreszeit.' },
+  schmuckhaendler:     { name: 'Schmuckhändler',        desc: 'Punkte nach Jahreszeit.' },
+  immobilienhaendler:  { name: 'Immobilienhändler',     desc: 'Punkte nach Jahreszeit.' },
+  gewuerzmarkt:        { name: 'Gewürzmarkt',           desc: 'Doppelressource.' },
+  alchemistenlabor:    { name: 'Alchemistenlabor',      desc: 'Sondereffekt.' },
+  druidenzirkel:       { name: 'Druidenzirkel',         desc: 'Sondereffekt.' },
+  blutarena:           { name: 'Blutarena',             desc: 'Sondereffekt.' },
+  ruinenmagier:        { name: 'Ruinenmagier',          desc: 'Sondereffekt.' },
+  wachturm_b:          { name: 'Wachturm',              desc: 'Verteidigung. Stapelbar.' },
+  ewige_bastion:       { name: 'Ewige Bastion',         desc: 'Kann nie deaktiviert werden.' },
+  trojanisches_pferd:  { name: 'Trojanisches Pferd',    desc: 'Decoy — schützt Karte darunter.' },
+  gaukler:             { name: 'Gaukler',               desc: 'Decoy — schützt Karte darunter.' },
+  // Fragile Test-Karten
+  fragile_w3:          { name: 'Stadttor',              desc: 'Überfall startet an dieser Position.' },
+  fragile_f1:          { name: 'Ablenkung',             desc: 'Decoy — einmalig.' },
+  fragile_f3:          { name: 'Stadttor',              desc: 'Überfall startet hier.' },
+  fragile_f4:          { name: 'Windrose ↻',            desc: 'Überfall läuft im Uhrzeigersinn.' },
+  fragile_f5:          { name: 'Windrose ↺',            desc: 'Überfall läuft gegen den Uhrzeigersinn.' },
+  fragile_s1:          { name: 'Ablenkung',             desc: 'Decoy — einmalig.' },
+  fragile_s3:          { name: 'Stadttor',              desc: 'Überfall startet hier.' },
+  fragile_s4:          { name: 'Windrose ↻',            desc: 'Überfall läuft im Uhrzeigersinn.' },
+  fragile_s5:          { name: 'Windrose ↺',            desc: 'Überfall läuft gegen den Uhrzeigersinn.' },
+  fragile_h1:          { name: 'Ablenkung',             desc: 'Decoy — einmalig.' },
+  fragile_h4:          { name: 'Windrose ↻',            desc: 'Überfall läuft im Uhrzeigersinn.' },
+  fragile_h5:          { name: 'Windrose ↺',            desc: 'Überfall läuft gegen den Uhrzeigersinn.' },
+};
+
+function getCardInfo(card) {
+  if (!card) return null;
+  const info = CARD_INFO[card.id] || { name: card.id, desc: '' };
+  return info;
+}
+
+
+
+function showCardPreview(card) {
+  const panel = document.getElementById('card-preview');
+  if (!panel || !card) { hideCardPreview(); return; }
+  const info = getCardInfo(card);
+  const resLabel = card.res === 'holz' ? '🪵 Holz' : card.res === 'nahrung' ? '🌾 Nahrung' : card.res === 'glas' ? '🫙 Glas' : '';
+  const stats = [
+    card.pts  ? `★ ${card.pts} Pkt` : '',
+    card.def  ? `🛡 ${card.def} Abw` : '',
+    resLabel,
+    card.upgrade ? '⬆ Stapelbar' : '',
+    card.fragile ? '⚡ Einmalig' : '',
+  ].filter(Boolean).join('  ·  ');
+
+  panel.innerHTML = `
+    <div class="cp-card">${makeCard(card, 44, 61, false)}</div>
+    <div class="cp-info">
+      <div class="cp-name">${info.name}</div>
+      ${stats ? `<div class="cp-stats">${stats}</div>` : ''}
+      ${info.desc ? `<div class="cp-desc">${info.desc}</div>` : ''}
+    </div>`;
+  panel.classList.add('active');
+}
+
+function hideCardPreview() {
+  const panel = document.getElementById('card-preview');
+  if (!panel) return;
+  panel.innerHTML = '';
+  panel.classList.remove('active');
+}
+
 function onHandClick(idx) {
   if (!isPhaseAllowed('card')) { showToast('Karten nur in der Bau-Phase'); return; }
   if (!G.hand[idx]) return;
@@ -2712,6 +2859,7 @@ function onHandClick(idx) {
     } else {
       setHint('Tippe ein Feld zum Bauen', true);
     }
+    showCardPreview(card);
   }
   renderHand(); renderGrid(true);
 }
