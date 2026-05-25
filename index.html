@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<title>Murmeltal</title>
+<title>Talwacht</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Crimson+Text:ital,wght@0,400;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Pirata+One&family=Barlow+Condensed:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;1,400&display=swap');
 
 :root {
   --white:      #ffffff;
@@ -18,7 +18,7 @@
   --ink-40:     rgba(18,14,10,0.4);
   --ink-60:     rgba(18,14,10,0.6);
   --ink:        #120e0a;
-  --accent:     #c8a040;   /* gold — nur für Besonderes */
+  --accent:     #4585d6;   /* blau — Hervorhebungsfarbe */
   --accent2:    #3a6a9a;   /* blau — Jahreszeit Winter */
   --danger:     #a03020;
 }
@@ -57,28 +57,29 @@ header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid var(--ink-10);
+  background: #d67617;
+  border-bottom: none;
 }
 .logo {
-  font-family: 'Cinzel', serif;
+  font-family: 'Pirata One', cursive;
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.22em;
-  color: var(--ink);
+  color: #fff;
   text-transform: uppercase;
   display: flex;
   flex-direction: column;
   gap: 1px;
 }
 .logo-sub {
+  font-family: 'Barlow Condensed', sans-serif;
   font-size: 0.42rem;
-  letter-spacing: 0.18em;
-  color: var(--ink60);
-  font-weight: 400;
-  font-style: italic;
-  text-transform: none;
+  letter-spacing: 0.22em;
+  color: rgba(255,255,255,0.65);
+  font-weight: 600;
+  text-transform: uppercase;
 }
-.logo span { color: var(--accent); }
+.logo span { color: #fff; }
 
 /* Siegpunkte im Header */
 #vp-display {
@@ -87,17 +88,17 @@ header {
   gap: 7px;
 }
 #vp-display .vp-label {
-  font-family: 'Cinzel', serif;
+  font-family: 'Barlow Condensed', sans-serif;
   font-size: 0.58rem;
   letter-spacing: 0.14em;
-  color: var(--ink-40);
+  color: rgba(255,255,255,0.7);
   text-transform: uppercase;
 }
 #vp-display .vp-value {
-  font-family: 'Cinzel', serif;
+  font-family: 'Barlow Condensed', sans-serif;
   font-size: 1.1rem;
   font-weight: 700;
-  color: var(--ink);
+  color: #fff;
   line-height: 1;
   min-width: 24px;
   text-align: right;
@@ -105,7 +106,7 @@ header {
 }
 #vp-display .vp-star {
   font-size: 0.85rem;
-  opacity: 0.5;
+  color: rgba(255,255,255,0.7);
 }
 
 /* ── PHASE BAR — einzeilig mit Pfeil rechts ── */
@@ -120,7 +121,7 @@ header {
   gap: 8px;
 }
 #phase-season-label {
-  font-family: 'Cinzel', serif;
+  font-family: 'Barlow Condensed', sans-serif;
   font-size: 0.52rem;
   letter-spacing: 0.14em;
   color: var(--ink-40);
@@ -142,6 +143,7 @@ header {
   border: none;
   padding: 4px 6px;
   cursor: pointer;
+  font-family: 'Barlow Condensed', sans-serif;
   font-size: 1rem;
   color: var(--ink-20);
   border-radius: 4px;
@@ -182,7 +184,7 @@ header {
   flex-shrink: 0;
 }
 .phase-label {
-  font-family: 'Cinzel', serif;
+  font-family: 'Barlow Condensed', sans-serif;
   font-size: 0.5rem;
   letter-spacing: 0.1em;
   color: var(--ink-20);
@@ -245,7 +247,7 @@ header {
 .res-pair.dim-raw .res-pair-raw { opacity: 0.2; }
 .res-pair.dim-raw .res-pair-arrow { opacity: 0.2; }
 .res-pair .raw-count {
-  font-family: 'Cinzel', serif;
+  font-family: 'Barlow Condensed', sans-serif;
   font-size: 0.82rem;
   font-weight: 700;
   color: var(--ink);
@@ -255,7 +257,7 @@ header {
 }
 .res-pair .raw-count.zero { color: var(--ink-20); font-weight: 400; }
 .res-pair .def-count {
-  font-family: 'Cinzel', serif;
+  font-family: 'Barlow Condensed', sans-serif;
   font-size: 0.82rem;
   font-weight: 700;
   color: var(--ink);
@@ -326,7 +328,7 @@ header {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Cinzel', serif;
+  font-family: 'Barlow Condensed', sans-serif;
   font-size: 0.62rem;
   font-weight: 700;
   color: white;
@@ -366,9 +368,11 @@ header {
   flex-shrink: 0;
   text-align: center;
   padding: 6px 20px;
-  font-family: 'Crimson Text', serif;
-  font-style: italic;
-  font-size: 0.78rem;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: 0.68rem;
   color: var(--ink-40);
   border-bottom: 1px solid var(--ink-10);
   min-height: 30px;
@@ -381,8 +385,7 @@ header {
 #hint.active {
   color: var(--ink);
   background: var(--off-white);
-  font-style: normal;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 
@@ -405,7 +408,7 @@ header {
   to   { opacity: 1; transform: scale(1); }
 }
 .cell-build-overlay span {
-  font-family: 'Cinzel', serif;
+  font-family: 'Barlow Condensed', sans-serif;
   font-size: 0.55rem;
   font-weight: 700;
   letter-spacing: 0.14em;
@@ -433,13 +436,9 @@ header {
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"),
     #f7f3ec;
   padding: 16px 12px 6px;
-  overflow-y: auto;
-  overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
+  overflow: hidden;
   min-height: 0;
-  scrollbar-width: none;
 }
-#stage::-webkit-scrollbar { display: none; }
 
 /* Überfall-Overlay — fade via opacity */
 #raid-overlay {
@@ -1040,7 +1039,7 @@ header {
   z-index: 5;
 }
 #hand-label {
-  font-family: 'Cinzel', serif;
+  font-family: 'Barlow Condensed', sans-serif;
   font-size: 0.55rem;
   letter-spacing: 0.2em;
   color: var(--ink-20);
@@ -1059,27 +1058,44 @@ header {
 #resource-row {
   display: flex;
   justify-content: center;
-  gap: 10px;
+  align-items: center;
+  gap: 18px;
   margin-top: 14px;
   padding-top: 10px;
   border-top: 1px solid var(--ink-10);
   position: relative;
 }
-
-#hand-action-btns {
+#btn-glossar {
   position: absolute;
-  right: 12px;
-  bottom: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  align-items: center;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #4585d6;
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(69,133,214,0.35);
+  background: linear-gradient(135deg, rgba(255,255,255,0.75) 0%, rgba(200,220,255,0.35) 100%);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 1px 6px rgba(69,133,214,0.12), inset 0 1px 0 rgba(255,255,255,0.8);
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
 }
+#btn-glossar:hover {
+  background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(180,210,255,0.5) 100%);
+  box-shadow: 0 2px 10px rgba(69,133,214,0.22), inset 0 1px 0 rgba(255,255,255,0.9);
+}
+#btn-glossar:active { transform: translateY(-50%) scale(0.96); }
 .res-chip {
   display: flex;
   align-items: center;
   gap: 5px;
-  font-family: 'Cinzel', serif;
+  font-family: 'Barlow Condensed', sans-serif;
   font-size: 0.68rem;
   font-weight: 600;
   color: var(--ink-40);
@@ -1107,37 +1123,6 @@ header {
   margin: -3px -6px;
   outline: 1.5px solid rgba(18,14,10,0.2);
 }
-
-/* ── INFO & GLOSSAR BUTTONS ── */
-#btn-rules-info,
-#btn-glossar {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  border: 1.5px solid rgba(18,14,10,0.18);
-  background: var(--white);
-  color: var(--ink-40);
-  font-family: 'Cinzel', serif;
-  font-size: 0.72rem;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
-  padding: 0;
-  position: static;
-  transform: none;
-}
-#btn-rules-info:hover,
-#btn-glossar:hover {
-  background: rgba(18,14,10,0.06);
-  color: var(--ink);
-  border-color: rgba(18,14,10,0.3);
-}
-#btn-rules-info:active { transform: scale(0.92); }
-#btn-glossar:active    { transform: scale(0.92); }
 
 /* ── SCHACHTURM IN DER HAND ── */
 .hand-tower {
@@ -1293,7 +1278,7 @@ header {
 /* ── SCORE FLOAT ── */
 .score-float {
   position: absolute;
-  font-family: 'Cinzel', serif;
+  font-family: 'Barlow Condensed', sans-serif;
   font-weight: 700;
   font-size: 1.2rem;
   color: var(--ink);
@@ -1357,7 +1342,7 @@ header {
   letter-spacing: 0.24em;
 }
 #phase-transition.season-change .pt-roman {
-  font-family: 'Cinzel', serif;
+  font-family: 'Barlow Condensed', sans-serif;
   font-size: 0.75rem;
   letter-spacing: 0.3em;
   opacity: 0;
@@ -1387,7 +1372,7 @@ header {
   z-index: 1;
 }
 #phase-transition .pt-name {
-  font-family: 'Cinzel', serif;
+  font-family: 'Barlow Condensed', sans-serif;
   font-size: 1.6rem;
   font-weight: 700;
   letter-spacing: 0.18em;
@@ -1426,7 +1411,7 @@ header {
   border: 1px solid var(--ink-10);
   border-radius: 4px;
   padding: 8px 20px;
-  font-family: 'Cinzel', serif;
+  font-family: 'Barlow Condensed', sans-serif;
   font-size: 0.72rem;
   font-weight: 600;
   letter-spacing: 0.1em;
@@ -1465,7 +1450,7 @@ header {
   color: var(--white);
   border-radius: 3px;
   padding: 5px 16px;
-  font-family: 'Cinzel', serif;
+  font-family: 'Barlow Condensed', sans-serif;
   font-size: 0.68rem;
   letter-spacing: 0.08em;
   opacity: 0;
@@ -1524,7 +1509,7 @@ header {
 }
 .do-raw-icon { font-size: 1.1rem; }
 .do-raw-count {
-  font-family: 'Cinzel', serif;
+  font-family: 'Barlow Condensed', sans-serif;
   font-size: 1.15rem;
   font-weight: 700;
   color: var(--ink);
@@ -1537,7 +1522,7 @@ header {
 .do-def { display: flex; align-items: center; gap: 5px; flex: 1; }
 .do-def-icon { font-size: 1.0rem; }
 .do-def-count {
-  font-family: 'Cinzel', serif;
+  font-family: 'Barlow Condensed', sans-serif;
   font-size: 1.15rem;
   font-weight: 700;
   color: var(--ink);
@@ -1575,14 +1560,14 @@ header {
 .do-coin-section.show { opacity: 1; }
 .do-coin-header { display: flex; align-items: center; gap: 8px; }
 .do-coin-label {
-  font-family: 'Cinzel', serif;
+  font-family: 'Barlow Condensed', sans-serif;
   font-size: 0.56rem;
   letter-spacing: 0.12em;
   color: var(--ink-40);
   text-transform: uppercase;
 }
 .do-coin-balance {
-  font-family: 'Cinzel', serif;
+  font-family: 'Barlow Condensed', sans-serif;
   font-size: 0.85rem;
   font-weight: 700;
   color: var(--ink);
@@ -1597,7 +1582,7 @@ header {
   border: none;
   border-radius: 4px;
   padding: 7px 11px;
-  font-family: 'Cinzel', serif;
+  font-family: 'Barlow Condensed', sans-serif;
   font-size: 0.62rem;
   font-weight: 600;
   letter-spacing: 0.05em;
@@ -1618,7 +1603,7 @@ header {
   border: none;
   border-radius: 4px;
   padding: 8px 28px;
-  font-family: 'Cinzel', serif;
+  font-family: 'Barlow Condensed', sans-serif;
   font-size: 0.68rem;
   letter-spacing: 0.12em;
   cursor: pointer;
@@ -1668,7 +1653,7 @@ header {
   text-align: center;
 }
 .go-title {
-  font-family: 'Cinzel', serif;
+  font-family: 'Barlow Condensed', sans-serif;
   font-size: 0.62rem;
   letter-spacing: 0.3em;
   color: rgba(240,224,176,0.7);
@@ -1679,7 +1664,7 @@ header {
 }
 #gameover-overlay.show .go-title { opacity: 1; }
 .go-score-display {
-  font-family: 'Cinzel', serif;
+  font-family: 'Barlow Condensed', sans-serif;
   font-size: 5.5rem;
   font-weight: 700;
   color: #f0e0b0;
@@ -1691,7 +1676,7 @@ header {
 }
 #gameover-overlay.show .go-score-display { opacity: 1; transform: scale(1); }
 .go-score-label {
-  font-family: 'Cinzel', serif;
+  font-family: 'Barlow Condensed', sans-serif;
   font-size: 0.65rem;
   letter-spacing: 0.22em;
   color: #c8a858;
@@ -1724,7 +1709,7 @@ header {
   border: 1px solid rgba(240,224,176,0.35);
   border-radius: 3px;
   padding: 9px 28px;
-  font-family: 'Cinzel', serif;
+  font-family: 'Barlow Condensed', sans-serif;
   font-size: 0.65rem;
   letter-spacing: 0.16em;
   color: rgba(240,224,176,0.7);
@@ -1774,7 +1759,7 @@ header {
 }
 .transfer-float {
   position: absolute;
-  font-family: 'Cinzel', serif;
+  font-family: 'Barlow Condensed', sans-serif;
   font-weight: 700;
   font-size: 1.6rem;
   pointer-events: none;
@@ -1784,10 +1769,10 @@ header {
 
 /* Header aufleuchten — ganze Zeile */
 @keyframes headerFlash {
-  0%   { background: transparent; }
-  20%  { background: var(--flash-col, rgba(120,180,120,0.25)); }
-  60%  { background: var(--flash-col, rgba(120,180,120,0.18)); }
-  100% { background: transparent; }
+  0%   { box-shadow: inset 0 0 0 0 transparent; }
+  20%  { box-shadow: inset 0 0 0 80px var(--flash-col, rgba(255,255,255,0.25)); }
+  60%  { box-shadow: inset 0 0 0 80px var(--flash-col, rgba(255,255,255,0.18)); }
+  100% { box-shadow: inset 0 0 0 0 transparent; }
 }
 header.scoring-flash {
   animation: headerFlash 1.2s ease-out forwards;
@@ -1811,7 +1796,7 @@ header.scoring-flash {
   position: fixed;
   inset: 0;
   z-index: 999;
-  background: #0e0b08;
+  background: #e9efef;
   display: none;
   flex-direction: column;
   align-items: center;
@@ -1827,8 +1812,8 @@ header.scoring-flash {
   display: flex;
   flex-direction: column;
   padding: 48px 36px 36px;
-  border: 1px solid rgba(200,160,68,0.15);
-  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(40,30,20,0.12);
+  background: rgba(255,255,255,0.4);
 }
 #rules-screen .rules-progress {
   display: flex;
@@ -1838,12 +1823,12 @@ header.scoring-flash {
 }
 #rules-screen .rules-pip {
   width: 24px; height: 2px;
-  background: rgba(200,160,68,0.2);
+  background: rgba(40,30,20,0.15);
   border-radius: 1px;
   transition: background 0.3s;
 }
 #rules-screen .rules-pip.active {
-  background: #c8a044;
+  background: #5a3e1b;
 }
 #rules-screen .rules-icon {
   font-size: 2rem;
@@ -1851,11 +1836,11 @@ header.scoring-flash {
   margin-bottom: 12px;
 }
 #rules-screen .rules-title {
-  font-family: 'Cinzel', serif;
+  font-family: 'Pirata One', cursive;
   font-size: 1.1rem;
   font-weight: 700;
   letter-spacing: 0.18em;
-  color: #f0e0b0;
+  color: #1a120a;
   text-align: center;
   text-transform: uppercase;
   margin-bottom: 28px;
@@ -1868,20 +1853,20 @@ header.scoring-flash {
   gap: 20px;
 }
 #rules-screen .rules-section-heading {
-  font-family: 'Cinzel', serif;
+  font-family: 'Barlow Condensed', sans-serif;
   font-size: 0.6rem;
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: #c8a044;
+  color: #7a5020;
   margin-bottom: 6px;
-  opacity: 0.8;
+  opacity: 0.85;
 }
 #rules-screen .rules-section-text {
   font-family: 'Crimson Pro', Georgia, serif;
   font-size: 1rem;
   line-height: 1.7;
-  color: rgba(245,234,216,0.85);
-  font-weight: 300;
+  color: rgba(30,20,10,0.8);
+  font-weight: 400;
 }
 #rules-screen .rules-nav {
   display: flex;
@@ -1891,36 +1876,35 @@ header.scoring-flash {
   gap: 12px;
 }
 #rules-screen .rules-btn {
-  font-family: 'Cinzel', serif;
+  font-family: 'Barlow Condensed', sans-serif;
   font-size: 0.65rem;
   font-weight: 700;
   letter-spacing: 0.25em;
   text-transform: uppercase;
-  color: #f0e0b0;
+  color: #1a120a;
   padding: 12px 24px;
   border-radius: 3px;
-  border: 1px solid rgba(240,224,176,0.3);
-  background: rgba(255,255,255,0.05);
-  backdrop-filter: blur(8px);
+  border: 1px solid rgba(40,30,20,0.25);
+  background: rgba(40,30,20,0.05);
   cursor: pointer;
   transition: background 0.2s, border-color 0.2s;
   min-width: 90px;
 }
 #rules-screen .rules-btn:hover {
-  background: rgba(255,255,255,0.1);
-  border-color: rgba(240,224,176,0.6);
+  background: rgba(40,30,20,0.1);
+  border-color: rgba(40,30,20,0.45);
 }
 #rules-screen .rules-btn.primary {
-  background: rgba(200,160,68,0.15);
-  border-color: rgba(200,160,68,0.5);
-  color: #e8d090;
+  background: rgba(90,62,27,0.12);
+  border-color: rgba(90,62,27,0.4);
+  color: #3a2408;
 }
 #rules-screen .rules-btn.primary:hover {
-  background: rgba(200,160,68,0.25);
-  border-color: #c8a044;
+  background: rgba(90,62,27,0.2);
+  border-color: #5a3e1b;
 }
 #rules-screen .rules-btn.ghost {
-  opacity: 0.4;
+  opacity: 0.3;
   pointer-events: none;
 }
 
@@ -1929,7 +1913,7 @@ header.scoring-flash {
   position: fixed;
   inset: 0;
   z-index: 1000;
-  background: #0a0806;
+  background: #e9efef;
   overflow: hidden;
 }
 #splash-screen .splash-frame {
@@ -1940,152 +1924,100 @@ header.scoring-flash {
   transform: translateX(-50%);
   width: min(100%, calc(100vh * 0.706));
   max-width: 640px;
-  background-color: #0a0806;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 0;
-  overflow: hidden;
-}
-
-/* Hintergrundbild — nie größer als Original */
-#splash-screen .splash-bg {
-  position: absolute;
-  inset: 0;
-  background-image: url('zwischental-splash.png');
-  background-size: auto;
-  background-position: center center;
+  background-image: url('splash.png');
+  background-size: auto 65%;
+  background-position: center bottom;
   background-repeat: no-repeat;
-  background-color: #0a0806;
-  z-index: 0;
-}
-
-/* Blur-Overlay — nur hinter dem Button, nicht volle Fläche */
-#splash-screen .splash-blur {
-  display: none;
-}
-
-/* Button — Blur nur auf den Button selbst begrenzt via backdrop-filter */
-#splash-screen .splash-start {
-  position: relative;
-  overflow: hidden;
-  isolation: isolate;
-  font-family: 'Cinzel', serif;
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: #f0e0b0;
-  padding: 13px 40px;
-  border-radius: 7px;
-  border: none;
-  background: rgba(10,8,6,0.45);
-  backdrop-filter: blur(16px) brightness(0.7);
-  -webkit-backdrop-filter: blur(16px) brightness(0.7);
-  box-shadow:
-    0 1px 12px rgba(0,0,0,0.5),
-    0 0 0 0.5px rgba(52,30,12,0.6);
-  cursor: pointer;
-  transition: transform 0.12s;
-}
-#splash-screen .splash-start::before {
-  content: '';
-  position: absolute; inset: 0; border-radius: inherit;
-  background: linear-gradient(175deg,
-    rgba(255,255,255,0.18) 0%,
-    rgba(255,255,255,0.02) 30%,
-    rgba(255,255,255,0)    100%
-  );
-  border-top:    1px solid rgba(255,255,255,0.32);
-  border-left:   1px solid rgba(255,255,255,0.16);
-  border-right:  1px solid rgba(255,255,255,0.06);
-  border-bottom: 1px solid rgba(0,0,0,0.18);
-  pointer-events: none; z-index: 1;
-}
-#splash-screen .splash-start::after {
-  content: '';
-  position: absolute; top: 0; left: 10px; right: 10px; height: 1px;
-  background: rgba(255,255,255,0.45);
-  z-index: 2; pointer-events: none;
-}
-#splash-screen .splash-start span { position: relative; z-index: 3; }
-#splash-screen .splash-start:hover { background: rgba(10,8,6,0.6); }
-#splash-screen .splash-start:active { transform: scale(0.975); }
-
-/* Titel — oberes Sechstel */
-#splash-screen .splash-head {
-  position: absolute;
-  top: 0;
-  left: 0; right: 0;
-  height: 16.66%;
+  background-color: #e9efef;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 0 24px;
-  z-index: 2;
-  background: linear-gradient(
-    to bottom,
-    rgba(10,8,6,0.72) 0%,
-    rgba(10,8,6,0.2) 70%,
-    rgba(10,8,6,0) 100%
-  );
+  justify-content: space-between;
+  padding: 10% 32px 64px;
 }
-
-/* Button + Version — unteres Viertel */
-#splash-screen .splash-bottom {
-  position: absolute;
-  bottom: 0;
-  left: 0; right: 0;
-  height: 25%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
-  z-index: 2;
-  padding-bottom: 20px;
-}
-
 #splash-screen .splash-version {
-  font-family: 'Cinzel', serif;
-  font-size: 0.55rem;
-  letter-spacing: 0.25em;
-  color: rgba(240,224,176,0.3);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  color: rgba(40,30,20,0.35);
+  margin-top: 12px;
   text-align: center;
 }
 .logo-version {
-  font-family: 'Cinzel', serif;
+  font-family: 'Barlow Condensed', sans-serif;
   font-size: 0.5rem;
   letter-spacing: 0.2em;
-  color: rgba(240,224,176,0.3);
+  color: rgba(40,30,20,0.35);
   margin-left: 8px;
   vertical-align: middle;
 }
 #splash-screen .splash-eyebrow {
-  font-family: 'Cinzel', serif;
-  font-size: 0.65rem;
-  letter-spacing: 0.25em;
-  color: rgba(240,224,176,0.6);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.35em;
+  color: rgba(40,30,20,0.45);
   text-transform: uppercase;
   text-align: center;
-  margin-bottom: 4px;
-  font-style: italic;
+  margin-bottom: 2px;
+}
+#splash-screen .splash-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
 }
 #splash-screen .splash-title {
-  font-family: 'Cinzel', serif;
-  font-size: clamp(1.8rem, 8vw, 3rem);
+  font-family: 'Pirata One', cursive;
+  font-size: clamp(3.5rem, 16vw, 6rem);
   font-weight: 700;
-  letter-spacing: 0.18em;
-  color: #f0e0b0;
-  text-transform: uppercase;
-  text-shadow: 0 2px 24px rgba(0,0,0,0.85), 0 1px 4px rgba(0,0,0,0.95);
+  letter-spacing: 0.1em;
+  color: #d67617;
+  text-shadow: none;
   line-height: 1;
   text-align: center;
 }
-
-/* Glas-Button — gleicher Stil wie der Rest des Spiels */
+#splash-screen .splash-subtitle {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  color: rgba(40,30,20,0.45);
+  margin-top: 16px;
+  text-transform: uppercase;
+  text-align: center;
+}
+#splash-screen .splash-start {
+  margin-top: 28px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #1a2a3a;
+  padding: 13px 40px;
+  border-radius: 8px;
+  border: 1px solid rgba(69,133,214,0.45);
+  background: linear-gradient(135deg, rgba(255,255,255,0.72) 0%, rgba(200,225,255,0.38) 100%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow:
+    0 2px 12px rgba(69,133,214,0.18),
+    0 1px 0 rgba(255,255,255,0.9) inset,
+    0 -1px 0 rgba(69,133,214,0.15) inset;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+}
+#splash-screen .splash-start:hover {
+  background: linear-gradient(135deg, rgba(255,255,255,0.88) 0%, rgba(180,215,255,0.55) 100%);
+  box-shadow:
+    0 4px 20px rgba(69,133,214,0.28),
+    0 1px 0 rgba(255,255,255,0.95) inset,
+    0 -1px 0 rgba(69,133,214,0.2) inset;
+}
+#splash-screen .splash-start:active {
+  transform: scale(0.97);
+}
 #splash-screen.fade-out {
   animation: splashFadeOut 0.5s ease-in forwards;
 }
@@ -2094,240 +2026,111 @@ header.scoring-flash {
   to   { opacity: 0; pointer-events: none; }
 }
 
-/* ═══════════════════════════════════════════
-   GLOSSAR OVERLAY
-═══════════════════════════════════════════ */
+/* ── GLOSSAR SCREEN ── */
 #glossar-screen {
   position: fixed;
   inset: 0;
-  z-index: 1000;
-  background: #0e0b08;
+  z-index: 998;
+  background: rgba(20,15,10,0.55);
   display: none;
-  flex-direction: column;
-  align-items: center;
-  overflow: hidden;
+  align-items: flex-end;
+  justify-content: center;
 }
 #glossar-screen.active { display: flex; }
-
-#glossar-inner {
-  flex: 1;
+#glossar-screen .glossar-frame {
+  width: 100%;
+  max-width: 480px;
+  max-height: 82vh;
+  background: #e9efef;
+  border-radius: 16px 16px 0 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  width: 100%;
-  max-width: 640px;
-  position: relative;
+  animation: glossarSlideUp 0.28s cubic-bezier(0.22,1,0.36,1) forwards;
 }
-
-#glossar-header {
-  flex-shrink: 0;
-  padding: 20px 16px 0;
+@keyframes glossarSlideUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
 }
-#glossar-title {
-  font-family: 'Cinzel', serif;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.32em;
-  text-transform: uppercase;
-  color: #c8a044;
-  text-align: center;
-  margin-bottom: 14px;
-}
-#glossar-filter-row {
+#glossar-screen .glossar-header {
   display: flex;
-  gap: 6px;
-  justify-content: center;
-  flex-wrap: wrap;
-  padding-bottom: 14px;
-  border-bottom: 1px solid rgba(200,160,68,0.1);
-}
-.glossar-filter-btn {
-  font-family: 'Cinzel', serif;
-  font-size: 0.52rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  padding: 5px 12px;
-  border-radius: 3px;
-  border: 1px solid rgba(240,224,176,0.18);
-  background: rgba(255,255,255,0.03);
-  color: rgba(240,224,176,0.4);
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
-}
-.glossar-filter-btn.active {
-  background: rgba(200,160,68,0.12);
-  border-color: rgba(200,160,68,0.45);
-  color: #e8d090;
-}
-
-#glossar-grid {
-  flex: 1;
-  overflow-y: scroll;
-  overflow-x: hidden;
-  -webkit-overflow-scrolling: auto;
-  overscroll-behavior: contain;
-  padding: 14px 12px;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  align-items: center;
   gap: 10px;
-  align-content: start;
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid rgba(40,30,20,0.1);
+  flex-shrink: 0;
 }
-
-.glossar-card-cell {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
+#glossar-screen .glossar-title-roman {
+  font-family: 'Pirata One', cursive;
+  font-size: 1.6rem;
+  color: #d67617;
+  line-height: 1;
 }
-.glossar-card-cell:active { opacity: 0.75; }
-.glossar-card-name {
-  font-family: 'Cinzel', serif;
-  font-size: 0.46rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: rgba(240,224,176,0.5);
-  text-align: center;
-  line-height: 1.3;
-  max-width: 80px;
-}
-
-/* Detail-Panel — schiebt von unten hoch */
-#glossar-detail {
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  background: #16110d;
-  border-top: 1px solid rgba(200,160,68,0.2);
-  padding: 20px 20px 32px;
-  transform: translateY(100%);
-  transition: transform 0.32s cubic-bezier(0.4,0,0.2,1);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-  max-height: 72vh;
-  overflow-y: scroll;
-  overflow-x: hidden;
-  -webkit-overflow-scrolling: auto;
-  overscroll-behavior: contain;
-  z-index: 10;
-}
-#glossar-detail.open { transform: translateY(0); }
-#glossar-detail-close {
-  position: absolute;
-  top: 12px; right: 14px;
-  background: none;
-  border: none;
-  color: rgba(240,224,176,0.4);
-  font-size: 1rem;
-  cursor: pointer;
-  padding: 4px 8px;
-}
-#glossar-detail-card {
-  filter: drop-shadow(0 4px 16px rgba(0,0,0,0.5));
-}
-#glossar-detail-text {
-  width: 100%;
-  max-width: 320px;
-}
-.gd-name {
-  font-family: 'Cinzel', serif;
+#glossar-screen .glossar-title-text {
+  font-family: 'Barlow Condensed', sans-serif;
   font-size: 0.9rem;
   font-weight: 700;
-  letter-spacing: 0.12em;
-  color: #f0e0b0;
-  text-align: center;
-  margin-bottom: 12px;
-}
-.gd-tags {
-  display: flex;
-  gap: 6px;
-  justify-content: center;
-  flex-wrap: wrap;
-  margin-bottom: 14px;
-}
-.gd-tag {
-  font-family: 'Cinzel', serif;
-  font-size: 0.48rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.25em;
   text-transform: uppercase;
-  padding: 3px 8px;
-  border-radius: 2px;
-  border: 1px solid rgba(200,160,68,0.3);
-  color: rgba(200,160,68,0.8);
+  color: rgba(40,30,20,0.6);
+  flex: 1;
 }
-.gd-desc {
-  font-family: 'Crimson Pro', Georgia, serif;
-  font-size: 0.95rem;
-  line-height: 1.65;
-  color: rgba(245,234,216,0.8);
-  font-weight: 300;
-  text-align: center;
+#glossar-screen .glossar-close {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.9rem;
+  background: none;
+  border: none;
+  color: rgba(40,30,20,0.4);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: color 0.15s, background 0.15s;
 }
-.gd-stats {
-  display: flex;
-  gap: 16px;
-  justify-content: center;
-  margin-top: 8px;
+#glossar-screen .glossar-close:hover {
+  color: rgba(40,30,20,0.8);
+  background: rgba(40,30,20,0.07);
 }
-.gd-stat {
+#glossar-screen .glossar-body {
+  overflow-y: auto;
+  padding: 16px 20px 32px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 2px;
+  gap: 0;
 }
-.gd-stat-val {
-  font-family: 'Cinzel', serif;
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #f0e0b0;
+.glossar-entry {
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(40,30,20,0.08);
 }
-.gd-stat-lbl {
-  font-family: 'Cinzel', serif;
-  font-size: 0.44rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: rgba(200,160,68,0.6);
-}
-
-#glossar-close {
-  flex-shrink: 0;
-  font-family: 'Cinzel', serif;
-  font-size: 0.60rem;
+.glossar-entry:last-child { border-bottom: none; }
+.glossar-term {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: rgba(240,224,176,0.4);
-  background: transparent;
-  border: none;
-  border-top: 1px solid rgba(200,160,68,0.08);
-  padding: 14px;
-  cursor: pointer;
-  width: 100%;
-  max-width: 640px;
-  transition: color 0.15s;
+  color: #4585d6;
+  margin-bottom: 4px;
 }
-#glossar-close:hover { color: rgba(240,224,176,0.7); }
+.glossar-def {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: rgba(30,20,10,0.75);
+}
 
 </style>
 </head>
 <body>
   <div id="splash-screen">
     <div class="splash-frame">
-      <div class="splash-bg"></div>
-      <div class="splash-blur"></div>
       <div class="splash-head">
-        <div class="splash-eyebrow">Täglich grüßt das</div>
-        <div class="splash-title">Murmeltal</div>
+        <div class="splash-eyebrow">Die</div>
+        <div class="splash-title">Talwacht</div>
+        <div class="splash-subtitle">Bauen. Plündern. Bauen.</div>
+        <button class="splash-start" id="splash-start">Spiel starten</button>
       </div>
-      <div class="splash-bottom">
-        <button class="splash-start" id="splash-start"><span>Spiel starten</span></button>
-        <div class="splash-version" id="splash-version"></div>
-      </div>
+      <div class="splash-version" id="splash-version"></div>
     </div>
   </div>
 
@@ -2339,33 +2142,25 @@ header.scoring-flash {
       <div class="rules-body" id="rules-body"></div>
       <div class="rules-nav">
         <button class="rules-btn" id="rules-back">← Zurück</button>
-        <button class="rules-btn" id="rules-glossar" onclick="showGlossar()">Glossar ▤</button>
         <button class="rules-btn primary" id="rules-next">Weiter →</button>
       </div>
     </div>
   </div>
 
-  <!-- ── GLOSSAR OVERLAY ── -->
   <div id="glossar-screen">
-    <div id="glossar-inner">
-      <div id="glossar-header">
-        <div id="glossar-title">Kartenglossár</div>
-        <div id="glossar-filter-row"></div>
+    <div class="glossar-frame">
+      <div class="glossar-header">
+        <span class="glossar-title-roman">G</span>
+        <span class="glossar-title-text">Glossar</span>
+        <button class="glossar-close" id="glossar-close">✕</button>
       </div>
-      <div id="glossar-grid"></div>
-      <!-- Detail-Panel innerhalb des Screens -->
-      <div id="glossar-detail">
-        <button id="glossar-detail-close" onclick="closeGlossarDetail()">✕</button>
-        <div id="glossar-detail-card"></div>
-        <div id="glossar-detail-text"></div>
-      </div>
+      <div class="glossar-body" id="glossar-body"></div>
     </div>
-    <button id="glossar-close" onclick="hideGlossar()">✕ Schließen</button>
   </div>
 
 <div id="app">
   <header>
-    <div class="logo"><span id="header-title">Murmeltal</span><span class="logo-sub">Bauen. Plündern. Bauen.</span></div>
+    <div class="logo"><span id="header-title">Talwacht</span><span class="logo-sub">Bauen. Plündern. Bauen.</span></div>
     <div id="vp-display">
       <span class="vp-star">★</span>
       <span class="vp-label">Siegpunkte</span>
@@ -2420,10 +2215,6 @@ header.scoring-flash {
     <div id="hand-label">Deine Hand · <span id="draft-indicator"></span><span id="barrier-count"></span><span id="discard-hint"></span></div>
     <div id="hand-cards"></div>
     <div id="resource-row"></div>
-    <div id="hand-action-btns">
-      <button id="btn-rules-info" onclick="showRules()" title="Spielanleitung">i</button>
-      <button id="btn-glossar" onclick="showGlossar()" title="Kartenglossár">▤</button>
-    </div>
   </div>
 
   <div id="toast"></div>
@@ -2445,7 +2236,7 @@ header.scoring-flash {
     <div class="go-bg"></div>
     <div class="go-vignette"></div>
     <div class="go-content">
-      <div class="go-title">Murmeltal · Endwertung</div>
+      <div class="go-title">Talwacht · Endwertung</div>
       <div class="go-score-display" id="go-score-num">0</div>
       <div class="go-score-label">Siegpunkte</div>
       <div class="go-divider"></div>
@@ -2458,243 +2249,5 @@ header.scoring-flash {
 <script src="cards.js"></script>
 <script src="rules.js"></script>
 <script src="game.js"></script>
-<script>
-// ═══════════════════════════════════════════
-//  GLOSSAR
-// ═══════════════════════════════════════════
-
-const CARD_NAMES = {
-  holzfaeller_b:'Holzfäller', holzfaeller_a:'Holzfäller+', holzfaeller_inno:'Holzfäller ⚡',
-  bauernhof_b:'Bauernhof', bauernhof_a:'Bauernhof+', bauernhof_inno:'Bauernhof ⚡',
-  glasblaeserei_b:'Glasbläserei', glasblaeserei_a:'Glasbläserei+',
-  ratskeller:'Ratskeller', bibliothek:'Bibliothek', grundschule:'Grundschule',
-  sternwarte:'Sternwarte', schmuckhaendler:'Schmuckhändler', wachposten:'Wachposten',
-  gaukler:'Gaukler',
-  saegerei_b:'Säge rei', saegerei_a:'Säge rei+', muehle_b:'Mühle', muehle_a:'Mühle+',
-  schmelze_a:'Schmelze', marktplatz:'Marktplatz', wachturm_b:'Wachturm', wachturm_a:'Wachturm+',
-  orakel_gelb:'Orakel 🟡', orakel_blau:'Orakel 🔵',
-  diamanthaendler:'Diamanthändler', observatorium:'Observatorium',
-  forsthaus_a:'Forsthaus', erntehof_a:'Erntehof', glashuette_a:'Glashütte',
-  schloss:'Schloss', prophet_gelb:'Prophet 🟡', prophet_blau:'Prophet 🔵',
-  forstwirtschaft:'Forstwirtschaft', brauerei:'Brauerei', markthalle:'Markthalle',
-  juwelenhaendler:'Juwelenhändler',
-  grossbasar:'Großbasar', palast:'Palast', burg:'Burg',
-  seher_gelb:'Seher 🟡', seher_blau:'Seher 🔵',
-  zimmerwerk:'Zimmerwerk', kornkammer:'Kornkammer',
-  handelsgilde:'Handelsgilde', schatzkammer:'Schatzkammer',
-  blutarena:'Blutarena', zwillingsturm:'Zwillingsturm', akademie:'Akademie',
-  trojanisches_pferd:'Trojanisches Pferd', ruinenmagier:'Ruinenmagier',
-  ritterburg:'Ritterburg', gewuerzmarkt:'Gewürzmarkt', druidenzirkel:'Druidenzirkel',
-  alchemistenlabor:'Alchemistenlabor', kristallpalast:'Kristallpalast',
-  versicherung:'Versicherung', schild_des_rates:'Schild des Rates',
-  nebelbastei:'Nebelbastei', immobilienhaendler:'Immobilienhändler',
-  offene_tore:'Offene Tore', bogenwacht:'Bogenwacht', schildwall:'Schildwall',
-  ewige_bastion:'Ewige Bastion', fernkundschafter:'Fernkundschafter',
-  zahlmeister:'Zahlmeister', muenzpraegung:'Münzprägung',
-  bankhaus:'Bankhaus', handelszentrum:'Handelszentrum',
-};
-
-const CARD_DESC = {
-  holzfaeller_b: 'Einfachstes Holzgebäude. Produziert 🪵 Holz jede Saison — der Grundstein jeder Siedlung.',
-  holzfaeller_inno: 'Holzfäller mit ⚡ Innovationspunkt. Gibt beim Rathaus-Upgrade einen Bonus.',
-  bauernhof_b: 'Versorgt die Bevölkerung mit 🌾 Nahrung. Unverzichtbar um Ritter zu rekrutieren.',
-  bauernhof_inno: 'Bauernhof mit ⚡ Innovationspunkt. Nützlich für Rathaus-Ausbau.',
-  glasblaeserei_b: 'Produziert 🫙 Glas — die Grundlage für Münzen und viele Sonderbauten.',
-  ratskeller: 'Bringt 3 Punkte und einen ⚡ Innovationspunkt. Gut für frühe Rathaus-Upgrades.',
-  bibliothek: 'Reine Punktekarte — 5 Punkte, keine Produktion. Schützenswert!',
-  grundschule: 'Nur 1 Punkt, aber mit ⚡. Günstig fürs Rathaus, wenn du Innovation sammelst.',
-  sternwarte: 'Stärkstes Winter-Gebäude mit 7 Punkten. Keine Produktion, braucht Schutz.',
-  schmuckhaendler: '9 Punkte — sehr wertvoll, aber 0 Verteidigung. Ein lohnendes Ziel für Plünderer.',
-  wachposten: 'Solide Verteidigung (3) für nur 2 Punkte. Ideal um Lücken zu stopfen.',
-  gaukler: 'Fragil — wird nach dem Überfall entfernt. Dient als Köder: lenkt Angreifer ab.',
-  saegerei_b: 'Verbesserte Holzproduktion mit 3 Punkten. Guter Frühlings-Ausbau.',
-  muehle_b: '3 Punkte Nahrungsproduktion. Kombiniert gut mit Ritter-Strategie.',
-  schmelze_a: 'Glasproduktion mit 2 Punkten. Dreifach im Pool — gut stapelbar.',
-  marktplatz: 'Produziert Holz UND Nahrung. 4 Punkte, ideales Kombo-Gebäude.',
-  wachturm_b: 'Verteidigung 2, dazu ⚡. Häufig im Pool — leicht zu beschaffen.',
-  orakel_gelb: 'Punkte = 🟡 Würfelwert + 1. Gut wenn du die Angriffsrichtung kennst.',
-  orakel_blau: 'Punkte = 🔵 Würfelwert + 1. Skaliert mit der Angreiferzahl.',
-  diamanthaendler: '9 Punkte, Verteidigung 1. Reich aber verletzlich.',
-  observatorium: '7 Punkte mit ⚡. Einer der besten Frühlings-Punktelieferanten.',
-  forsthaus_a: 'Holz + Verteidigung 2 + ⚡. Macht Holzproduktion robust.',
-  erntehof_a: 'Nahrung + Verteidigung 2 + ⚡. Kombiniert Produktion und Schutz.',
-  glashuette_a: 'Beste Glasproduktion mit 4 Punkten und Verteidigung 2.',
-  schloss: '7 Punkte, Verteidigung 2, ⚡. Starkes Sommer-Gebäude.',
-  prophet_gelb: 'Punkte = 🟡 + 2. Stärker als das Orakel in günstigen Lagen.',
-  prophet_blau: 'Punkte = 🔵 + 2. Profitiert von großen Angreifer-Wellen.',
-  forstwirtschaft: 'Punkte = Holzproduktion × 1. Lohnt sich mit upgegradetem Holz.',
-  brauerei: 'Punkte = Nahrungsproduktion × 1. Gut bei hoher Nahrungsstrategie.',
-  markthalle: 'Holz + Nahrung, 4 Punkte, Verteidigung 2. Idealer Doppelproduzent.',
-  juwelenhaendler: '11 Punkte — das zweitwertvollste Standardgebäude. Null Verteidigung!',
-  grossbasar: '5 Punkte, doppelte Rohstoffproduktion (Holz + Nahrung).',
-  palast: '9 Punkte, Verteidigung 2. Stärkstes reines Punktegebäude.',
-  burg: '5 Punkte, Verteidigung 4 — beste Standardverteidigung des Spiels.',
-  seher_gelb: 'Punkte = 🟡 + 3. Im Herbst sehr stark bei hohen Gelb-Würfeln.',
-  seher_blau: 'Punkte = 🔵 + 3. Lohnt sich besonders bei großen Horden.',
-  zimmerwerk: 'Punkte = Holz × 2 + Verteidigung 3. Beste Holz-Karte im Herbst.',
-  kornkammer: 'Punkte = Nahrung × 2 + Verteidigung 3. Beste Nahrungs-Karte.',
-  handelsgilde: 'Punkte = 🔵 Würfel × 2. Extremer Skalierungseffekt bei großen Horden.',
-  schatzkammer: '12 Punkte — das wertvollste Standardgebäude. Muss beschützt werden.',
-  blutarena: 'Punkte = 🔴 × 3. Bei einem 6er-Champion bis zu 18 Punkte möglich.',
-  zwillingsturm: 'Punkte = 🟡 + 🔵. Summiert zwei Würfel — robust gegen Varianzen.',
-  akademie: 'Punkte = ⚡-Punkte × 2. Extrem stark bei Innovation-Strategie.',
-  trojanisches_pferd: 'Fragil. Punkte = Summe aller Verteidigungswerte. Einmalig aber mächtig.',
-  ruinenmagier: 'Punkte = deaktivierte Gebäude × 3. Belohnt dich für Plünderungen!',
-  ritterburg: 'Platziert direkt 1 Ritter. Kein Rüsten nötig — sofortiger Effekt.',
-  gewuerzmarkt: 'Nahrung + Holz, 6 Punkte. Doppelproduzent mit hohem Basiswert.',
-  druidenzirkel: 'Punkte = aktuelle Jahreszeit × 3. Im Herbst bis zu 12 Punkte.',
-  alchemistenlabor: 'Glas + Punkte = Glas × 3. Extremer Glasmultiplikator.',
-  kristallpalast: 'Fragil, 15 Punkte. Wird nach dem ersten überstandenen Überfall zerstört.',
-  versicherung: 'Gibt 10 Punkte wenn geplündert — macht Verlust zum Gewinn.',
-  schild_des_rates: 'Punkte = 🔴 + 5, Verteidigung 4. Stärkstes Verteidigungs-Sonderbauwerk.',
-  nebelbastei: 'Punkte = (🔵 + 🟡) × 2. Kombiniert zwei Würfel mit Multiplikator.',
-  immobilienhaendler: 'Punkte = deaktivierte Gebäude × 3. Wie Ruinenmagier — Synergie!',
-  offene_tore: 'Nächste Karte ist kostenlos. Perfekt vor einer teuren Spezialkarte.',
-  bogenwacht: 'Reduziert Angreiferzahl um 2. Kann den Unterschied retten.',
-  schildwall: 'Jeder benachbarte Schildwall gibt +1 Verteidigung. Stackt sich!',
-  ewige_bastion: '6 Punkte, Verteidigung 2, unzerstörbar. Kann nicht geplündert werden.',
-  fernkundschafter: 'Fragil. Deckt den 🟡 Würfel auf — du kennst die Richtung!',
-  zahlmeister: 'Fragil. Deckt den 🔵 Würfel auf — du kennst die Angreiferzahl!',
-  muenzpraegung: 'Gibt sofort 1 Münze. Kauf einen Turm ohne Glasproduktion.',
-  bankhaus: 'Gibt jede Saison 1 Münze. Langfristig sehr wertvoll.',
-  handelszentrum: 'Punkte = 🔵 × 3. Stärkster Blau-Multiplikator im Spiel.',
-};
-
-// Eindeutige Karten-IDs zusammenstellen
-function getGlossarCards() {
-  const seen = new Set();
-  const result = [];
-  const skip = new Set(['fragile_w3','fragile_f1','fragile_f3','fragile_f4','fragile_f5',
-                        'fragile_s1','fragile_s3','fragile_s4','fragile_s5',
-                        'fragile_h1','fragile_h4','fragile_h5']);
-  [...BUILDINGS, ...SPECIAL_BUILDINGS].forEach(c => {
-    if (!seen.has(c.id) && !skip.has(c.id)) {
-      seen.add(c.id);
-      result.push(c);
-    }
-  });
-  return result;
-}
-
-let glossarFilter = 'all';
-let glossarCards  = [];
-
-function showGlossar() {
-  // Rules schließen
-  document.getElementById('rules-screen').classList.remove('active');
-  glossarCards = getGlossarCards();
-  glossarFilter = 'all';
-  renderGlossarFilter();
-  renderGlossarGrid();
-  closeGlossarDetail();
-  document.getElementById('glossar-screen').classList.add('active');
-  // Stage-Scroll sperren
-  const stage = document.getElementById('stage');
-  if (stage) { stage._scrollTop = stage.scrollTop; stage.style.overflow = 'hidden'; }
-}
-
-function hideGlossar() {
-  document.getElementById('glossar-screen').classList.remove('active');
-  // Stage-Scroll wiederherstellen
-  const stage = document.getElementById('stage');
-  if (stage) {
-    stage.style.overflow = '';
-    stage.style.overflowY = 'auto';
-    stage.style.overflowX = 'hidden';
-    if (stage._scrollTop !== undefined) stage.scrollTop = stage._scrollTop;
-  }
-}
-
-function renderGlossarFilter() {
-  const filters = [
-    { key:'all',     label:'Alle' },
-    { key:'winter',  label:'❄ Winter' },
-    { key:'spring',  label:'🌿 Frühling' },
-    { key:'summer',  label:'☀ Sommer' },
-    { key:'autumn',  label:'🍂 Herbst' },
-    { key:'special', label:'✦ Sonderbau' },
-  ];
-  document.getElementById('glossar-filter-row').innerHTML = filters.map(f =>
-    `<button class="glossar-filter-btn${glossarFilter===f.key?' active':''}"
-       onclick="setGlossarFilter('${f.key}')">${f.label}</button>`
-  ).join('');
-}
-
-function setGlossarFilter(key) {
-  glossarFilter = key;
-  renderGlossarFilter();
-  renderGlossarGrid();
-  closeGlossarDetail();
-}
-
-function renderGlossarGrid() {
-  const filtered = glossarFilter === 'all'
-    ? glossarCards
-    : glossarCards.filter(c => c.cat === glossarFilter);
-  const grid = document.getElementById('glossar-grid');
-  grid.innerHTML = filtered.map((card, i) => {
-    const svg = makeCard(card, 80, 115, false, null, false, false, false, false);
-    const name = CARD_NAMES[card.id] || card.id;
-    return `<div class="glossar-card-cell" onclick="openGlossarDetail('${card.id}')">
-      ${svg}
-      <div class="glossar-card-name">${name}</div>
-    </div>`;
-  }).join('');
-}
-
-function openGlossarDetail(id) {
-  const card = glossarCards.find(c => c.id === id);
-  if (!card) return;
-
-  const svg  = makeCard(card, 120, 172, false, null, false, false, false, false);
-  const name = CARD_NAMES[card.id] || card.id;
-  const desc = CARD_DESC[card.id] || 'Noch keine Beschreibung vorhanden.';
-
-  // Tags bauen
-  const tags = [];
-  const catLabel = { winter:'Winter', spring:'Frühling', summer:'Sommer', autumn:'Herbst', special:'Sonderbau' };
-  if (card.cat) tags.push(catLabel[card.cat] || card.cat);
-  if (card.res) tags.push({ holz:'🪵 Holz', nahrung:'🌾 Nahrung', glas:'🫙 Glas' }[card.res] || card.res);
-  if (card.upgrade) tags.push('Upgradebar');
-  if (card.fragile) tags.push('Fragil');
-  if (card.inno > 0) tags.push(`⚡ ×${card.inno}`);
-
-  // Punkte formatieren
-  function fmtPts(pts) {
-    if (typeof pts === 'number') return pts + ' Pkt';
-    if (!pts) return '0';
-    const D = { yellow:'🟡', blue:'🔵', red:'🔴', spring:'🌿' };
-    switch(pts.type) {
-      case 'dice+':     return `${D[pts.color]||'?'} + ${pts.bonus}`;
-      case 'dice*':     return `${D[pts.color]||'?'} × ${pts.factor}`;
-      case 'dice+dice': return `${D[pts.a]||'?'} + ${D[pts.b]||'?'}`;
-      case 'res*':      return `Res × ${pts.factor}`;
-      case 'inno*':     return `⚡ × ${pts.factor}`;
-      case 'dice_sum*': return `(${D[pts.a]}+${D[pts.b]}) × ${pts.factor}`;
-      case 'blue*':     return `🔵 × ${pts.factor}`;
-      case 'def_sum':   return 'Σ Verteidigung';
-      case 'deact*':    return `Deakt. × ${pts.factor}`;
-      case 'season*':   return `Saison × ${pts.factor}`;
-      default: return '?';
-    }
-  }
-
-  document.getElementById('glossar-detail-card').innerHTML = svg;
-  document.getElementById('glossar-detail-text').innerHTML = `
-    <div class="gd-name">${name}</div>
-    <div class="gd-tags">${tags.map(t => `<span class="gd-tag">${t}</span>`).join('')}</div>
-    <div class="gd-stats">
-      <div class="gd-stat"><div class="gd-stat-val">${fmtPts(card.pts)}</div><div class="gd-stat-lbl">Punkte</div></div>
-      <div class="gd-stat"><div class="gd-stat-val">${card.def}</div><div class="gd-stat-lbl">Verteidigung</div></div>
-    </div>
-    <div class="gd-desc">${desc}</div>
-  `;
-  document.getElementById('glossar-detail').classList.add('open');
-}
-
-function closeGlossarDetail() {
-  document.getElementById('glossar-detail').classList.remove('open');
-}
-</script>
 </body>
 </html>

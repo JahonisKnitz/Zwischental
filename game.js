@@ -120,7 +120,7 @@ function startDraft(season) {
  * Wird aufgerufen nachdem der Spieler eine Karte gewählt hat (placeCard).
  * Bots wählen zufällig, dann rotieren die Hände.
  */
-function advanceDraft(playerPickedIdx) {
+function advanceDraft() {
   if (!DRAFT.active) return;
 
   // Verbleibende Karten zurückschreiben (null-Slots raus)
@@ -228,7 +228,7 @@ const DICE_COLORS = ['yellow', 'blue', 'red'];
 
 // ── Tauschverhältnis — fest 2:1 ──
 const RATIO = 2;
-const VERSION = '0.9.2';
+const VERSION = '0.9.23';
 
 // ── Überfall-Mechaniken ──────────────────────────────────────────
 // Angreifer-Anzahl Formeln (blau)
@@ -1612,6 +1612,13 @@ function renderResources() {
   }
   if (G.selectedTower) towerPair.style.outline = '1.5px solid #5a2d82';
   row.appendChild(towerPair);
+
+  // Glossar-Button — immer rechts
+  const glossarBtn = document.createElement('button');
+  glossarBtn.id = 'btn-glossar';
+  glossarBtn.textContent = 'Glossar';
+  glossarBtn.addEventListener('click', openGlossar);
+  row.appendChild(glossarBtn);
 }
 
 // Hochkante Barriere in der Hand — identisch zur vertikalen Barriere zwischen Karten
@@ -1727,6 +1734,16 @@ function renderPlaceRow() {
 
 // Phasenwechsel mit Animation — vollständiger Jahreszeiten-Durchlauf
 function advancePhase() {
+  // Guard: nicht auslösen während Übergang animiert (show + noch nicht faded out)
+  // Aber: wenn das Overlay seit > 2.5s sichtbar ist → Notfall-Dismiss
+  const overlay = document.getElementById('phase-transition');
+  if (overlay && overlay.classList.contains('show')) {
+    const showTime = parseInt(overlay.dataset.showTime || '0');
+    if (Date.now() - showTime < 3000) return;
+    // Notfall: Overlay manuell schließen
+    overlay.classList.remove('show');
+    overlay.classList.remove('season-change');
+  }
   clearSelection();
   // Ernte-Overlay schließen falls noch offen
   const defOverlay = document.getElementById('defense-overlay');
@@ -1755,16 +1772,16 @@ function advancePhase() {
 
   const col        = SEASON_COLORS[SEASON_KEYS[nextSeason]];
   const isNewSeason = nextSeason !== G.season;
-  const overlay    = document.getElementById('phase-transition');
+  const ptOverlay  = document.getElementById('phase-transition');
   const nameEl     = document.getElementById('pt-name');
   const subEl      = document.getElementById('pt-sub');
   const romanEl    = document.getElementById('pt-roman');
   const dividerEl  = document.getElementById('pt-divider');
-  const shimmerEl  = overlay.querySelector('.pt-shimmer');
+  const shimmerEl  = ptOverlay.querySelector('.pt-shimmer');
 
   if (isNewSeason) {
     // ── Jahreszeitenwechsel: deutlichere Behandlung ──
-    overlay.classList.add('season-change');
+    ptOverlay.classList.add('season-change');
     romanEl.textContent = `JAHRESZEIT ${['I','II','III','IV'][nextSeason]}`;
     nameEl.textContent  = SEASON_NAMES[nextSeason].toUpperCase();
     subEl.textContent   = 'beginnt';
@@ -1788,7 +1805,7 @@ function advancePhase() {
     shimmerEl.style.backgroundSize = '300% 100%';
   } else {
     // ── Normaler Phasenwechsel: schlicht ──
-    overlay.classList.remove('season-change');
+    ptOverlay.classList.remove('season-change');
     romanEl.textContent = '';
     dividerEl.style.background = 'transparent';
     shimmerEl.style.background = 'transparent';
@@ -1797,7 +1814,8 @@ function advancePhase() {
     nameEl.style.color  = col;
   }
 
-  overlay.classList.add('show');
+  ptOverlay.dataset.showTime = Date.now();
+  ptOverlay.classList.add('show');
 
   setTimeout(() => {
     G.phase  = nextPhase;
@@ -1889,11 +1907,14 @@ function advancePhase() {
       setTimeout(() => doScoring(), 400);
     }
 
-    setTimeout(() => {
-      overlay.classList.remove('show');
-      overlay.classList.remove('season-change');
-    }, isNewSeason ? 2000 : 650);
   }, isNewSeason ? 1100 : 900);
+
+  // Overlay-Remove separat — absolutes Timing damit kein innerer Timer
+  // eine spätere Animation abschießen kann
+  setTimeout(() => {
+    ptOverlay.classList.remove('show');
+    ptOverlay.classList.remove('season-change');
+  }, isNewSeason ? 2800 : 1400);
 }
 
 // Winter zeigt nur 3 Phasen — visuelle Index-Berechnung für Dot-Animation
@@ -1910,7 +1931,7 @@ function showGameEnd() {
   document.getElementById('go-score-num').textContent = G.victoryPoints;
   // Cover-Bild setzen
   const bg = overlay.querySelector('.go-bg');
-  if (bg) bg.style.backgroundImage = "url('zwischental-splash.png')";
+  if (bg) bg.style.backgroundImage = "url('splash.png')";
   const msgs = G.victoryPoints >= 60 ? 'Das Tal singt Lieder von diesem Bürgermeister.'
     : G.victoryPoints >= 40 ? 'Wiederaufgebaut. Wieder verteidigt. Wieder stolz.'
     : G.victoryPoints >= 25 ? 'Das Murmeltier blickt resigniert — aber es baut weiter.'
@@ -2736,28 +2757,33 @@ function onKnightClick() {
 }
 
 function onCellClick(idx) {
+  // ── Nicht-Karten-Modi zuerst ──────────────────────────────────
   if (G.mode === 'barrier') return;
-
   if (G.mode === 'tower') {
     if (!G.board[idx] || idx === 4) { showToast('Nur auf Gebäude platzierbar'); return; }
     if (G.fortified[idx]) { showToast('Bereits befestigt'); return; }
     placeTower(idx); return;
   }
-
   if (G.mode === 'knight') {
     if (!G.board[idx] || idx === 4) { showToast('Nur auf Gebäude platzierbar'); return; }
-    // Mehrere Ritter erlaubt
     placeKnight(idx); return;
   }
 
+  // ── Karte muss ausgewählt sein ────────────────────────────────
   if (G.selectedHandIdx < 0) { showToast('Zuerst eine Karte wählen'); return; }
   if (idx === 4) return;
-
   const selCard = G.hand[G.selectedHandIdx];
   if (!selCard) { showToast('Zuerst eine Karte wählen'); return; }
 
-  // Spezialkarte: Würfelkosten minus Rathaus-Rabatt in Münzen zahlen
-  if (selCard && selCard.isSpecialOffer && selCard.diceColor && G.diceRolled) {
+  // ── Zweiter Tap auf dasselbe Feld → platzieren ─────────────────
+  if (G.selectedCellIdx === idx) {
+    commitPlacement();
+    return;
+  }
+
+  // ── Validierung vor dem Overlay ───────────────────────────────
+  // Spezialkarte: Kosten prüfen (nicht abziehen — erst bei commitPlacement)
+  if (selCard.isSpecialOffer && selCard.diceColor && G.diceRolled) {
     const baseCost  = G.dice[selCard.diceColor];
     const discount  = G.rathausLevel - 1;
     const finalCost = Math.max(0, baseCost - discount);
@@ -2765,80 +2791,215 @@ function onCellClick(idx) {
       showToast(`Kostet ${finalCost} Münzen (fehlen ${finalCost - G.coins})`);
       return;
     }
-    if (finalCost > 0) {
-      G.coins -= finalCost;
-      SFX.coin && SFX.coin();
-      showToast(`${finalCost} Münze${finalCost > 1 ? 'n' : ''} gezahlt${discount > 0 ? ` (${discount} Rabatt durch Rathaus)` : ''}`);
-      renderDefenseChips();
-    }
   }
-
-  // Fragile-Karten: nur eine pro Mechanik in der Stadt
-  // Beim Ersetzen zählt die Karte am Zielfeld nicht mit
-  if (selCard && selCard.fragile && selCard.special_mechanic) {
+  // Fragile-Konflikt prüfen
+  if (selCard.fragile && selCard.special_mechanic) {
     const conflictIdx = findFragileConflict(selCard, idx);
-    if (conflictIdx >= 0) {
-      showToast(fragileConflictMessage(selCard.special_mechanic));
-      return;
-    }
+    if (conflictIdx >= 0) { showToast(fragileConflictMessage(selCard.special_mechanic)); return; }
+  }
+  // Decoy-Regeln
+  if (selCard.special_mechanic === 'decoy') {
+    if (!G.board[idx]) { showToast('Ablenkungsmanöver braucht eine Karte zum Beschützen'); return; }
+    if (G.board[idx].fragile) { showToast('Ablenkungsmanöver nicht auf andere fragile Karten'); return; }
   }
 
-  // Decoy: spezielle Platzierungsregeln
-  if (selCard && selCard.special_mechanic === 'decoy') {
-    if (!G.board[idx]) {
-      showToast('Ablenkungsmanöver braucht eine Karte zum Beschützen');
-      return;
-    }
-    if (G.board[idx].fragile) {
-      showToast('Ablenkungsmanöver nicht auf andere fragile Karten');
-      return;
-    }
-  }
-
-  // Zweiter Tap auf dasselbe Feld → sofort bauen
-  if (G.selectedCellIdx === idx) {
-    placeCard();
-    return;
-  }
-
-  // Erster Tap: Feld auswählen + Overlay direkt auf der Zelle
+  // ── Erster Tap: Feld merken + Overlay zeigen ─────────────────
   G.selectedCellIdx = idx;
 
-  const newCard = G.hand[G.selectedHandIdx];
   let overlayClass = 'cell-build-overlay';
   let overlayText  = 'HIER BAUEN';
-
   if (G.board[idx]) {
-    if (newCard.special_mechanic === 'decoy') {
-      overlayClass += ' decoy-ol';
-      overlayText   = '🎭 ABLENKEN';
+    if (selCard.special_mechanic === 'decoy') {
+      overlayClass += ' decoy-ol';  overlayText = '🎭 ABLENKEN';
       setHint('Nochmal tippen zum Ablenken', true);
-    } else if (canUpgrade(idx, newCard)) {
-      overlayClass += ' upgrade-ol';
-      overlayText   = '⬆ UPGRADE';
+    } else if (canUpgrade(idx, selCard)) {
+      overlayClass += ' upgrade-ol'; overlayText = '⬆ UPGRADE';
       setHint('Nochmal tippen zum Upgraden', true);
     } else {
-      overlayClass += ' replace-ol';
-      overlayText   = '⚒ ERSETZEN';
+      overlayClass += ' replace-ol'; overlayText = '⚒ ERSETZEN';
       setHint('Nochmal tippen zum Ersetzen', true);
     }
   } else {
     setHint('Nochmal tippen zum Bauen', true);
   }
 
+  // Grid neu rendern (skipGlows=true — kein async Glow-Remove)
   renderGrid(true);
 
-  // Overlay auf der Zelle
-  const cells = document.querySelectorAll('.cell');
+  // Overlay direkt auf die Zelle hängen
+  const cells = document.querySelectorAll('#grid .cell');
   const cell  = cells[idx];
   if (cell) {
-    document.querySelectorAll('.cell-build-overlay').forEach(e => e.remove());
     const ov = document.createElement('div');
     ov.className = overlayClass;
     ov.innerHTML = `<span>${overlayText}</span>`;
-    ov.addEventListener('click', (e) => { e.stopPropagation(); placeCard(); });
-    ov.addEventListener('touchend', (e) => { e.preventDefault(); e.stopPropagation(); placeCard(); }, {passive:false});
+    ov.addEventListener('click',    (e) => { e.stopPropagation(); commitPlacement(); });
+    ov.addEventListener('touchend', (e) => { e.preventDefault(); e.stopPropagation(); commitPlacement(); }, {passive:false});
     cell.appendChild(ov);
+  }
+}
+
+// ── commitPlacement: State → Render → Draft ─────────────────────────────────
+// Einzige Funktion die eine Karte ins Board schreibt.
+// Reihenfolge: Validierung → State-Mutation → ALLES synchron rendern → Draft
+function commitPlacement() {
+  if (G.selectedHandIdx < 0 || G.selectedCellIdx < 0) return;
+  const handIdx   = G.selectedHandIdx;
+  const targetIdx = G.selectedCellIdx;
+  const newCard   = G.hand[handIdx];
+  if (!newCard) return;
+
+  const existing = G.board[targetIdx];
+
+  // ── Münzkosten für Spezialkarten abziehen ─────────────────────
+  if (newCard.isSpecialOffer && newCard.diceColor && G.diceRolled) {
+    const baseCost  = G.dice[newCard.diceColor];
+    const discount  = G.rathausLevel - 1;
+    const finalCost = Math.max(0, baseCost - discount);
+    if (finalCost > G.coins) { showToast('Nicht genug Münzen'); clearSelection(); renderGrid(true); return; }
+    if (finalCost > 0) {
+      G.coins -= finalCost;
+      SFX.coin && SFX.coin();
+      showToast(`${finalCost} Münze${finalCost > 1 ? 'n' : ''} gezahlt`);
+    }
+  }
+
+  // ── State-Mutation ─────────────────────────────────────────────
+  G.hand[handIdx] = null;
+
+  let placeType = 'build';
+
+  if (!existing) {
+    G.board[targetIdx]  = { ...newCard };
+    G.stacks[targetIdx] = [{ ...newCard }];
+    G.score += calcCardPts(newCard);
+    SFX.build();
+
+  } else if (newCard.special_mechanic === 'decoy') {
+    const oldPts = calcCardPts(G.board[targetIdx]);
+    G.stacks[targetIdx] = [...(G.stacks[targetIdx] || [existing]), { ...newCard }];
+    G.board[targetIdx]  = { ...newCard };
+    G.fortified[targetIdx] = false;
+    G.boosted[targetIdx]   = false;
+    G.score = G.score - oldPts + calcCardPts(newCard);
+    SFX.build();
+    showToast('🎭 Ablenkungsmanöver — schützt die Karte darunter');
+
+  } else if (canUpgrade(targetIdx, newCard)) {
+    placeType = 'upgrade';
+    const oldPts = calcCardPts(G.board[targetIdx]);
+    G.stacks[targetIdx] = [...(G.stacks[targetIdx] || [existing]), { ...newCard }];
+    G.board[targetIdx]  = { ...newCard };
+    G.score = G.score - oldPts + calcCardPts(newCard);
+    const diff = calcCardPts(newCard) - oldPts;
+    if (diff !== 0) spawnColoredFloat(targetIdx, `${diff >= 0 ? '+' : ''}${diff}`, diff >= 0 ? 'var(--ink)' : '#c04040');
+    SFX.upgrade();
+    showToast(`Upgrade · Ressource ×${G.stacks[targetIdx].length}`);
+
+  } else {
+    placeType = 'replace';
+    const oldPts = calcCardPts(G.board[targetIdx]);
+    G.board[targetIdx]  = { ...newCard };
+    G.stacks[targetIdx] = [{ ...newCard }];
+    G.fortified[targetIdx] = false;
+    G.boosted[targetIdx]   = false;
+    G.score = G.score - oldPts + calcCardPts(newCard);
+    SFX.discard();
+    showToast('Gebäude abgerissen und neu gebaut');
+  }
+
+  // ── Sonder-Mechaniken (State only, kein Render hier) ──────────
+  G.builtThisSeason++;
+  const mech = newCard.special_mechanic;
+  if (mech === 'free_build') {
+    G.builtThisSeason--;
+    showToast('Freie Stadt — zählt nicht zum Baulimit!');
+  } else if (mech === 'minus2_attackers') {
+    G.bogenwacht = (G.bogenwacht || 0) + 1;
+    showToast('Bogenwacht — −2 Angreifer beim nächsten Überfall');
+  } else if (mech === 'neighbor_defense') {
+    G.schildwall = G.schildwall || new Set();
+    G.schildwall.add(targetIdx);
+    showToast('Schildwall — Nachbarn erhalten +1 Verteidigung');
+  } else if (mech === 'indestructible') {
+    G.fortified[targetIdx] = true;
+    showToast('Ewige Bastion — kann nie deaktiviert werden!');
+  } else if (mech === 'reveal_red' && G.diceConcealed?.has('red')) {
+    G.diceConcealed.delete('red');
+    showToast('Spion des Rates — Champion aufgedeckt!');
+  } else if (mech === 'reveal_yellow' && G.diceConcealed?.has('yellow')) {
+    G.diceConcealed.delete('yellow');
+    showToast('Fernkundschafter — Angriffsrichtung aufgedeckt!');
+  } else if (mech === 'reveal_blue' && G.diceConcealed?.has('blue')) {
+    G.diceConcealed.delete('blue');
+    showToast('Zahlmeister — Angreiferzahl aufgedeckt!');
+  } else if (mech === 'direct_knight') {
+    G.knights = (G.knights || 0) + 2;
+    showToast('Ritterburg — +2 Ritter sofort!');
+  } else if (mech === 'direct_barrier') {
+    G.barrierHand = (G.barrierHand || 0) + 2;
+    showToast('Holzfestung — +2 Barrieren sofort!');
+  } else if (mech === 'direct_coins') {
+    G.coins = (G.coins || 0) + 2;
+    SFX.coin && SFX.coin();
+    showToast('Münzprägung — +2 Münzen sofort!');
+  } else if (mech === 'direct_coins_seasonal') {
+    const earned = G.season + 1;
+    G.coins = (G.coins || 0) + earned;
+    SFX.coin && SFX.coin();
+    showToast(`Bankhaus — +${earned} Münzen!`);
+  } else if (mech === 'force_start' && G.attackDir) {
+    G.attackDir = { ...G.attackDir, startCell: targetIdx, direction: GRID_DIRECTION[targetIdx] };
+    showToast('🏰 Stadttor — Überfall startet hier!');
+  } else if (mech === 'force_dir_cw' && G.attackDir) {
+    G.attackDir = { ...G.attackDir, clockwise: true };
+    showToast('🧭 Windrose — Überfall läuft ↻');
+  } else if (mech === 'force_dir_ccw' && G.attackDir) {
+    G.attackDir = { ...G.attackDir, clockwise: false };
+    showToast('🧭 Windrose — Überfall läuft ↺');
+  }
+
+  // ── Selection leeren (vor Render) ─────────────────────────────
+  G.selectedHandIdx    = -1;
+  G.selectedCellIdx    = -1;
+  G.mode = 'card';
+  renderGapZones(false);
+  renderPlaceRow();
+  document.querySelectorAll('.cell-build-overlay').forEach(e => e.remove());
+
+  // ── EINMALIGER synchroner Render-Block ────────────────────────
+  // Reihenfolge: Grid → Glows → Würfel → Rathaus → Hand → Ressourcen
+  renderGrid(true);        // skipGlows=true: kein async Remove
+  renderGroundGlows();     // synchron sofort
+  renderDice(false);       // Würfel aktualisieren (reveal etc.)
+  renderAttackOrigin();    // Angriffs-Marker
+  updateRathausScore();
+  renderHand();
+  renderProductionPanel();
+
+  // ── cardLand-Animation auf die neu gerenderte Zelle ───────────
+  // Erst NACH dem Render-Block, damit die Zelle garantiert im DOM ist
+  const freshCells = document.querySelectorAll('#grid .cell');
+  const freshCell  = freshCells[targetIdx];
+  if (freshCell) {
+    freshCell.classList.add('just-placed');
+    freshCell.addEventListener('animationend', () => freshCell.classList.remove('just-placed'), {once:true});
+    spawnBurst(freshCell);
+    if (placeType !== 'build' && calcCardPts(G.board[targetIdx]) > 0) {
+      spawnColoredFloat(targetIdx, `+${formatPts(G.board[targetIdx].pts)}`, 'var(--ink)');
+    } else if (placeType === 'build' && calcCardPts(G.board[targetIdx]) > 0) {
+      spawnFloat(targetIdx, `+${formatPts(G.board[targetIdx].pts)}`);
+    }
+  }
+
+  // ── Draft vorantreiben (nach allem anderen) ────────────────────
+  if (G.builtThisSeason >= 5) {
+    DRAFT.active = false;
+    G.hand = [];
+    renderHand();
+    setHint('5 Gebäude errichtet — Bauphase beendet · › für Rüsten', true);
+  } else if (DRAFT.active) {
+    advanceDraft();
   }
 }
 
@@ -2847,223 +3008,6 @@ function onGapClick(key, a, b) {
   G.selectedBarrierKey = key;
   document.querySelectorAll('.gap-zone').forEach(z => z.classList.remove('target'));
   placeBarrier(key, a, b);
-}
-
-function placeCard() {
-  if (G.selectedHandIdx < 0 || G.selectedCellIdx < 0) return;
-  const newCard = G.hand[G.selectedHandIdx];
-  if (!newCard) return;
-
-  const targetIdx = G.selectedCellIdx;
-  const existing  = G.board[targetIdx];
-
-  // Fragile-Konflikt-Schutz: nur eine Karte pro Mechanik
-  if (newCard.fragile && newCard.special_mechanic) {
-    const conflictIdx = findFragileConflict(newCard, targetIdx);
-    if (conflictIdx >= 0) {
-      showToast(fragileConflictMessage(newCard.special_mechanic));
-      clearSelection();
-      renderGrid();
-      return;
-    }
-  }
-
-  G.hand[G.selectedHandIdx] = null;
-  clearSelection();
-
-  if (!existing) {
-    // ── Leeres Feld: normal bauen ──
-    G.board[targetIdx]  = { ...newCard };
-    G.stacks[targetIdx] = [{ ...newCard }];
-    G.score += calcCardPts(newCard);
-    _animatePlace(targetIdx, 'build'); SFX.build();
-
-  } else if (newCard.special_mechanic === 'decoy') {
-    // ── Decoy: oben drauf legen, darunter liegende Karte(n) bleiben ──
-    const oldPts = calcCardPts(G.board[targetIdx]);
-    const baseStack = G.stacks[targetIdx] || [existing];
-    G.stacks[targetIdx] = [...baseStack, { ...newCard }];
-    G.board[targetIdx]  = { ...newCard };
-    // Befestigung wird beim Drauflegen aufgehoben — sonst wäre
-    // ein befestigtes+verdecktes Gebäude praktisch unzerstörbar
-    G.fortified[targetIdx] = false;
-    G.boosted[targetIdx]   = false;
-    // Score: alte Karte raus, Decoy rein (niedrige Punkte)
-    G.score = G.score - oldPts + calcCardPts(newCard);
-
-    _animatePlace(targetIdx, 'build'); SFX.build();
-    showToast('🎭 Ablenkungsmanöver — schützt die Karte darunter');
-
-  } else if (canUpgrade(targetIdx, newCard)) {
-    // ── Upgrade: gleiche Ressource, max 3 Karten ──
-    const oldPts = calcCardPts(G.board[targetIdx]);
-    G.board[targetIdx]  = { ...newCard };
-    G.stacks[targetIdx] = [...(G.stacks[targetIdx] || [existing]), { ...newCard }];
-    G.score = G.score - oldPts + calcCardPts(newCard);
-
-    // Score-Differenz anzeigen
-    const diff = calcCardPts(newCard) - oldPts;
-    if (diff !== 0) spawnColoredFloat(targetIdx, `${diff >= 0 ? '+' : ''}${diff}`,
-      diff >= 0 ? 'var(--ink)' : '#c04040');
-
-    _animatePlace(targetIdx, 'upgrade'); SFX.upgrade();
-    showToast(`Upgrade · Ressource ×${G.stacks[targetIdx].length}`);
-
-  } else {
-    // ── Ersetzen/Abriss: alte Karte weg, neue rein ──
-    const oldPts = calcCardPts(G.board[targetIdx]);
-    G.board[targetIdx]  = { ...newCard };
-    G.stacks[targetIdx] = [{ ...newCard }];
-    G.fortified[targetIdx] = false;
-    G.boosted[targetIdx]   = false;
-    G.score = G.score - oldPts + calcCardPts(newCard);
-
-    _animatePlace(targetIdx, 'replace'); SFX.discard();
-    showToast('Gebäude abgerissen und neu gebaut');
-  }
-
-  renderHand();
-  renderGrid();
-  updateRathausScore();
-  renderProductionPanel();
-
-  // Baulimit: max 5 Karten pro Jahreszeit
-  G.builtThisSeason++;
-
-  // ── Sonder-Mechaniken ────────────────────────────────────────
-  const mech = newCard.special_mechanic;
-  if (mech) {
-    switch(mech) {
-      case 'free_build':
-        // Kostenlos — Baulimit nicht erhöhen
-        G.builtThisSeason--;
-        showToast('Freie Stadt — zählt nicht zum Baulimit!');
-        break;
-      case 'minus2_attackers':
-        // Bogenwacht: −2 Angreifer wird beim Überfall angewendet (via G.bogenwacht)
-        G.bogenwacht = (G.bogenwacht || 0) + 1;
-        showToast('Bogenwacht — −2 Angreifer beim nächsten Überfall');
-        break;
-      case 'neighbor_defense':
-        // Schildwall: Nachbarfelder +1 Verteidigung (gespeichert in G.schildwall)
-        G.schildwall = G.schildwall || new Set();
-        G.schildwall.add(targetIdx);
-        showToast('Schildwall — Nachbarn erhalten +1 Verteidigung');
-        renderGrid();
-        break;
-      case 'indestructible':
-        // Ewige Bastion: automatisch mit Turm befestigen
-        G.fortified[targetIdx] = true;
-        showToast('Ewige Bastion — kann nie deaktiviert werden!');
-        renderGrid();
-        break;
-      case 'reveal_red':
-        if (G.diceConcealed && G.diceConcealed.has('red')) {
-          G.diceConcealed.delete('red');
-          renderDice(false);
-          renderAttackOrigin();
-          showToast('Spion des Rates — Champion aufgedeckt!');
-        } else {
-          showToast('Spion des Rates — Champion war bereits bekannt');
-        }
-        break;
-      case 'reveal_yellow':
-        if (G.diceConcealed && G.diceConcealed.has('yellow')) {
-          G.diceConcealed.delete('yellow');
-          renderDice(false);
-          renderAttackOrigin();
-          showToast('Fernkundschafter — Angriffsrichtung aufgedeckt!');
-        } else {
-          showToast('Fernkundschafter — Richtung war bereits bekannt');
-        }
-        break;
-      case 'reveal_blue':
-        if (G.diceConcealed && G.diceConcealed.has('blue')) {
-          G.diceConcealed.delete('blue');
-          renderDice(false);
-          showToast('Zahlmeister — Angreiferzahl aufgedeckt!');
-        } else {
-          showToast('Zahlmeister — Angreifer war bereits bekannt');
-        }
-        break;
-      case 'direct_knight':
-        G.knights = (G.knights || 0) + 2;
-        renderDefenseChips();
-        showToast('Ritterburg — +2 Ritter sofort!');
-        break;
-      case 'direct_barrier':
-        G.barrierHand = (G.barrierHand || 0) + 2;
-        renderDefenseChips();
-        showToast('Holzfestung — +2 Barrieren sofort!');
-        break;
-      case 'direct_coins':
-        G.coins = (G.coins || 0) + 2;
-        renderDefenseChips();
-        SFX.coin && SFX.coin();
-        showToast('Münzprägung — +2 Münzen sofort!');
-        break;
-      case 'direct_coins_seasonal': {
-        const earned = G.season + 1; // Winter=1, Frühling=2, Sommer=3, Herbst=4
-        G.coins = (G.coins || 0) + earned;
-        renderDefenseChips();
-        SFX.coin && SFX.coin();
-        showToast(`Bankhaus — +${earned} Münzen (Jahreszeit ${earned})!`);
-        break;
-      }
-      case 'force_start':
-        // Stadttor: Startfeld wird auf diese Position erzwungen
-        if (G.attackDir) {
-          G.attackDir = { ...G.attackDir, startCell: targetIdx, direction: GRID_DIRECTION[targetIdx] };
-          renderDice(false);
-          renderAttackOrigin();
-        }
-        showToast('🏰 Stadttor — Überfall startet hier!');
-        break;
-      case 'force_dir_cw':
-        // Windrose ↻: Laufrichtung erzwingen
-        if (G.attackDir) {
-          G.attackDir = { ...G.attackDir, clockwise: true };
-          renderDice(false);
-        }
-        showToast('🧭 Windrose — Überfall läuft ↻');
-        break;
-      case 'force_dir_ccw':
-        // Windrose ↺: Laufrichtung erzwingen
-        if (G.attackDir) {
-          G.attackDir = { ...G.attackDir, clockwise: false };
-          renderDice(false);
-        }
-        showToast('🧭 Windrose — Überfall läuft ↺');
-        break;
-    }
-  }
-
-  if (G.builtThisSeason >= 5) {
-    // Baulimit erreicht — Drafting beenden
-    DRAFT.active = false;
-    G.hand = [];
-    renderHand();
-    setHint('5 Gebäude errichtet — Bauphase beendet · › für Rüsten', true);
-  } else if (DRAFT.active) {
-    // Drafting: Bots ziehen, Hände rotieren
-    advanceDraft(G.selectedHandIdx);
-  }
-}
-
-function _animatePlace(idx, type) {
-  setTimeout(() => {
-    const cells = document.querySelectorAll('.cell');
-    const cell  = cells[idx];
-    if (!cell) return;
-    cell.classList.add('just-placed');
-    cell.addEventListener('animationend', () => cell.classList.remove('just-placed'), {once:true});
-    spawnBurst(cell);
-    if (type !== 'build' && calcCardPts(G.board[idx]) > 0) {
-      spawnColoredFloat(idx, `+${formatPts(G.board[idx].pts)}`, 'var(--ink)');
-    } else if (type === 'build' && calcCardPts(G.board[idx]) > 0) {
-      spawnFloat(idx, `+${formatPts(G.board[idx].pts)}`);
-    }
-  }, 0);
 }
 
 function flashChip(key) {
@@ -3508,7 +3452,7 @@ setHint(PHASE_DESCRIPTIONS[G.phase], false);
 const splashVersion = document.getElementById('splash-version');
 const headerTitle   = document.getElementById('header-title');
 if (splashVersion) splashVersion.textContent = `v${VERSION}`;
-if (headerTitle)   headerTitle.textContent   = `Murmeltal v${VERSION}`;
+if (headerTitle)   headerTitle.textContent   = `Talwacht v${VERSION}`;
 
 // ── Rules Screen ────────────────────────────────────────────────
 const rulesEl   = document.getElementById('rules-screen');
@@ -3520,7 +3464,12 @@ function renderRulesPage(idx) {
   pips.innerHTML = RULES_PAGES.map((_,i) =>
     `<div class="rules-pip${i === idx ? ' active' : ''}"></div>`
   ).join('');
-  document.getElementById('rules-icon').textContent  = page.icon;
+  const iconEl = document.getElementById('rules-icon');
+  if (['I','II','III','IV','V'].includes(page.icon)) {
+    iconEl.innerHTML = `<span style="font-family:'Pirata One',cursive;font-size:2.4rem;color:#d67617;line-height:1;">${page.icon}</span>`;
+  } else {
+    iconEl.textContent = page.icon;
+  }
   document.getElementById('rules-title').textContent = page.title;
   document.getElementById('rules-body').innerHTML = page.sections.map(s => `
     <div>
@@ -3540,11 +3489,6 @@ function showRules() {
   rulesPage = 0;
   renderRulesPage(0);
   rulesEl.classList.add('active');
-  // Touch-Guard: Buttons für 400ms nach Splash-Dismiss sperren
-  if (Date.now() - _splashDismissedAt < 600) {
-    rulesEl.style.pointerEvents = 'none';
-    setTimeout(() => { rulesEl.style.pointerEvents = ''; }, 400);
-  }
 }
 
 function dismissRules() {
@@ -3567,12 +3511,51 @@ document.getElementById('rules-next').addEventListener('click', () => {
 // ── Splash Screen ────────────────────────────────────────────────
 const splashEl       = document.getElementById('splash-screen');
 const splashStartBtn = document.getElementById('splash-start');
-let _splashDismissedAt = 0;
 
 function dismissSplash() {
-  _splashDismissedAt = Date.now();
   splashEl.remove();
   showRules();
 }
 splashStartBtn.addEventListener('click', dismissSplash);
 splashStartBtn.addEventListener('touchend', (e) => { e.preventDefault(); dismissSplash(); }, {passive:false});
+
+
+// ── GLOSSAR ─────────────────────────────────────────────────────────
+const GLOSSAR_ENTRIES = [
+  { term: 'Barriere',       def: 'Holzplanke zwischen zwei Feldern. Schwächt Angreifer um 1, bevor sie das nächste Feld erreichen. Wird nach dem Überfall entfernt.' },
+  { term: 'Ritter',         def: 'Verteidiger auf einem Gebäude. Schlägt einen Angreifer zurück — einmalig pro Überfall, dann weg.' },
+  { term: 'Münze',          def: 'Währung. 3 Münzen kaufen einen Turm. Münzen bleiben über Jahreszeiten erhalten.' },
+  { term: 'Turm',           def: 'Permanente Befestigung auf einem Gebäude. Ein Turm macht ein Feld uneinnehmbar — egal wie stark der Angriff.' },
+  { term: 'Rathaus',        def: 'Das feste Gebäude in der Mitte (Feld 5). Kann nicht platziert oder ersetzt werden. Schiebe eine Karte darunter um es aufzuwerten (max. Level 6) — du erhältst sofort eine Münze.' },
+  { term: 'Rathaus-Level',  def: 'Stufe 1–6. Karten mit ⚡ skalieren ihre Punkte mit dem Level. Je höher das Level, desto wertvoller diese Karten.' },
+  { term: 'Rohstoffe',      def: 'Holz 🪵, Nahrung 🌾 und Glas 🫙. Werden in der Bauphase produziert und in der Rüstphase zu Barrieren, Rittern und Münzen umgewandelt.' },
+  { term: 'Fragile',        def: 'Gelb markierte Karten mit Einmal-Effekten. Sie werden nach dem Überfall automatisch entfernt, zählen also nicht zur nächsten Jahreszeit.' },
+  { term: 'Decoy',          def: 'Sondertyp der Fragile-Karten. Zieht Angreifer auf sich — der restliche Pfad bleibt verschont. Wird danach entfernt.' },
+  { term: 'Plündern',       def: 'Ein Gebäude das überrannt wurde gilt als geplündert. Es zählt in der Wertung nicht und bleibt markiert bis zum nächsten Bauen.' },
+  { term: 'Siegpunkte',     def: 'Werden am Ende jeder Jahreszeit aus allen aktiven (nicht geplünderten) Gebäuden addiert. Nach 4 Jahreszeiten ist der Gesamtscore dein Ergebnis.' },
+  { term: 'Champion',       def: 'Der rote Würfel bestimmt eine Sonderfähigkeit der angreifenden Horde — z.B. Durchbruch, Berserker oder Flankierung. Immer eine Überraschung.' },
+  { term: 'Angriffsrichtung', def: 'Der gelbe Würfel. Bestimmt von welcher Seite die Horde einmarschiert (NW, N, NO, SO, S). Beeinflusst welche Felder zuerst getroffen werden.' },
+  { term: 'Upgrade',        def: 'Lege eine zweite (oder dritte) Karte gleichen Rohstoffs auf ein bestehendes Gebäude. Erhöht Rohstoffproduktion und oft auch Verteidigung.' },
+  { term: 'Innovation (⚡)', def: 'Karten mit ⚡ skalieren ihre Siegpunkte mit dem Rathaus-Level. Bei Level 6 können sie sehr hohe Punktzahlen erreichen.' },
+];
+
+function openGlossar() {
+  const screen = document.getElementById('glossar-screen');
+  const body   = document.getElementById('glossar-body');
+  body.innerHTML = GLOSSAR_ENTRIES.map(e => `
+    <div class="glossar-entry">
+      <div class="glossar-term">${e.term}</div>
+      <div class="glossar-def">${e.def}</div>
+    </div>
+  `).join('');
+  screen.classList.add('active');
+}
+
+document.getElementById('glossar-close').addEventListener('click', () => {
+  document.getElementById('glossar-screen').classList.remove('active');
+});
+document.getElementById('glossar-screen').addEventListener('click', (e) => {
+  if (e.target === e.currentTarget) {
+    e.currentTarget.classList.remove('active');
+  }
+});
