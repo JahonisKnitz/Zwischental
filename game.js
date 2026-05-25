@@ -234,7 +234,7 @@ const DICE_COLORS = ['yellow', 'blue', 'red'];
 
 // ── Tauschverhältnis — fest 2:1 ──
 const RATIO = 2;
-const VERSION = '0.9.28';
+const VERSION = '0.9.29';
 
 // ── Überfall-Mechaniken ──────────────────────────────────────────
 // Angreifer-Anzahl Formeln (blau)
@@ -995,6 +995,7 @@ function getCardPlayability(card) {
   // Spezialkarte mit Würfelkosten — Rathaus-Level gibt Rabatt
   if (card.isSpecialOffer && card.diceColor && G.diceRolled) {
     const baseCost = G.dice[card.diceColor];
+    const discount = G.rathausLevel - 1;
     const finalCost = Math.max(0, baseCost - discount);
     if (finalCost > 0 && G.coins < finalCost) {
       return {
