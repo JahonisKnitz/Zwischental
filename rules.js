@@ -30,7 +30,11 @@ const RULES_PAGES = [
     sections: [
       {
         heading: 'Rüsten',
-        text: 'Nach dem Bauen wandelt deine Stadt Rohstoffe um: 2 Holz → 1 Barriere · 2 Nahrung → 1 Ritter · 2 Glas → 1 Münze. Platziere Barrieren zwischen Feldern, Ritter auf Gebäude und kaufe Türme mit Münzen um Gebäude dauerhaft zu befestigen.'
+        text: 'Nach dem Bauen wandelt deine Stadt Rohstoffe um: 2 Holz → 1 Barriere · 2 Nahrung → 1 Ritter · 2 Glas → 1 Münze. Setze Barrieren an die Außenkanten deiner Randfelder, Ritter auf Gebäude und kaufe Türme (2 Münzen) um Gebäude dauerhaft zu befestigen.'
+      },
+      {
+        heading: 'Barrieren & Startpunkt',
+        text: 'Sind ALLE Außenkanten eines Randfeldes mit Barrieren geschützt (Kantenfeld: 1, Eckfeld: 2), kann der Angriff dort nicht starten — er weicht in Laufrichtung zum nächsten ungeschützten Feld aus. Barrieren bleiben permanent liegen. Eine voll barrikadierte Stadt ist uneinnehmbar — aber sehr teuer.'
       },
       {
         heading: '3 Würfel — 3 Geheimnisse',

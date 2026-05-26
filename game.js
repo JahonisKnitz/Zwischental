@@ -234,7 +234,39 @@ const DICE_COLORS = ['yellow', 'blue', 'red'];
 
 // ── Tauschverhältnis — fest 2:1 ──
 const RATIO = 2;
-const VERSION = '0.9.29';
+const VERSION = '0.9.40';
+
+// ── Außenkanten-System für Barrieren ──────────────────────────────
+// 12 Außenkanten am 3×3-Grid: jedes Randfeld hat 1 (Kante) oder 2 (Ecke) Außenkanten.
+// Schlüssel-Format: "${cellIdx}-${edge}" mit edge ∈ {N,O,S,W}
+//   Eckfelder (0,2,6,8): 2 Kanten
+//   Kantenfelder (1,3,5,7): 1 Kante
+//   Mitte (4 = Rathaus): keine Außenkanten
+const CELL_OUTER_EDGES = {
+  0: ['N','W'],
+  1: ['N'],
+  2: ['N','O'],
+  3: ['W'],
+  4: [],
+  5: ['O'],
+  6: ['S','W'],
+  7: ['S'],
+  8: ['S','O'],
+};
+const EDGE_KEY = (idx, edge) => `${idx}-${edge}`;
+// Alle 12 Edge-Keys vorberechnet
+const ALL_EDGE_KEYS = [];
+for (let i = 0; i < 9; i++) {
+  for (const e of CELL_OUTER_EDGES[i]) ALL_EDGE_KEYS.push(EDGE_KEY(i, e));
+}
+
+// Ist diese Karte barrikadiert (alle Außenkanten geschützt)?
+function isBarricaded(idx) {
+  const edges = CELL_OUTER_EDGES[idx];
+  if (!edges || edges.length === 0) return false; // Rathaus
+  if (!G.barriers || G.barriers.size === 0) return false;
+  return edges.every(e => G.barriers.has(EDGE_KEY(idx, e)));
+}
 
 // ── Überfall-Mechaniken ──────────────────────────────────────────
 // Angreifer-Anzahl Formeln (blau)
@@ -273,21 +305,40 @@ const GRID_DIRECTION = { 0:'NW', 1:'N', 2:'NO', 3:'W', 5:'O', 6:'SW', 7:'S', 8:'
 // Uhrzeigersinn-Reihenfolge der 8 Außenfelder
 const CLOCKWISE_ORDER = [0, 1, 2, 5, 8, 7, 6, 3];
 
+// Sucht ab gewürfeltem Startfeld in Laufrichtung das erste nicht-barrikadierte Außenfeld.
+// Wenn alle 8 barrikadiert sind: gibt null zurück → Angriff fällt aus.
+// Mit ignoreBarriers=true werden Barrikaden ignoriert (Champion-Effekt).
+function resolveStartCell(rawStartCell, clockwise, ignoreBarriers = false) {
+  if (ignoreBarriers) return rawStartCell;
+  const startIdx = CLOCKWISE_ORDER.indexOf(rawStartCell);
+  if (startIdx < 0) return rawStartCell;
+  for (let i = 0; i < 8; i++) {
+    const pos = clockwise ? (startIdx + i) % 8 : (startIdx - i + 8) % 8;
+    const cell = CLOCKWISE_ORDER[pos];
+    if (!isBarricaded(cell)) return cell;
+  }
+  return null; // alle barrikadiert
+}
+
 function calcAttackDirection() {
   // Gelber Bag gibt direkt einen startIdx (0–7) → alle 8 Richtungen möglich
   const yellowDraw = drawFromBag('yellow');
   const startIdx   = yellowDraw !== null ? yellowDraw : Math.floor(Math.random() * 8);
   DRAW_BAGS.yellow.lastIdx = startIdx; // merken für Ausschluss beim nächsten Refill
   G.dice.yellow = startIdx + 1;        // Würfelanzeige: 1–6 (Index 0–5)
-  let startCell  = CLOCKWISE_ORDER[startIdx];
+  const rawStartCell = CLOCKWISE_ORDER[startIdx];
   // Laufrichtung: Index gerade → ↻, ungerade → ↺
   let clockwise  = startIdx % 2 === 0;
 
-  // Fragile-Verteidigungskarten anwenden (für die Vorab-Anzeige korrekt)
+  // Barrikaden-Resolve: erstes nicht-barrikadiertes Außenfeld in Laufrichtung
+  // (Champion ignore_barriers wird erst beim Raid berücksichtigt)
+  let startCell = resolveStartCell(rawStartCell, clockwise, false);
+
+  // Fragile-Verteidigungskarten (Stadttor sticht Barriere!) — anwenden auf das resolvierte Feld
   ({ startCell, clockwise } = applyFragileDefenses({ startCell, clockwise }));
 
-  const direction = GRID_DIRECTION[startCell];
-  return { startCell, direction, clockwise };
+  const direction = startCell !== null ? GRID_DIRECTION[startCell] : null;
+  return { startCell, direction, clockwise, rawStartCell };
 }
 
 // ── Fragile Verteidigungskarten ───────────────────────────────────
@@ -328,7 +379,7 @@ const CHAMPION_POOL = [
   { id:'opposite_start',  label: 'Gegenrichtung',        desc: ()  => `Angriff startet gegenüber` },
   { id:'reverse_dir',     label: 'Richtung umkehren',    desc: ()  => `↻ wird ↺ und umgekehrt` },
   { id:'all_six',         label: '🟡🔵 auf 6',           desc: ()  => `Gelb und Blau werden auf 6 gesetzt` },
-  { id:'ignore_barriers', label: 'Barrieren ignorieren', desc: ()  => `Erste 2 Barrieren ignoriert` },
+  { id:'ignore_barriers', label: 'Barrieren ignorieren', desc: ()  => `Barrikaden wirkungslos — Start am gewürfelten Feld` },
   { id:'coward',          label: 'Ohne Anführer',        desc: ()  => `Kein Anführer` },
   { id:'all_hidden',      label: 'Alle verborgen',       desc: ()  => `Alle Überfallkarten bleiben verborgen` },
   { id:'all_one',         label: '🟡🔵 auf 1',           desc: ()  => `Gelb und Blau werden auf 1 gesetzt` },
@@ -398,6 +449,8 @@ function rollDice() {
   G.attackChampion = drawFromBag('champion');
   if (!G.attackChampion) G.attackChampion = CHAMPION_POOL[0];
 
+  G.attackDir  = calcAttackDirection(); // setzt G.dice.yellow — muss vor diceConcealed laufen
+
   // all_hidden: alle drei Würfel verborgen
   if (G.attackChampion.id === 'all_hidden') {
     G.diceConcealed = new Set(['yellow', 'blue', 'red']);
@@ -406,7 +459,6 @@ function rollDice() {
     G.diceConcealed = new Set(DICE_COLORS.filter(c => G.dice[c] === maxVal));
   }
 
-  G.attackDir  = calcAttackDirection(); // setzt auch G.dice.yellow
   G.attackerOverride = null;
 
   // Angreifer: aus Bag (keine Duplikate)
@@ -533,11 +585,13 @@ function renderDice(animate) {
       face.classList.add('rolling');
       face.addEventListener('animationend', () => face.classList.remove('rolling'), {once:true});
     }
-    face.textContent = val;  // Würfelzahl immer sichtbar
+    face.textContent = val;
     slot.classList.toggle('concealed', concealed);
 
     if (concealed) {
-      detail.textContent = 'Angreifer verborgen';  // Würfel offen, Überfallkarte verborgen
+      if (col === 'yellow') detail.textContent = 'Richtung verborgen';
+      else if (col === 'blue') detail.textContent = 'Angreifer verborgen';
+      else if (col === 'red')  detail.textContent = 'Champion verborgen';
     } else if (col === 'yellow') {
       if (G.attackDir) {
         const dirNames = { NW:'Nordwest', N:'Nord', NO:'Nordost', O:'Ost', SO:'Südost', S:'Süd', SW:'Südwest', W:'West' };
@@ -764,7 +818,7 @@ function showDefenseOverlay() {
     </div>`;
   rowsEl.appendChild(towerRow);
   setTimeout(() => towerRow.classList.add('visible'), 150 + conversions.length * 180);
-  document.querySelectorAll('.barrier-el').forEach(e => e.style.visibility = 'hidden');
+  document.querySelectorAll('.edge-barrier').forEach(e => e.style.visibility = 'hidden');
   overlay.classList.add('show'); SFX.gameover();
 
   // Gestaffelt einblenden
@@ -826,7 +880,7 @@ function closeDefenseOverlay() {
   const overlay = document.getElementById('defense-overlay');
   overlay.classList.remove('show');
   overlay.onclick = null;
-  document.querySelectorAll('.barrier-el').forEach(e => e.style.visibility = '');
+  document.querySelectorAll('.edge-barrier').forEach(e => e.style.visibility = '');
   renderHand();
   renderGrid();
   setHint('Platziere Barrieren, Türme und Ritter', true);
@@ -1157,6 +1211,12 @@ function renderGrid(skipGlows) {
     const cell = document.createElement('div');
     cell.className = 'cell';
     cell.dataset.idx = i;
+
+    // Barrikadiert-Markierung (alle Außenkanten geschützt)
+    if (isBarricaded(i)) {
+      cell.classList.add('barricaded');
+      if (G.phase === 2) cell.classList.add('barricaded-strong');
+    }
 
     if (i === 4) {
       cell.classList.add('rathaus');
@@ -1626,7 +1686,7 @@ function renderResources() {
     <div class="res-pair-def">
       <span style="opacity:${G.coins >= RATIO ? '1' : '0.3'}">${towerIcon}</span>
     </div>`;
-  // Turm-Chip: in Rüstphase direkt platzieren (3 Münzen → Turm auf Karte)
+  // Turm-Chip: in Rüstphase direkt platzieren (2 Münzen → Turm auf Karte)
   // Kein Inventar mehr — Münzen werden direkt beim Platzieren abgezogen
   if (towerAllowed && G.coins >= RATIO) {
     towerPair.style.cursor = 'pointer';
@@ -1672,54 +1732,69 @@ function makeHandBarrierSVG() {
           fill="#e8b870" stroke="#7a5020" stroke-width="0.5" opacity="0.9"/>
   </svg>`;
 }
+// ── Edge-Zonen rendern (Außenkanten-Barrieren) ────────────────────
+// Pixel-Versatz nach außen (wie weit vorgelagert von der Zelle)
+const EDGE_OFFSET = 8;
 
-// ── Spalt-Zonen rendern ──────────────────────────────────────────
-// Gültige Paare ohne Rathaus-Kanten
-const VALID_BARRIER_PAIRS = [
-  [0,1],[1,2],[6,7],[7,8],   // horizontal
-  [0,3],[2,5],[3,6],[5,8],   // vertikal
-];
+// Berechnet Position und Ausrichtung einer Edge-Zone relativ zum #app-Element
+function edgeZoneGeometry(cellRect, appR, edge) {
+  // Vorgelagerte Zone: rect deutlich außerhalb der Zelle
+  const cx = (cellRect.left + cellRect.right) / 2 - appR.left;
+  const cy = (cellRect.top + cellRect.bottom) / 2 - appR.top;
+  const w  = cellRect.width;
+  const h  = cellRect.height;
+  // Wir machen Trefferzonen größer als die sichtbare Barriere
+  const longSide  = Math.round(w * 0.8);
+  const shortSide = 22;
+  switch (edge) {
+    case 'N': return { left: cx - longSide/2,  top: cellRect.top - appR.top - shortSide - EDGE_OFFSET, width: longSide, height: shortSide, isH: true };
+    case 'S': return { left: cx - longSide/2,  top: cellRect.bottom - appR.top + EDGE_OFFSET,           width: longSide, height: shortSide, isH: true };
+    case 'W': return { left: cellRect.left - appR.left - shortSide - EDGE_OFFSET, top: cy - longSide/2, width: shortSide, height: longSide, isH: false };
+    case 'O': return { left: cellRect.right - appR.left + EDGE_OFFSET,            top: cy - longSide/2, width: shortSide, height: longSide, isH: false };
+  }
+  return null;
+}
 
-function renderGapZones(active) {
+function renderEdgeZones(active) {
   // Alte entfernen
-  document.querySelectorAll('.gap-zone').forEach(e => e.remove());
+  document.querySelectorAll('.edge-zone').forEach(e => e.remove());
   if (!active) return;
 
-  const gridEl  = document.getElementById('grid');
-  const cells   = gridEl.querySelectorAll('.cell');
-  const appR    = document.getElementById('app').getBoundingClientRect();
+  const gridEl = document.getElementById('grid');
+  const cells  = gridEl.querySelectorAll('.cell');
+  const appR   = document.getElementById('app').getBoundingClientRect();
 
-  VALID_BARRIER_PAIRS.forEach(([a, b]) => {
-    const key = BARRIER_KEY(a, b);
-    if (G.barriers.has(key)) return; // schon belegt
+  for (let idx = 0; idx < 9; idx++) {
+    const edges = CELL_OUTER_EDGES[idx];
+    if (!edges || edges.length === 0) continue;
+    const cell = cells[idx];
+    if (!cell) continue;
+    const rC = cell.getBoundingClientRect();
 
-    const rA = cells[a].getBoundingClientRect();
-    const rB = cells[b].getBoundingClientRect();
-    const isH = Math.abs(a - b) === 1;
+    for (const edge of edges) {
+      const key = EDGE_KEY(idx, edge);
+      if (G.barriers.has(key)) continue; // schon belegt
 
-    // Spalt-Mittelpunkt
-    const cx = ((rA.left + rA.right)/2  + (rB.left + rB.right)/2)  / 2 - appR.left;
-    const cy = ((rA.top  + rA.bottom)/2 + (rB.top  + rB.bottom)/2) / 2 - appR.top;
+      const geo = edgeZoneGeometry(rC, appR, edge);
+      if (!geo) continue;
 
-    // Treffzone: breiter als der sichtbare Spalt
-    const zoneW = isH ? 20 : Math.min(rA.width, rB.width) * 0.7;
-    const zoneH = isH ? Math.min(rA.height, rB.height) * 0.7 : 20;
+      const zone = document.createElement('div');
+      zone.className = 'edge-zone active';
+      zone.dataset.edgeKey = key;
+      zone.style.cssText = `
+        left:${geo.left.toFixed(1)}px;
+        top:${geo.top.toFixed(1)}px;
+        width:${geo.width.toFixed(1)}px;
+        height:${geo.height.toFixed(1)}px;
+      `;
+      zone.innerHTML = '<div class="edge-inner"></div>';
 
-    const zone = document.createElement('div');
-    zone.className = 'gap-zone active';
-    zone.style.cssText = `
-      left:${(cx - zoneW/2).toFixed(1)}px;
-      top:${(cy - zoneH/2).toFixed(1)}px;
-      width:${zoneW.toFixed(1)}px;
-      height:${zoneH.toFixed(1)}px;
-    `;
-    zone.innerHTML = '<div class="gap-inner"></div>';
+      zone.addEventListener('click', () => onEdgeClick(key, idx, edge));
+      zone.addEventListener('touchend', (e) => { e.preventDefault(); onEdgeClick(key, idx, edge); }, { passive: false });
 
-    zone.addEventListener('click', () => onGapClick(key, a, b));
-    zone.addEventListener('touchend', (e) => { e.preventDefault(); onGapClick(key, a, b); }, { passive: false });
-
-    document.getElementById('app').appendChild(zone);
-  });
+      document.getElementById('app').appendChild(zone);
+    }
+  }
 }
 
 function updateRathausScore() {
@@ -2246,11 +2321,6 @@ function setRaidActive(idx) {
   }
 }
 
-function hasBarrier(a, b) {
-  const key = `${Math.min(a,b)}-${Math.max(a,b)}`;
-  return G.barriers && G.barriers.has(key);
-}
-
 // Schildwall: gibt +1 pro benachbarter Schildwall-Karte (stapelt sich)
 function getSchildwallBonus(idx) {
   if (!G.schildwall || G.schildwall.size === 0) return 0;
@@ -2275,7 +2345,7 @@ function startRaidSequence() {
   // Neuer Überfall: Tracking welche Felder betreten wurden zurücksetzen
   G.entered = Array(9).fill(false);
 
-  const { startCell, clockwise } = G.attackDir;
+  const { startCell, clockwise, rawStartCell } = G.attackDir;
   let attackers = G.attackBlue.calc();
 
   // Bogenwacht: −2 Angreifer pro platzierter Bogenwacht-Karte
@@ -2287,7 +2357,7 @@ function startRaidSequence() {
   // Champion-Effekte anwenden
   let effectiveStart    = startCell;
   let effectiveClockwise = clockwise;
-  let ignoreBarriers    = 0;
+  let ignoreBarriers    = false;
 
   if (G.attackChampion) {
     const ch = G.attackChampion;
@@ -2297,13 +2367,20 @@ function startRaidSequence() {
         attackers += rv;
         break;
       case 'opposite_start': {
-        // Gegenüberliegende Position in CLOCKWISE_ORDER
-        const ci = CLOCKWISE_ORDER.indexOf(startCell);
-        effectiveStart = CLOCKWISE_ORDER[(ci + 4) % 8];
+        // Gegenüberliegende Position in CLOCKWISE_ORDER (relativ zur ROHEN Startposition)
+        const baseCell = rawStartCell != null ? rawStartCell : startCell;
+        const ci = CLOCKWISE_ORDER.indexOf(baseCell);
+        const oppositeRaw = CLOCKWISE_ORDER[(ci + 4) % 8];
+        // Auf Barrikaden anwenden (außer ignore_barriers — wird unten ohnehin separat behandelt)
+        effectiveStart = resolveStartCell(oppositeRaw, effectiveClockwise, false);
         break;
       }
       case 'reverse_dir':
         effectiveClockwise = !clockwise;
+        // Bei umgekehrter Laufrichtung muss Startfeld neu resolved werden (vom rohen Würfelfeld)
+        if (rawStartCell != null) {
+          effectiveStart = resolveStartCell(rawStartCell, effectiveClockwise, false);
+        }
         break;
       case 'all_six':
         G.dice.yellow = 6;
@@ -2324,7 +2401,12 @@ function startRaidSequence() {
         renderDice(false);
         break;
       case 'ignore_barriers':
-        ignoreBarriers = 2;
+        // Champion durchbricht die Front: Angriff startet am gewürfelten Feld,
+        // egal ob barrikadiert (Barrieren bleiben physisch bestehen, sind aber wirkungslos)
+        ignoreBarriers = true;
+        if (rawStartCell != null) {
+          effectiveStart = rawStartCell;
+        }
         break;
       case 'arsonist':
         // Mindestens 1 Karte wird deaktiviert — wird bei der Sequenz erzwungen
@@ -2335,7 +2417,10 @@ function startRaidSequence() {
           G.dice.blue   = tmp;
           attackers = G.attackBlue.calc();
           effectiveClockwise = (G.dice.yellow % 2 === 0);
-          G.attackDir = { ...G.attackDir, clockwise: effectiveClockwise };
+          // Neue gelb-Anzeige bedeutet auch neuen rohen Startpunkt: yellow-1 ist Index in CLOCKWISE_ORDER
+          const newRawStart = CLOCKWISE_ORDER[(G.dice.yellow - 1) % 8];
+          effectiveStart = resolveStartCell(newRawStart, effectiveClockwise, false);
+          G.attackDir = { ...G.attackDir, clockwise: effectiveClockwise, rawStartCell: newRawStart };
           G.attackerOverride = attackers;
           renderDice(false);
         }
@@ -2352,7 +2437,7 @@ function startRaidSequence() {
   }
 
   // Fragile Verteidigungskarten überschreiben Champion-Effekte
-  // (stadttor, windrose_cw, windrose_ccw)
+  // (stadttor sticht auch Barrikaden, windrose dreht Richtung)
   const beforeStart    = effectiveStart;
   const beforeClockwise = effectiveClockwise;
   ({ startCell: effectiveStart, clockwise: effectiveClockwise } =
@@ -2367,6 +2452,17 @@ function startRaidSequence() {
   if (effectiveClockwise !== beforeClockwise) {
     showToast(`🧭 Windrose erzwingt ${effectiveClockwise ? '↻' : '↺'}`);
     G.attackDir = { ...G.attackDir, clockwise: effectiveClockwise };
+  }
+
+  // Alle 8 Außenfelder barrikadiert — Angriff fällt komplett aus.
+  // (Kann nicht passieren bei Stadttor oder ignore_barriers Champion, die haben effectiveStart bereits gesetzt.)
+  if (effectiveStart === null) {
+    clearAttackerBar();
+    showToast('🛡 Die Stadt ist uneinnehmbar — kein Angriff!');
+    setHint('🛡 Vollständig barrikadiert — kein Angriff möglich', true);
+    document.querySelectorAll('.cell.attack-origin').forEach(c => c.classList.remove('attack-origin'));
+    setTimeout(() => { stopRaidAtmosphere(stage); setTimeout(() => document.getElementById('raid-overlay').classList.remove('visible'), 5000); }, 600);
+    return;
   }
 
   // Route berechnen mit effektiven Werten
@@ -2396,29 +2492,13 @@ function startRaidSequence() {
   const totalAttackers = attackers;
   initAttackerBar(totalAttackers);
   let spentSoFar = 0;
-  let barrierIgnoreLeft = ignoreBarriers;
 
   const steps = [];
-  let prev = null;
   for (const idx of raidRoute) {
     if (attackers <= 0) break;
 
-    // Barriere prüfen zwischen vorherigem und aktuellem Feld — auch wenn Felder leer sind
-    if (prev !== null && hasBarrier(prev, idx)) {
-      if (barrierIgnoreLeft > 0) {
-        steps.push({ type: 'barrier', from: prev, to: idx, ignored: true });
-        barrierIgnoreLeft--;
-      } else {
-        steps.push({ type: 'barrier', from: prev, to: idx, ignored: false });
-        attackers--;
-        if (attackers <= 0) { prev = idx; break; }
-      }
-    }
-
-    prev = idx; // immer aktualisieren, auch bei leerem Feld
-
     const card = G.board[idx];
-    if (!card) continue; // leeres Feld: Barriere wurde geprüft, Karte gibt es keine
+    if (!card) continue; // sollte durch raidRoute-Filter nicht vorkommen, aber sicher ist sicher
 
     const schildwallBonus = getSchildwallBonus(idx);
     const def  = (card.def || 0) + (G.boosted[idx] || 0) + schildwallBonus;
@@ -2447,35 +2527,7 @@ function startRaidSequence() {
   let stepDelay = 0;
 
   steps.forEach((step, si) => {
-    if (step.type === 'barrier') {
-      setTimeout(() => {
-        setRaidActive(step.to);
-        const key = `${Math.min(step.from,step.to)}-${Math.max(step.from,step.to)}`;
-        if (step.ignored) {
-          setHint(`⛩ Barriere ignoriert — Champion!`, true);
-          document.querySelectorAll('.barrier-el').forEach(b => {
-            if (b.dataset.key === key) {
-              b.style.filter = 'brightness(2) hue-rotate(270deg)';
-              setTimeout(() => b.style.filter = '', 600);
-            }
-          });
-        } else {
-          setHint(`⛩ Barriere — 1 Angreifer gestoppt`, true);
-          document.querySelectorAll('.barrier-el').forEach(b => {
-            if (b.dataset.key === key) {
-              b.style.filter = 'brightness(3) drop-shadow(0 0 6px #f0c030)';
-              setTimeout(() => b.style.filter = '', 500);
-            }
-          });
-          if (G.barriers) G.barriers.delete(key);
-          setTimeout(() => renderBarriers(), 550);
-          spendAttackers(totalAttackers - spentSoFar, totalAttackers - spentSoFar - 1);
-          spentSoFar += 1;
-        }
-      }, stepDelay);
-      stepDelay += 700;
-
-    } else {
+    {
       // Outline auf Karte setzen
       setTimeout(() => setRaidActive(step.idx), stepDelay - 150 < 0 ? 0 : stepDelay - 150);
 
@@ -2536,11 +2588,11 @@ function startRaidSequence() {
             updateRathausScore();
           }
         } else if (blocked) {
-          G.boosted[idx] = 0;
+          // Turm hat gehalten — Ritter bleibt auf dem Feld
           spawnColoredFloat(idx, `♜ −${def}`, '#6a38a8');
           renderGrid();
         } else {
-          if (G.boosted[idx]) { G.boosted[idx] = 0; renderGrid(); }
+          // Erfolgreich verteidigt — Ritter bleibt auf dem Feld
           spawnColoredFloat(idx, `🛡 +${def}`, '#3a8a3a');
         }
       }, stepDelay);
@@ -2655,7 +2707,7 @@ function restartGame() {
   G.attackBlue     = null;
   G.attackChampion = null;
   renderDice(false);
-  document.querySelectorAll('.barrier-el, .gap-zone').forEach(e => e.remove());
+  document.querySelectorAll('.edge-barrier, .edge-zone').forEach(e => e.remove());
 
   // Endbildschirm verstecken
   document.getElementById('gameover-overlay').classList.remove('show');
@@ -2684,7 +2736,7 @@ function clearSelection() {
   G.selectedBarrierKey = null;
   G.mode = 'card';
   hideCardPreview();
-  renderGapZones(false);
+  renderEdgeZones(false);
   renderPlaceRow();
   document.querySelectorAll('.cell-build-overlay').forEach(e => e.remove());
 }
@@ -2809,8 +2861,9 @@ function showCardPreview(card) {
   if (!panel || !card) { hideCardPreview(); return; }
   const info = getCardInfo(card);
   const resLabel = card.res === 'holz' ? '🪵 Holz' : card.res === 'nahrung' ? '🌾 Nahrung' : card.res === 'glas' ? '🫙 Glas' : '';
+  const ptsText = card.pts !== undefined ? formatPts(card.pts) : '';
   const stats = [
-    card.pts  ? `★ ${card.pts} Pkt` : '',
+    ptsText ? `★ ${ptsText} Pkt` : '',
     card.def  ? `🛡 ${card.def} Abw` : '',
     resLabel,
     card.upgrade ? '⬆ Stapelbar' : '',
@@ -2880,7 +2933,7 @@ function onBarrierHandClick() {
   setHint('Tippe auf einen Spalt zwischen zwei Feldern', true);
   renderHand();
   renderGrid(true);
-  setTimeout(() => renderGapZones(true), 50);
+  setTimeout(() => renderEdgeZones(true), 50);
 }
 
 function onTowerHandClick() {
@@ -3112,7 +3165,7 @@ function commitPlacement() {
   G.selectedHandIdx    = -1;
   G.selectedCellIdx    = -1;
   G.mode = 'card';
-  renderGapZones(false);
+  renderEdgeZones(false);
   renderPlaceRow();
   document.querySelectorAll('.cell-build-overlay').forEach(e => e.remove());
 
@@ -3152,11 +3205,11 @@ function commitPlacement() {
   }
 }
 
-function onGapClick(key, a, b) {
+function onEdgeClick(key, cellIdx, edge) {
   if (!G.selectedBarrier) return;
   G.selectedBarrierKey = key;
-  document.querySelectorAll('.gap-zone').forEach(z => z.classList.remove('target'));
-  placeBarrier(key, a, b);
+  document.querySelectorAll('.edge-zone').forEach(z => z.classList.remove('target'));
+  placeBarrier(key, cellIdx, edge);
 }
 
 function flashChip(key) {
@@ -3179,8 +3232,8 @@ function flashChip(key) {
 }
 
 function placeTower(idx) {
-  if (G.coins < 3 || !G.board[idx] || G.fortified[idx]) return;
-  G.coins -= 3;
+  if (G.coins < RATIO || !G.board[idx] || G.fortified[idx]) return;
+  G.coins -= RATIO;
   G.fortified[idx] = true;
   G.fortifiedNew.add(idx);
   clearSelection();
@@ -3193,7 +3246,7 @@ function placeTower(idx) {
   setHint(G.coins >= RATIO ? `Tippe ein Gebäude zum Befestigen (−${RATIO} Münzen)` : 'Nicht genug Münzen für weiteren Turm', G.coins >= RATIO);
   showToast(`Gebäude befestigt · noch ${G.coins} Münzen`);
   // Modus beenden wenn keine Münzen mehr
-  if (G.coins < 3) { clearSelection(); G.mode = 'card'; renderGrid(); }
+  if (G.coins < RATIO) { clearSelection(); G.mode = 'card'; renderGrid(); }
 }
 
 function placeKnight(idx) {
@@ -3210,32 +3263,32 @@ function placeKnight(idx) {
   showToast('Verteidigung erhöht');
 }
 
-function placeBarrier(key, a, b) {
+function placeBarrier(key, cellIdx, edge) {
   G.barriers.add(key);
   G.barrierHand--;
 
-  renderGapZones(false);
+  renderEdgeZones(false);
   clearSelection();
   renderHand();
   renderGrid();
 
-  // Settle-Animation auf der neuen Barriere
+  // Re-Render der Barrieren + Settle-Animation auf der neuen
   setTimeout(() => {
-    const newBarriers = document.querySelectorAll('.barrier-el');
-    newBarriers.forEach(b => {
-      // Finde die passende anhand der Position — einfachste Methode: letztes Element
-    });
-    // Alle barrier-el nach dem letzten renderBarriers nochmal kurz animieren
-    const allB = document.querySelectorAll('.barrier-el');
-    if (allB.length > 0) {
-      const last = allB[allB.length - 1];
-      last.classList.add('just-placed');
-      setTimeout(() => last.classList.remove('just-placed'), 500);
+    renderBarriers();
+    const el = document.querySelector(`.edge-barrier[data-edge-key="${key}"]`);
+    if (el) {
+      el.classList.add('just-placed');
+      setTimeout(() => el.classList.remove('just-placed'), 500);
     }
   }, 30);
 
+  const barricaded = isBarricaded(cellIdx);
   setHint('Wähle eine Karte aus deiner Hand');
-  showToast('🪵 Barriere errichtet!');
+  if (barricaded) {
+    showToast(`🛡 Feld ${cellIdx} vollständig barrikadiert!`);
+  } else {
+    showToast('🪵 Barriere errichtet!');
+  }
 }
 
 // ── Farbiger Burst — für Turm (violett) und Ritter (grün) ────────
@@ -3464,11 +3517,6 @@ function makeFortifyStone() {
 //  BARRIEREN — Holzpalisade zwischen Karten
 // ═══════════════════════════════════════════
 
-// Alle möglichen Nachbar-Paare im 3×3 Grid
-// horizontal: 0-1,1-2, 3-4,4-5, 6-7,7-8
-// vertikal:   0-3,1-4,2-5, 3-6,4-7,5-8
-const BARRIER_KEY = (a, b) => `${Math.min(a,b)}-${Math.max(a,b)}`;
-
 // ── Angriffsursprung-Markierung ──────────────────────────────────
 function renderAttackOrigin() {
   // Alte Markierungen entfernen
@@ -3484,90 +3532,72 @@ function renderAttackOrigin() {
 
 function renderBarriers() {
   // Alle alten Barriere-Elemente entfernen
-  document.querySelectorAll('.barrier-el').forEach(e => e.remove());
-  if (G.barriers.size === 0) return;
+  document.querySelectorAll('.edge-barrier').forEach(e => e.remove());
+  if (!G.barriers || G.barriers.size === 0) return;
 
   const gridEl = document.getElementById('grid');
   const cells  = gridEl.querySelectorAll('.cell');
-  const gridR  = gridEl.getBoundingClientRect();
   const appR   = document.getElementById('app').getBoundingClientRect();
 
   G.barriers.forEach(key => {
-    const [a, b] = key.split('-').map(Number);
-    const cellA = cells[a], cellB = cells[b];
-    if (!cellA || !cellB) return;
+    const [idxStr, edge] = key.split('-');
+    const idx = Number(idxStr);
+    const cell = cells[idx];
+    if (!cell) return;
+    if (!CELL_OUTER_EDGES[idx] || !CELL_OUTER_EDGES[idx].includes(edge)) return;
 
-    const rA = cellA.getBoundingClientRect();
-    const rB = cellB.getBoundingClientRect();
+    const rC = cell.getBoundingClientRect();
+    const cx = (rC.left + rC.right) / 2 - appR.left;
+    const cy = (rC.top  + rC.bottom) / 2 - appR.top;
 
-    // Spalt-Mitte zwischen den beiden Karten
-    const cx = ((rA.left + rA.right)/2 + (rB.left + rB.right)/2) / 2 - appR.left;
-    const cy = ((rA.top  + rA.bottom)/2 + (rB.top  + rB.bottom)/2) / 2 - appR.top;
+    // Horizontal (N/S) → flach liegendes Brett, Vertikal (O/W) → stehendes Brett
+    const isH = (edge === 'N' || edge === 'S');
 
-    // Horizontal oder vertikal?
-    const isH = Math.abs(a - b) === 1; // horizontaler Nachbar
+    // Position: am Rand der Karte, leicht außerhalb (EDGE_OFFSET)
+    let left, top;
+    switch (edge) {
+      case 'N': left = cx; top = rC.top    - appR.top - EDGE_OFFSET; break;
+      case 'S': left = cx; top = rC.bottom - appR.top + EDGE_OFFSET; break;
+      case 'W': left = rC.left  - appR.left - EDGE_OFFSET; top = cy; break;
+      case 'O': left = rC.right - appR.left + EDGE_OFFSET; top = cy; break;
+    }
 
     const el = document.createElement('div');
-    el.className = 'barrier-el';
+    el.className = 'edge-barrier';
+    el.dataset.edgeKey = key;
     el.style.cssText = `position:absolute; pointer-events:none; z-index:49;
-      left:${cx}px; top:${cy}px; transform:translate(-50%,-50%);`;
+      left:${left.toFixed(1)}px; top:${top.toFixed(1)}px; transform:translate(-50%,-50%);`;
     el.innerHTML = makeBarrierSVG(isH);
     document.getElementById('app').appendChild(el);
   });
 }
 
 function makeBarrierSVG(isHorizontal) {
-  if (isHorizontal) {
-    // Horizontal-Nachbarn (links/rechts) → Barriere von OBEN sehen
-    // Wirkt wie ein Brett das flach zwischen den Karten liegt
-    const w = 14, h = 56;
-    const bw = 10, bh = 48; // Brett-Breite und -Länge
-    const x = (w-bw)/2, y = (h-bh)/2;
-    return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"
-      viewBox="0 0 ${w} ${h}" overflow="visible"
-      style="filter:drop-shadow(1px 2px 2px rgba(18,14,10,0.35)) drop-shadow(0 1px 1px rgba(18,14,10,0.2))">
-      <!-- Draufsicht: flaches Brett -->
-      <!-- Oberfläche -->
-      <rect x="${x}" y="${y}" width="${bw}" height="${bh}" rx="1.5"
-            fill="#c4955a" stroke="#7a5020" stroke-width="0.7"/>
-      <!-- Holzmaserung (Längslinien) -->
-      <line x1="${x+bw*0.3}" y1="${y+2}" x2="${x+bw*0.28}" y2="${y+bh-2}"
-            stroke="#9a7040" stroke-width="0.5" opacity="0.6"/>
-      <line x1="${x+bw*0.6}" y1="${y+2}" x2="${x+bw*0.62}" y2="${y+bh-2}"
-            stroke="#9a7040" stroke-width="0.4" opacity="0.5"/>
-      <!-- Linke Kante (Materialstärke) -->
-      <rect x="${x-1.5}" y="${y+1}" width="2" height="${bh-2}" rx="0.5"
-            fill="#7a5020" opacity="0.7"/>
-      <!-- Glanzlinie oben -->
-      <line x1="${x+1}" y1="${y+1}" x2="${x+bw-1}" y2="${y+1}"
-            stroke="rgba(255,255,255,0.3)" stroke-width="0.8"/>
-    </svg>`;
-  } else {
-    // Vertikal-Nachbarn (oben/unten) → Barriere von der SEITE sehen
-    // Wirkt wie ein stehendes Brett das zwischen den Karten steckt
-    const w = 56, h = 16;
-    const bw = 48, bh = 11;
-    const x = (w-bw)/2, y = (h-bh)/2;
-    return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"
-      viewBox="0 0 ${w} ${h}" overflow="visible"
-      style="filter:drop-shadow(0 2px 2px rgba(18,14,10,0.35)) drop-shadow(0 1px 1px rgba(18,14,10,0.2))">
-      <!-- Seitenansicht: stehendes Brett -->
-      <!-- Vorderfläche -->
-      <rect x="${x}" y="${y}" width="${bw}" height="${bh}" rx="1"
-            fill="#c4955a" stroke="#7a5020" stroke-width="0.7"/>
-      <!-- Holzmaserung (waagerecht) -->
-      <line x1="${x+2}" y1="${y+bh*0.35}" x2="${x+bw-2}" y2="${y+bh*0.32}"
-            stroke="#9a7040" stroke-width="0.5" opacity="0.55"/>
-      <line x1="${x+2}" y1="${y+bh*0.65}" x2="${x+bw-2}" y2="${y+bh*0.68}"
-            stroke="#9a7040" stroke-width="0.4" opacity="0.45"/>
-      <!-- Oberkante (Materialstärke) -->
-      <rect x="${x+1}" y="${y-1.5}" width="${bw-2}" height="2" rx="0.5"
-            fill="#e8b870" opacity="0.8"/>
-      <!-- Glanzlinie -->
-      <line x1="${x+1}" y1="${y+1}" x2="${x+bw-1}" y2="${y+1}"
-            stroke="rgba(255,255,255,0.28)" stroke-width="0.7"/>
-    </svg>`;
-  }
+  // EIN konsistentes Brett-Design (Draufsicht): waagerecht liegendes Holzbrett.
+  // Für O/W-Kanten wird das Brett per CSS um 90° rotiert — gleiche Perspektive,
+  // nur andere Orientierung.
+  const w = 56, h = 14;
+  const bw = 48, bh = 10;
+  const x = (w-bw)/2, y = (h-bh)/2;
+  const rotation = isHorizontal ? 0 : 90;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"
+    viewBox="0 0 ${w} ${h}" overflow="visible"
+    style="transform:rotate(${rotation}deg); filter:drop-shadow(0 2px 2px rgba(18,14,10,0.4)) drop-shadow(0 1px 1px rgba(18,14,10,0.2))">
+    <!-- Brett-Oberfläche (Draufsicht) -->
+    <rect x="${x}" y="${y}" width="${bw}" height="${bh}" rx="1.5"
+          fill="#c4955a" stroke="#7a5020" stroke-width="0.7"/>
+    <!-- Holzmaserung längs -->
+    <line x1="${x+2}" y1="${y+bh*0.35}" x2="${x+bw-2}" y2="${y+bh*0.32}"
+          stroke="#9a7040" stroke-width="0.5" opacity="0.55"/>
+    <line x1="${x+2}" y1="${y+bh*0.65}" x2="${x+bw-2}" y2="${y+bh*0.68}"
+          stroke="#9a7040" stroke-width="0.4" opacity="0.45"/>
+    <!-- Obere Materialstärken-Kante -->
+    <rect x="${x+1}" y="${y-1.5}" width="${bw-2}" height="2" rx="0.5"
+          fill="#e8b870" opacity="0.8"/>
+    <!-- Glanzlinie -->
+    <line x1="${x+1}" y1="${y+1}" x2="${x+bw-1}" y2="${y+1}"
+          stroke="rgba(255,255,255,0.28)" stroke-width="0.7"/>
+  </svg>`;
 }
 
 // ═══════════════════════════════════════════
@@ -3671,10 +3701,10 @@ splashStartBtn.addEventListener('touchend', (e) => { e.preventDefault(); dismiss
 
 // ── GLOSSAR ─────────────────────────────────────────────────────────
 const GLOSSAR_ENTRIES = [
-  { term: 'Barriere',       def: 'Holzplanke zwischen zwei Feldern. Schwächt Angreifer um 1, bevor sie das nächste Feld erreichen. Wird nach dem Überfall entfernt.' },
-  { term: 'Ritter',         def: 'Verteidiger auf einem Gebäude. Schlägt einen Angreifer zurück — einmalig pro Überfall, dann weg.' },
-  { term: 'Münze',          def: 'Währung. 3 Münzen kaufen einen Turm. Münzen bleiben über Jahreszeiten erhalten.' },
-  { term: 'Turm',           def: 'Permanente Befestigung auf einem Gebäude. Ein Turm macht ein Feld uneinnehmbar — egal wie stark der Angriff.' },
+  { term: 'Barriere',       def: 'Holzwall an der Außenkante eines Randfeldes. Sind ALLE Außenkanten eines Feldes barrikadiert (Kantenfelder: 1 Barriere, Eckfelder: 2 Barrieren), kann dort kein Angriff starten. Der Angriff weicht in Laufrichtung zum nächsten ungeschützten Feld aus. Barrieren bleiben permanent — sie werden nicht verbraucht.' },
+  { term: 'Ritter',         def: 'Verteidiger auf einem Gebäude. Erhöht die Verteidigung um +1 und bleibt so lange wie die Karte liegt — egal wie viele Überfälle kommen. Wird die Karte geplündert oder abgerissen, verschwindet auch der Ritter.' },
+  { term: 'Münze',          def: 'Währung. 2 Münzen kaufen einen Turm. Münzen bleiben über Jahreszeiten erhalten.' },
+  { term: 'Turm',           def: 'Permanente Befestigung auf einem Gebäude (2 Münzen). Ein Turm macht ein Feld uneinnehmbar — egal wie stark der Angriff.' },
   { term: 'Rathaus',        def: 'Das feste Gebäude in der Mitte (Feld 5). Kann nicht platziert oder ersetzt werden. Schiebe eine Karte darunter um es aufzuwerten (max. Level 6) — du erhältst sofort eine Münze.' },
   { term: 'Rathaus-Level',  def: 'Stufe 1–6. Karten mit ⚡ skalieren ihre Punkte mit dem Level. Je höher das Level, desto wertvoller diese Karten.' },
   { term: 'Rohstoffe',      def: 'Holz 🪵, Nahrung 🌾 und Glas 🫙. Werden in der Bauphase produziert und in der Rüstphase zu Barrieren, Rittern und Münzen umgewandelt.' },
