@@ -234,7 +234,7 @@ const DICE_COLORS = ['yellow', 'blue', 'red'];
 
 // ── Tauschverhältnis — fest 2:1 ──
 const RATIO = 2;
-const VERSION = '0.9.43';
+const VERSION = '0.9.49';
 
 // ── Außenkanten-System für Barrieren ──────────────────────────────
 // 12 Außenkanten am 3×3-Grid: jedes Randfeld hat 1 (Kante) oder 2 (Ecke) Außenkanten.
@@ -272,7 +272,7 @@ function isBarricaded(idx) {
 // Angreifer-Anzahl Formeln (blau)
 const ATTACKER_POOL = [
   { id:'A1', label: '5',              calc: ()  => 5 },
-  { id:'A2', label: '3',              calc: ()  => 3 },
+  { id:'A2', label: '5 + Min',        calc: ()  => 5 + Math.min(G.dice.yellow, G.dice.blue, G.dice.red) },
   { id:'A3', label: 'Jahr. × 2',      calc: ()  => (G.season + 1) * 2 },
   { id:'A4', label: '⚡ × 2',         calc: ()  => Math.max(1, G.rathausLevel) * 2 },
   { id:'A5', label: '🔵 + 3',         calc: ()  => G.dice.blue + 3 },
@@ -457,6 +457,16 @@ function rollDice() {
   } else {
     const maxVal = Math.max(...DICE_COLORS.map(c => G.dice[c]));
     G.diceConcealed = new Set(DICE_COLORS.filter(c => G.dice[c] === maxVal));
+  }
+
+  // Z21 (Fernkundschafter) / Z22 (Zahlmeister): liegen sie auf dem Brett,
+  // wird der entsprechende verborgene Würfel sofort aufgedeckt.
+  const boardCards = G.board.filter((c, i) => c && i !== 4 && !G.plundered[i]);
+  if (boardCards.some(c => c.special_mechanic === 'reveal_yellow')) {
+    G.diceConcealed.delete('yellow');
+  }
+  if (boardCards.some(c => c.special_mechanic === 'reveal_blue')) {
+    G.diceConcealed.delete('blue');
   }
 
   G.attackerOverride = null;
@@ -994,7 +1004,7 @@ function canUpgrade(existingIdx, newCard) {
   if (isDualRes(existing) || isDualRes(newCard)) return false;
   const stack = G.stacks[existingIdx];
   const stackSize = stack ? stack.length : 1;
-  if (stackSize >= 3) return false;
+  if (stackSize >= 6) return false;
   if (!existing.upgrade) return false;
   if (!existing.res || !newCard.res) return false;
   return existing.res === newCard.res;
@@ -1042,32 +1052,30 @@ function canPlaceDecoy(targetIdx) {
 
 // Zentrale Spielbarkeits-Prüfung für Hand-Karten.
 // Gibt { playable: bool, reason: string, coinBypass: bool, coinCost: number } zurück.
-// coinBypass: true wenn Karte zu teuer, aber mit Münzen spielbar
+// Sonderkarten brauchen minLevel — fehlende Level kosten je 1 Münze.
 function getCardPlayability(card) {
   if (!card) return { playable: false, reason: '' };
 
-  // Spezialkarte mit Würfelkosten — Rathaus-Level gibt Rabatt
-  if (card.isSpecialOffer && card.diceColor && G.diceRolled) {
-    const baseCost = G.dice[card.diceColor];
-    const discount = G.rathausLevel - 1;
-    const finalCost = Math.max(0, baseCost - discount);
-    if (finalCost > 0 && G.coins < finalCost) {
-      return {
-        playable: false,
-        reason: `Kostet ${finalCost} Münze${finalCost > 1 ? 'n' : ''} (Würfel ${baseCost} − Rathaus ${discount} = ${finalCost})`,
-        coinBypass: false,
-        coinCost: finalCost
-      };
-    }
-    if (finalCost > 0) {
+  // Sonderkarte: Rathaus-Level prüfen
+  if (card.cat === 'special' && card.minLevel) {
+    const missing = Math.max(0, card.minLevel - G.rathausLevel);
+    if (missing > 0) {
+      if (G.coins < missing) {
+        return {
+          playable: false,
+          reason: `Braucht Rathaus Level ${card.minLevel} (oder ${missing} Münze${missing > 1 ? 'n' : ''} — du hast ${G.coins})`,
+          coinBypass: false,
+          coinCost: missing,
+        };
+      }
       return {
         playable: true,
-        reason: `${finalCost} Münze${finalCost > 1 ? 'n' : ''} zahlen (Würfel ${baseCost} − Rathaus ${discount})`,
+        reason: `${missing} Münze${missing > 1 ? 'n' : ''} zahlen (Level ${G.rathausLevel} statt ${card.minLevel})`,
         coinBypass: true,
-        coinCost: finalCost
+        coinCost: missing,
       };
     }
-    // finalCost === 0: kostenlos dank Rathaus-Rabatt
+    // Level erreicht — kostenlos
   }
 
   // Fragile-Karte: nur eine pro Mechanik-Gruppe in der Stadt
@@ -2321,14 +2329,16 @@ function setRaidActive(idx) {
   }
 }
 
-// Schildwall: gibt +1 pro benachbarter Schildwall-Karte (stapelt sich)
+// Schildwall: gibt +1 (+2 bei neighbor_defense_2) pro benachbarter Schildwall-Karte
 function getSchildwallBonus(idx) {
   if (!G.schildwall || G.schildwall.size === 0) return 0;
-  // Nachbarn im 3×3-Grid: horizontal/vertikal
   const neighbors = [idx-3, idx+3, idx-1, idx+1].filter(n => n >= 0 && n < 9 && n !== 4);
   let bonus = 0;
   for (const sw of G.schildwall) {
-    if (neighbors.includes(sw) && G.board[sw] && !G.plundered[sw]) bonus++;
+    if (neighbors.includes(sw) && G.board[sw] && !G.plundered[sw]) {
+      const mech = G.board[sw].special_mechanic;
+      bonus += (mech === 'neighbor_defense_2') ? 2 : 1;
+    }
   }
   return bonus;
 }
@@ -2743,14 +2753,15 @@ function clearSelection() {
 
 // Beschreibungen für Sonderkarten-Mechaniken
 const SPECIAL_MECHANIC_DESC = {
-  free_build:        'Kostenlos — zählt nicht zum Baulimit',
+  free_build:        'Kostenlos bauen — zählt nicht zum Baulimit',
   minus2_attackers:  '−2 Angreifer vor dem Überfall',
   neighbor_defense:  'Nachbarkarten erhalten +1 Verteidigung',
+  neighbor_defense_2:'Nachbarkarten erhalten +2 Verteidigung',
   indestructible:    'Kann nie deaktiviert werden',
   reveal_red:        'Deckt roten Würfel (Champion) auf, wenn verborgen',
   reveal_yellow:     'Deckt gelben Würfel (Richtung) auf, wenn verborgen',
   reveal_blue:       'Deckt blauen Würfel (Angreifer) auf, wenn verborgen',
-  direct_knight:     'Gibt sofort 2 Ritter beim Bau',
+  direct_knight:     'Gibt sofort 3 Ritter beim Bau',
   direct_barrier:    'Gibt sofort 2 Barrieren beim Bau',
   direct_coins:          'Gibt sofort 2 Münzen beim Bau',
   direct_coins_seasonal: 'Gibt sofort Jahreszeit × 1 Münzen beim Bau',
@@ -2777,14 +2788,15 @@ const CARD_DESC_FALLBACK = {
   direct_coins_seasonal: 'Gibt Münzen je Jahreszeit.',
   minus2_attackers:   '−2 Angreifer vor dem Überfall.',
   neighbor_defense:   'Nachbarn erhalten +1 Verteidigung.',
+  neighbor_defense_2: 'Nachbarn erhalten +2 Verteidigung.',
   indestructible:     'Kann nie deaktiviert werden.',
   destroyable:        '15 Punkte — wird bei Deaktivierung zerstört.',
   pts_if_plundered:   '0 Punkte aktiv · 8 Punkte wenn geplündert.',
   season_pts:         'Punkte = Jahreszeit × 2 (max 8 in Herbst).',
   sonder_count:       'Punkte = Anzahl Sonderkarten auf dem Feld × 2.',
-  reveal_yellow:      'Deckt Angriffsrichtung auf.',
-  reveal_blue:        'Deckt Angreiferzahl auf.',
-  free_build:         'Kostenlos bauen — zählt nicht zum Limit.',
+  reveal_yellow:      'Angriffsrichtung immer sichtbar, solange die Karte liegt.',
+  reveal_blue:        'Angreiferzahl immer sichtbar, solange die Karte liegt.',
+  free_build:         'Kostenlos bauen — zählt nicht zum Baulimit.',
 };
 
 function getCardInfo(card) {
@@ -2924,13 +2936,11 @@ function onCellClick(idx) {
   }
 
   // ── Validierung vor dem Overlay ───────────────────────────────
-  // Spezialkarte: Kosten prüfen (nicht abziehen — erst bei commitPlacement)
-  if (selCard.isSpecialOffer && selCard.diceColor && G.diceRolled) {
-    const baseCost  = G.dice[selCard.diceColor];
-    const discount  = G.rathausLevel - 1;
-    const finalCost = Math.max(0, baseCost - discount);
-    if (finalCost > G.coins) {
-      showToast(`Kostet ${finalCost} Münzen (fehlen ${finalCost - G.coins})`);
+  // Sonderkarte: Level-Voraussetzung prüfen
+  if (selCard.cat === 'special' && selCard.minLevel) {
+    const missing = Math.max(0, selCard.minLevel - G.rathausLevel);
+    if (missing > G.coins) {
+      showToast(`Rathaus Level ${selCard.minLevel} nötig (fehlen ${missing - G.coins} Münzen)`);
       return;
     }
   }
@@ -2993,16 +3003,14 @@ function commitPlacement() {
 
   const existing = G.board[targetIdx];
 
-  // ── Münzkosten für Spezialkarten abziehen ─────────────────────
-  if (newCard.isSpecialOffer && newCard.diceColor && G.diceRolled) {
-    const baseCost  = G.dice[newCard.diceColor];
-    const discount  = G.rathausLevel - 1;
-    const finalCost = Math.max(0, baseCost - discount);
-    if (finalCost > G.coins) { showToast('Nicht genug Münzen'); clearSelection(); renderGrid(true); return; }
-    if (finalCost > 0) {
-      G.coins -= finalCost;
+  // ── Münzkosten für Sonderkarten (fehlende Level) abziehen ─────
+  if (newCard.cat === 'special' && newCard.minLevel) {
+    const missing = Math.max(0, newCard.minLevel - G.rathausLevel);
+    if (missing > 0) {
+      if (missing > G.coins) { showToast('Nicht genug Münzen'); clearSelection(); renderGrid(true); return; }
+      G.coins -= missing;
       SFX.coin && SFX.coin();
-      showToast(`${finalCost} Münze${finalCost > 1 ? 'n' : ''} gezahlt`);
+      showToast(`${missing} Münze${missing > 1 ? 'n' : ''} gezahlt (Level-Ausgleich)`);
     }
   }
 
@@ -3063,21 +3071,23 @@ function commitPlacement() {
     G.schildwall = G.schildwall || new Set();
     G.schildwall.add(targetIdx);
     showToast('Schildwall — Nachbarn erhalten +1 Verteidigung');
+  } else if (mech === 'neighbor_defense_2') {
+    G.schildwall = G.schildwall || new Set();
+    G.schildwall.add(targetIdx);
+    showToast('Schildwall — Nachbarn erhalten +2 Verteidigung');
   } else if (mech === 'indestructible') {
     G.fortified[targetIdx] = true;
     showToast('Ewige Bastion — kann nie deaktiviert werden!');
   } else if (mech === 'reveal_red' && G.diceConcealed?.has('red')) {
     G.diceConcealed.delete('red');
     showToast('Spion des Rates — Champion aufgedeckt!');
-  } else if (mech === 'reveal_yellow' && G.diceConcealed?.has('yellow')) {
-    G.diceConcealed.delete('yellow');
-    showToast('Fernkundschafter — Angriffsrichtung aufgedeckt!');
-  } else if (mech === 'reveal_blue' && G.diceConcealed?.has('blue')) {
-    G.diceConcealed.delete('blue');
-    showToast('Zahlmeister — Angreiferzahl aufgedeckt!');
+  } else if (mech === 'reveal_yellow') {
+    showToast('Fernkundschafter — Angriffsrichtung wird immer aufgedeckt!');
+  } else if (mech === 'reveal_blue') {
+    showToast('Zahlmeister — Angreiferzahl wird immer aufgedeckt!');
   } else if (mech === 'direct_knight') {
-    G.knights = (G.knights || 0) + 2;
-    showToast('Ritterburg — +2 Ritter sofort!');
+    G.knights = (G.knights || 0) + 3;
+    showToast('Ritterburg — +3 Ritter sofort!');
   } else if (mech === 'direct_barrier') {
     G.barrierHand = (G.barrierHand || 0) + 2;
     showToast('Holzfestung — +2 Barrieren sofort!');
@@ -3643,7 +3653,7 @@ splashStartBtn.addEventListener('touchend', (e) => { e.preventDefault(); dismiss
 const GLOSSAR_ENTRIES = [
   { term: 'Barriere',       def: 'Holzwall an der Außenkante eines Randfeldes. Sind ALLE Außenkanten eines Feldes barrikadiert (Kantenfelder: 1 Barriere, Eckfelder: 2 Barrieren), kann dort kein Angriff starten. Der Angriff weicht in Laufrichtung zum nächsten ungeschützten Feld aus. Barrieren bleiben permanent — sie werden nicht verbraucht.' },
   { term: 'Ritter',         def: 'Verteidiger auf einem Gebäude. Erhöht die Verteidigung um +1 und bleibt so lange wie die Karte liegt — egal wie viele Überfälle kommen. Wird die Karte geplündert oder abgerissen, verschwindet auch der Ritter.' },
-  { term: 'Münze',          def: 'Währung. 2 Münzen kaufen einen Turm. Münzen bleiben über Jahreszeiten erhalten.' },
+  { term: 'Münze',          def: 'Währung. Dient zum Kauf von Türmen (2 Münzen) und zum Ausgleich fehlender Rathaus-Level beim Bau von Sonderkarten (1 Münze pro fehlendem Level). Münzen bleiben über Jahreszeiten erhalten.' },
   { term: 'Turm',           def: 'Permanente Befestigung auf einem Gebäude (2 Münzen). Ein Turm macht ein Feld uneinnehmbar — egal wie stark der Angriff.' },
   { term: 'Rathaus',        def: 'Das feste Gebäude in der Mitte (Feld 5). Kann nicht platziert oder ersetzt werden. Schiebe eine Karte darunter um es aufzuwerten (max. Level 6) — du erhältst sofort eine Münze.' },
   { term: 'Rathaus-Level',  def: 'Stufe 1–6. Karten mit ⚡ skalieren ihre Punkte mit dem Level. Je höher das Level, desto wertvoller diese Karten.' },
@@ -3654,7 +3664,7 @@ const GLOSSAR_ENTRIES = [
   { term: 'Siegpunkte',     def: 'Werden am Ende jeder Jahreszeit aus allen aktiven (nicht geplünderten) Gebäuden addiert. Nach 4 Jahreszeiten ist der Gesamtscore dein Ergebnis.' },
   { term: 'Champion',       def: 'Der rote Würfel bestimmt eine Sonderfähigkeit der angreifenden Horde — z.B. Durchbruch, Berserker oder Flankierung. Immer eine Überraschung.' },
   { term: 'Angriffsrichtung', def: 'Der gelbe Würfel. Bestimmt von welcher Seite die Horde einmarschiert (NW, N, NO, SO, S). Beeinflusst welche Felder zuerst getroffen werden.' },
-  { term: 'Upgrade',        def: 'Lege eine zweite (oder dritte) Karte gleichen Rohstoffs auf ein bestehendes Gebäude. Erhöht Rohstoffproduktion und oft auch Verteidigung.' },
+  { term: 'Upgrade',        def: 'Lege weitere Karten gleichen Rohstoffs auf ein bestehendes Gebäude (max. 6). Erhöht Rohstoffproduktion und oft auch Verteidigung.' },
   { term: 'Innovation (⚡)', def: 'Karten mit ⚡ skalieren ihre Siegpunkte mit dem Rathaus-Level. Bei Level 6 können sie sehr hohe Punktzahlen erreichen.' },
 ];
 
