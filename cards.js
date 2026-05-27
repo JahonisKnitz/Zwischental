@@ -33,115 +33,115 @@ function getCardTone(card) {
 
 const BUILDINGS = [
   // WINTER (24)
-  {id:'holzfaeller_b',    cat:'winter', pts:2, def:1, res:'holz',    inno:0, upgrade:true},
-  {id:'holzfaeller_b',    cat:'winter', pts:2, def:1, res:'holz',    inno:0, upgrade:true},
-  {id:'holzfaeller_b',    cat:'winter', pts:2, def:1, res:'holz',    inno:0, upgrade:true},
-  {id:'bauernhof_b',      cat:'winter', pts:2, def:1, res:'nahrung', inno:0, upgrade:true},
-  {id:'bauernhof_b',      cat:'winter', pts:2, def:1, res:'nahrung', inno:0, upgrade:true},
-  {id:'bauernhof_b',      cat:'winter', pts:2, def:1, res:'nahrung', inno:0, upgrade:true},
-  {id:'glasblaeserei_b',  cat:'winter', pts:2, def:1, res:'glas',    inno:0, upgrade:true},
-  {id:'glasblaeserei_b',  cat:'winter', pts:2, def:1, res:'glas',    inno:0, upgrade:true},
-  {id:'glasblaeserei_b',  cat:'winter', pts:2, def:1, res:'glas',    inno:0, upgrade:true},
-  {id:'ratskeller',       cat:'winter', pts:3, def:1, res:null,       inno:1, upgrade:false},
-  {id:'ratskeller',       cat:'winter', pts:3, def:1, res:null,       inno:1, upgrade:false},
-  {id:'holzfaeller_inno', cat:'winter', pts:1, def:1, res:'holz',    inno:1, upgrade:true},
-  {id:'bauernhof_inno',   cat:'winter', pts:1, def:1, res:'nahrung', inno:1, upgrade:true},
-  {id:'bibliothek',       cat:'winter', pts:5, def:0, res:null,       inno:1, upgrade:false},
-  {id:'bibliothek',       cat:'winter', pts:5, def:0, res:null,       inno:1, upgrade:false},
-  {id:'grundschule',      cat:'winter', pts:1, def:0, res:null,       inno:1, upgrade:false},
-  {id:'grundschule',      cat:'winter', pts:1, def:0, res:null,       inno:1, upgrade:false},
-  {id:'sternwarte',       cat:'winter', pts:7, def:0, res:null,       inno:1, upgrade:false},
-  {id:'schmuckhaendler',  cat:'winter', pts:9, def:0, res:null,       inno:0, upgrade:false},
-  {id:'wachposten',       cat:'winter', pts:2, def:3, res:null,       inno:0, upgrade:false},
-  {id:'wachposten',       cat:'winter', pts:2, def:3, res:null,       inno:0, upgrade:false},
-  {id:'gaukler',          cat:'winter', pts:2, def:0, res:null,       inno:0, upgrade:false, fragile:true, special_mechanic:'decoy'},
-  {id:'fragile_w3',       cat:'winter', pts:0, def:0, res:null,      inno:0, upgrade:false, fragile:true, special_mechanic:'force_start'},
-  {id:'fragile_w3',       cat:'winter', pts:0, def:0, res:null,      inno:0, upgrade:false, fragile:true, special_mechanic:'force_start'},
+  {id:'W1', name:'Holzfäller',    cat:'winter', pts:2, def:1, res:'holz',    inno:0, upgrade:true},
+  {id:'W2', name:'Holzfäller',    cat:'winter', pts:2, def:1, res:'holz',    inno:0, upgrade:true},
+  {id:'W3', name:'Holzfäller',    cat:'winter', pts:2, def:1, res:'holz',    inno:0, upgrade:true},
+  {id:'W4', name:'Bauernhof',      cat:'winter', pts:2, def:1, res:'nahrung', inno:0, upgrade:true},
+  {id:'W5', name:'Bauernhof',      cat:'winter', pts:2, def:1, res:'nahrung', inno:0, upgrade:true},
+  {id:'W6', name:'Bauernhof',      cat:'winter', pts:2, def:1, res:'nahrung', inno:0, upgrade:true},
+  {id:'W7', name:'Glashütte',  cat:'winter', pts:2, def:1, res:'glas',    inno:0, upgrade:true},
+  {id:'W8', name:'Glashütte',  cat:'winter', pts:2, def:1, res:'glas',    inno:0, upgrade:true},
+  {id:'W9', name:'Glashütte',  cat:'winter', pts:2, def:1, res:'glas',    inno:0, upgrade:true},
+  {id:'W10', name:'Ratskeller',       cat:'winter', pts:3, def:1, res:null,       inno:1, upgrade:false},
+  {id:'W11', name:'Ratskeller',       cat:'winter', pts:3, def:1, res:null,       inno:1, upgrade:false},
+  {id:'W12', name:'Holzfäller ⚡', cat:'winter', pts:1, def:1, res:'holz',    inno:1, upgrade:true},
+  {id:'W13', name:'Bauernhof ⚡',   cat:'winter', pts:1, def:1, res:'nahrung', inno:1, upgrade:true},
+  {id:'W14', name:'Bibliothek',       cat:'winter', pts:5, def:0, res:null,       inno:1, upgrade:false},
+  {id:'W15', name:'Bibliothek',       cat:'winter', pts:5, def:0, res:null,       inno:1, upgrade:false},
+  {id:'W16', name:'Grundschule',      cat:'winter', pts:1, def:0, res:null,       inno:1, upgrade:false},
+  {id:'W17', name:'Grundschule',      cat:'winter', pts:1, def:0, res:null,       inno:1, upgrade:false},
+  {id:'W18', name:'Sternwarte',       cat:'winter', pts:7, def:0, res:null,       inno:1, upgrade:false},
+  {id:'W19', name:'Schmuckhändler',  cat:'winter', pts:9, def:0, res:null,       inno:0, upgrade:false},
+  {id:'W20', name:'Wachposten',       cat:'winter', pts:2, def:3, res:null,       inno:0, upgrade:false},
+  {id:'W21', name:'Wachposten',       cat:'winter', pts:2, def:3, res:null,       inno:0, upgrade:false},
+  {id:'W22', name:'Gaukler',          cat:'winter', pts:2, def:0, res:null,       inno:0, upgrade:false, fragile:true, special_mechanic:'decoy'},
+  {id:'W23', name:'Stadttor',       cat:'winter', pts:0, def:0, res:null,      inno:0, upgrade:false, fragile:true, special_mechanic:'force_start'},
+  {id:'W24', name:'Stadttor',       cat:'winter', pts:0, def:0, res:null,      inno:0, upgrade:false, fragile:true, special_mechanic:'force_start'},
   // FRÜHLING (20)
-  {id:'saegerei_b',      cat:'spring', pts:3, def:1, res:'holz',    inno:0, upgrade:true},
-  {id:'saegerei_b',      cat:'spring', pts:3, def:1, res:'holz',    inno:0, upgrade:true},
-  {id:'muehle_b',        cat:'spring', pts:3, def:1, res:'nahrung', inno:0, upgrade:true},
-  {id:'muehle_b',        cat:'spring', pts:3, def:1, res:'nahrung', inno:0, upgrade:true},
-  {id:'schmelze_a',      cat:'spring', pts:2, def:1, res:'glas',    inno:0, upgrade:true},
-  {id:'schmelze_a',      cat:'spring', pts:2, def:1, res:'glas',    inno:0, upgrade:true},
-  {id:'schmelze_a',      cat:'spring', pts:2, def:1, res:'glas',    inno:0, upgrade:true},
-  {id:'marktplatz',      cat:'spring', pts:4, def:1, res:'holz',     inno:0, upgrade:false, special_mechanic:'dual_res_nahrung'},
-  {id:'marktplatz',      cat:'spring', pts:4, def:1, res:'holz',     inno:0, upgrade:false, special_mechanic:'dual_res_nahrung'},
-  {id:'wachturm_b',      cat:'spring', pts:3, def:2, res:null,       inno:1, upgrade:false},
-  {id:'wachturm_b',      cat:'spring', pts:3, def:2, res:null,       inno:1, upgrade:false},
-  {id:'wachturm_b',      cat:'spring', pts:3, def:2, res:null,       inno:1, upgrade:false},
-  {id:'orakel_gelb',     cat:'spring', pts:{type:'dice+',color:'yellow',bonus:1}, def:1, res:null, inno:1, upgrade:false},
-  {id:'orakel_blau',     cat:'spring', pts:{type:'dice+',color:'blue',  bonus:1}, def:1, res:null, inno:1, upgrade:false},
-  {id:'diamanthaendler', cat:'spring', pts:9, def:1, res:null,       inno:0, upgrade:false},
-  {id:'observatorium',   cat:'spring', pts:7, def:1, res:null,       inno:1, upgrade:false},
-  {id:'fragile_f1',      cat:'spring', pts:2, def:0, res:null,      inno:0, upgrade:false, fragile:true, special_mechanic:'decoy'},
-  {id:'fragile_f3',      cat:'spring', pts:0, def:0, res:null,      inno:0, upgrade:false, fragile:true, special_mechanic:'force_start'},
-  {id:'fragile_f4',      cat:'spring', pts:2, def:0, res:null,      inno:1, upgrade:false, fragile:true, special_mechanic:'force_dir_cw'},
-  {id:'fragile_f5',      cat:'spring', pts:2, def:0, res:null,      inno:0, upgrade:false, fragile:true, special_mechanic:'force_dir_ccw'},
+  {id:'F1', name:'Sägemühle',      cat:'spring', pts:3, def:1, res:'holz',    inno:0, upgrade:true},
+  {id:'F2', name:'Sägemühle',      cat:'spring', pts:3, def:1, res:'holz',    inno:0, upgrade:true},
+  {id:'F3', name:'Mühle',        cat:'spring', pts:3, def:1, res:'nahrung', inno:0, upgrade:true},
+  {id:'F4', name:'Mühle',        cat:'spring', pts:3, def:1, res:'nahrung', inno:0, upgrade:true},
+  {id:'F5', name:'Schmelze',      cat:'spring', pts:2, def:1, res:'glas',    inno:0, upgrade:true},
+  {id:'F6', name:'Schmelze',      cat:'spring', pts:2, def:1, res:'glas',    inno:0, upgrade:true},
+  {id:'F7', name:'Schmelze',      cat:'spring', pts:2, def:1, res:'glas',    inno:0, upgrade:true},
+  {id:'F8', name:'Marktplatz',      cat:'spring', pts:4, def:1, res:'holz',     inno:0, upgrade:false, special_mechanic:'dual_res_nahrung'},
+  {id:'F9', name:'Marktplatz',      cat:'spring', pts:4, def:1, res:'holz',     inno:0, upgrade:false, special_mechanic:'dual_res_nahrung'},
+  {id:'F10', name:'Wachturm',      cat:'spring', pts:3, def:2, res:null,       inno:1, upgrade:false},
+  {id:'F11', name:'Wachturm',      cat:'spring', pts:3, def:2, res:null,       inno:1, upgrade:false},
+  {id:'F12', name:'Wachturm',      cat:'spring', pts:3, def:2, res:null,       inno:1, upgrade:false},
+  {id:'F13', name:'Orakel (Gelb)',     cat:'spring', pts:{type:'dice+',color:'yellow',bonus:1}, def:1, res:null, inno:1, upgrade:false},
+  {id:'F14', name:'Orakel (Blau)',     cat:'spring', pts:{type:'dice+',color:'blue',  bonus:1}, def:1, res:null, inno:1, upgrade:false},
+  {id:'F15', name:'Diamanthändler', cat:'spring', pts:9, def:1, res:null,       inno:0, upgrade:false},
+  {id:'F16', name:'Observatorium',   cat:'spring', pts:7, def:1, res:null,       inno:1, upgrade:false},
+  {id:'F17', name:'Gaukler',      cat:'spring', pts:2, def:0, res:null,      inno:0, upgrade:false, fragile:true, special_mechanic:'decoy'},
+  {id:'F18', name:'Stadttor',      cat:'spring', pts:0, def:0, res:null,      inno:0, upgrade:false, fragile:true, special_mechanic:'force_start'},
+  {id:'F19', name:'Windrose ↻',      cat:'spring', pts:2, def:0, res:null,      inno:1, upgrade:false, fragile:true, special_mechanic:'force_dir_cw'},
+  {id:'F20', name:'Windrose ↺',      cat:'spring', pts:2, def:0, res:null,      inno:0, upgrade:false, fragile:true, special_mechanic:'force_dir_ccw'},
   // SOMMER (16)
-  {id:'forsthaus_a',     cat:'summer', pts:4, def:2, res:'holz',    inno:1, upgrade:true},
-  {id:'forsthaus_a',     cat:'summer', pts:4, def:2, res:'holz',    inno:1, upgrade:true},
-  {id:'erntehof_a',      cat:'summer', pts:4, def:2, res:'nahrung', inno:1, upgrade:true},
-  {id:'erntehof_a',      cat:'summer', pts:4, def:2, res:'nahrung', inno:1, upgrade:true},
-  {id:'glashuette_a',    cat:'summer', pts:4, def:2, res:'glas',    inno:0, upgrade:true},
-  {id:'schloss',         cat:'summer', pts:7, def:2, res:null,       inno:1, upgrade:false},
-  {id:'prophet_gelb',    cat:'summer', pts:{type:'dice+',color:'yellow',bonus:2}, def:1, res:null, inno:1, upgrade:false},
-  {id:'prophet_blau',    cat:'summer', pts:{type:'dice+',color:'blue',  bonus:2}, def:1, res:null, inno:1, upgrade:false},
-  {id:'forstwirtschaft', cat:'summer', pts:{type:'res*',res:'holz',    factor:1}, def:1, res:'holz',    inno:1, upgrade:true},
-  {id:'brauerei',        cat:'summer', pts:{type:'res*',res:'nahrung', factor:1}, def:1, res:'nahrung', inno:1, upgrade:true},
-  {id:'markthalle',      cat:'summer', pts:4, def:2, res:'holz',    inno:0, upgrade:false, special_mechanic:'dual_res_nahrung'},
-  {id:'juwelenhaendler', cat:'summer', pts:11,def:0, res:null,       inno:0, upgrade:false},
-  {id:'fragile_s1',      cat:'summer', pts:2, def:0, res:null,      inno:0, upgrade:false, fragile:true, special_mechanic:'decoy'},
-  {id:'fragile_s3',      cat:'summer', pts:0, def:0, res:null,      inno:0, upgrade:false, fragile:true, special_mechanic:'force_start'},
-  {id:'fragile_s4',      cat:'summer', pts:3, def:0, res:null,      inno:1, upgrade:false, fragile:true, special_mechanic:'force_dir_cw'},
-  {id:'fragile_s5',      cat:'summer', pts:3, def:0, res:null,      inno:0, upgrade:false, fragile:true, special_mechanic:'force_dir_ccw'},
+  {id:'SO1', name:'Forsthaus',     cat:'summer', pts:4, def:2, res:'holz',    inno:1, upgrade:true},
+  {id:'SO2', name:'Forsthaus',     cat:'summer', pts:4, def:2, res:'holz',    inno:1, upgrade:true},
+  {id:'SO3', name:'Erntehof',      cat:'summer', pts:4, def:2, res:'nahrung', inno:1, upgrade:true},
+  {id:'SO4', name:'Erntehof',      cat:'summer', pts:4, def:2, res:'nahrung', inno:1, upgrade:true},
+  {id:'SO5', name:'Glashütte',    cat:'summer', pts:4, def:2, res:'glas',    inno:0, upgrade:true},
+  {id:'SO6', name:'Schloss',         cat:'summer', pts:7, def:2, res:null,       inno:1, upgrade:false},
+  {id:'SO7', name:'Prophet (Gelb)',    cat:'summer', pts:{type:'dice+',color:'yellow',bonus:2}, def:1, res:null, inno:1, upgrade:false},
+  {id:'SO8', name:'Prophet (Blau)',    cat:'summer', pts:{type:'dice+',color:'blue',  bonus:2}, def:1, res:null, inno:1, upgrade:false},
+  {id:'SO9', name:'Forstwirtschaft', cat:'summer', pts:{type:'res*',res:'holz',    factor:1}, def:1, res:'holz',    inno:1, upgrade:true},
+  {id:'SO10', name:'Brauerei',        cat:'summer', pts:{type:'res*',res:'nahrung', factor:1}, def:1, res:'nahrung', inno:1, upgrade:true},
+  {id:'SO11', name:'Markthalle',      cat:'summer', pts:4, def:2, res:'holz',    inno:0, upgrade:false, special_mechanic:'dual_res_nahrung'},
+  {id:'SO12', name:'Juwelenhändler', cat:'summer', pts:11,def:0, res:null,       inno:0, upgrade:false},
+  {id:'SO13', name:'Gaukler',      cat:'summer', pts:2, def:0, res:null,      inno:0, upgrade:false, fragile:true, special_mechanic:'decoy'},
+  {id:'SO14', name:'Stadttor',      cat:'summer', pts:0, def:0, res:null,      inno:0, upgrade:false, fragile:true, special_mechanic:'force_start'},
+  {id:'SO15', name:'Windrose ↻',      cat:'summer', pts:3, def:0, res:null,      inno:1, upgrade:false, fragile:true, special_mechanic:'force_dir_cw'},
+  {id:'SO16', name:'Windrose ↺',      cat:'summer', pts:3, def:0, res:null,      inno:0, upgrade:false, fragile:true, special_mechanic:'force_dir_ccw'},
   // HERBST (12)
-  {id:'grossbasar',      cat:'autumn', pts:5, def:2, res:'holz',     inno:0, upgrade:false, special_mechanic:'dual_res_nahrung'},
-  {id:'palast',          cat:'autumn', pts:9, def:2, res:null,       inno:0, upgrade:false},
-  {id:'burg',            cat:'autumn', pts:5, def:4, res:null,       inno:0, upgrade:false},
-  {id:'seher_gelb',      cat:'autumn', pts:{type:'dice+',color:'yellow',bonus:3}, def:2, res:null, inno:0, upgrade:false},
-  {id:'seher_blau',      cat:'autumn', pts:{type:'dice+',color:'blue',  bonus:3}, def:2, res:null, inno:0, upgrade:false},
-  {id:'zimmerwerk',      cat:'autumn', pts:{type:'res*',res:'holz',    factor:2}, def:3, res:'holz',    inno:0, upgrade:true},
-  {id:'kornkammer',      cat:'autumn', pts:{type:'res*',res:'nahrung', factor:2}, def:3, res:'nahrung', inno:0, upgrade:true},
-  {id:'handelsgilde',    cat:'autumn', pts:{type:'blue*', factor:2},              def:1, res:null,       inno:0, upgrade:false},
-  {id:'schatzkammer',    cat:'autumn', pts:12,def:0, res:null,       inno:0, upgrade:false},
-  {id:'fragile_h1',      cat:'autumn', pts:2, def:0, res:null,      inno:0, upgrade:false, fragile:true, special_mechanic:'decoy'},
-  {id:'fragile_h4',      cat:'autumn', pts:4, def:0, res:null,      inno:0, upgrade:false, fragile:true, special_mechanic:'force_dir_cw'},
-  {id:'fragile_h5',      cat:'autumn', pts:4, def:0, res:null,      inno:0, upgrade:false, fragile:true, special_mechanic:'force_dir_ccw'},
+  {id:'H1', name:'Großbasar',      cat:'autumn', pts:5, def:2, res:'holz',     inno:0, upgrade:false, special_mechanic:'dual_res_nahrung'},
+  {id:'H2', name:'Palast',          cat:'autumn', pts:9, def:2, res:null,       inno:0, upgrade:false},
+  {id:'H3', name:'Burg',            cat:'autumn', pts:5, def:4, res:null,       inno:0, upgrade:false},
+  {id:'H4', name:'Seher (Gelb)',      cat:'autumn', pts:{type:'dice+',color:'yellow',bonus:3}, def:2, res:null, inno:0, upgrade:false},
+  {id:'H5', name:'Seher (Blau)',      cat:'autumn', pts:{type:'dice+',color:'blue',  bonus:3}, def:2, res:null, inno:0, upgrade:false},
+  {id:'H6', name:'Zimmerwerk',      cat:'autumn', pts:{type:'res*',res:'holz',    factor:2}, def:3, res:'holz',    inno:0, upgrade:true},
+  {id:'H7', name:'Kornkammer',      cat:'autumn', pts:{type:'res*',res:'nahrung', factor:2}, def:3, res:'nahrung', inno:0, upgrade:true},
+  {id:'H8', name:'Handelsgilde',    cat:'autumn', pts:{type:'blue*', factor:2},              def:1, res:null,       inno:0, upgrade:false},
+  {id:'H9', name:'Schatzkammer',    cat:'autumn', pts:12,def:0, res:null,       inno:0, upgrade:false},
+  {id:'H10', name:'Gaukler',      cat:'autumn', pts:2, def:0, res:null,      inno:0, upgrade:false, fragile:true, special_mechanic:'decoy'},
+  {id:'H11', name:'Windrose ↻',      cat:'autumn', pts:4, def:0, res:null,      inno:0, upgrade:false, fragile:true, special_mechanic:'force_dir_cw'},
+  {id:'H12', name:'Windrose ↺',      cat:'autumn', pts:4, def:0, res:null,      inno:0, upgrade:false, fragile:true, special_mechanic:'force_dir_ccw'},
 ];
 const RATHAUS = { id:'rathaus', cat:null, pts:0, def:0, res:null, inno:0, upgrade:false };
 
 const SPECIAL_BUILDINGS = [
-  {id:'blutarena',        cat:'special', pts:{type:'dice*',color:'red',   factor:3}, def:2, res:null,      inno:0, upgrade:false, diceColor:'red'},
-  {id:'zwillingsturm',    cat:'special', pts:{type:'dice+dice',a:'yellow',b:'blue'}, def:2, res:null,      inno:0, upgrade:false, diceColor:'yellow'},
-  {id:'akademie',         cat:'special', pts:{type:'inno*',factor:2},               def:2, res:null,      inno:2, upgrade:false, diceColor:'blue'},
-  {id:'trojanisches_pferd',cat:'special',pts:{type:'def_sum'},                       def:0, res:null,      inno:0, upgrade:false, diceColor:'yellow', fragile:true},
-  {id:'ruinenmagier',     cat:'special', pts:{type:'deact*',factor:3},               def:1, res:null,      inno:0, upgrade:false, diceColor:'red'},
-  {id:'ritterburg',       cat:'special', pts:6,                                       def:1, res:null,      inno:0, upgrade:false, diceColor:'red',    special_mechanic:'direct_knight'},
-  {id:'gewuerzmarkt',     cat:'special', pts:6,                                       def:1, res:'nahrung',inno:0, upgrade:false, diceColor:'yellow', special_mechanic:'dual_res_holz'},
-  {id:'druidenzirkel',    cat:'special', pts:{type:'season*',factor:3},               def:1, res:null,      inno:0, upgrade:false, diceColor:'spring', special_mechanic:'season_pts'},
-  {id:'alchemistenlabor', cat:'special', pts:{type:'res*',res:'glas',    factor:3},  def:1, res:'glas',   inno:1, upgrade:false, diceColor:'yellow'},
-  {id:'kristallpalast',   cat:'special', pts:15,                                      def:0, res:null,      inno:0, upgrade:false, diceColor:'yellow', special_mechanic:'destroyable', fragile:true},
-  {id:'versicherung',     cat:'special', pts:0,                                       def:2, res:null,      inno:0, upgrade:false, diceColor:'blue',   special_mechanic:'pts_if_plundered'},
-  {id:'versicherung',     cat:'special', pts:0,                                       def:2, res:null,      inno:0, upgrade:false, diceColor:'blue',   special_mechanic:'pts_if_plundered'},
-  {id:'schild_des_rates', cat:'special', pts:{type:'dice+',color:'red',   bonus:5},  def:4, res:null,      inno:0, upgrade:false, diceColor:'red'},
-  {id:'nebelbastei',      cat:'special', pts:{type:'dice_sum*',a:'blue',b:'yellow',factor:2}, def:0, res:null, inno:0, upgrade:false, diceColor:'blue'},
-  {id:'immobilienhaendler',cat:'special', pts:{type:'deact*',factor:3},              def:1, res:null,      inno:0, upgrade:false, diceColor:'blue',  special_mechanic:'sonder_count'},
-  {id:'offene_tore',      cat:'special', pts:5,                                       def:1, res:null,      inno:0, upgrade:false, diceColor:'spring', special_mechanic:'free_build'},
-  {id:'bogenwacht',       cat:'special', pts:3,                                       def:1, res:null,      inno:0, upgrade:false, diceColor:'red',    special_mechanic:'minus2_attackers'},
-  {id:'schildwall',       cat:'special', pts:2,                                       def:1, res:null,      inno:0, upgrade:false, diceColor:'yellow', special_mechanic:'neighbor_defense'},
-  {id:'ewige_bastion',    cat:'special', pts:6,                                       def:2, res:null,      inno:0, upgrade:false, diceColor:'blue',   special_mechanic:'indestructible'},
-  {id:'ewige_bastion',    cat:'special', pts:6,                                       def:2, res:null,      inno:0, upgrade:false, diceColor:'blue',   special_mechanic:'indestructible'},
-  {id:'fernkundschafter', cat:'special', pts:{type:'dice*',color:'yellow',factor:1}, def:1, res:null,      inno:0, upgrade:false, diceColor:'yellow', special_mechanic:'reveal_yellow', fragile:true},
-  {id:'zahlmeister',      cat:'special', pts:{type:'dice*',color:'blue',  factor:1}, def:1, res:null,      inno:0, upgrade:false, diceColor:'blue',   special_mechanic:'reveal_blue',   fragile:true},
-  {id:'muenzpraegung',    cat:'special', pts:4,                                       def:1, res:null,      inno:0, upgrade:false, diceColor:'yellow', special_mechanic:'direct_coins'},
-  {id:'muenzpraegung',    cat:'special', pts:4,                                       def:1, res:null,      inno:0, upgrade:false, diceColor:'yellow', special_mechanic:'direct_coins'},
-  {id:'bankhaus',         cat:'special', pts:5,                                       def:1, res:null,      inno:0, upgrade:false, diceColor:'blue',   special_mechanic:'direct_coins_seasonal'},
-  {id:'handelszentrum',   cat:'special', pts:{type:'blue*', factor:3},                def:1, res:null,      inno:0, upgrade:false, diceColor:'blue'},
-  {id:'bogenwacht',       cat:'special', pts:3,                                       def:1, res:null,      inno:0, upgrade:false, diceColor:'red',    special_mechanic:'minus2_attackers'},
-  {id:'bogenwacht',       cat:'special', pts:3,                                       def:1, res:null,      inno:0, upgrade:false, diceColor:'red',    special_mechanic:'minus2_attackers'},
-  {id:'schildwall',       cat:'special', pts:2,                                       def:1, res:null,      inno:0, upgrade:false, diceColor:'yellow', special_mechanic:'neighbor_defense'},
-  {id:'schildwall',       cat:'special', pts:2,                                       def:1, res:null,      inno:0, upgrade:false, diceColor:'yellow', special_mechanic:'neighbor_defense'},
+  {id:'Z1', name:'Blutarena',        cat:'special', pts:{type:'dice*',color:'red',   factor:3}, def:2, res:null,      inno:0, upgrade:false, diceColor:'red'},
+  {id:'Z2', name:'Zwillingsturm',    cat:'special', pts:{type:'dice+dice',a:'yellow',b:'blue'}, def:2, res:null,      inno:0, upgrade:false, diceColor:'yellow'},
+  {id:'Z3', name:'Akademie',         cat:'special', pts:{type:'inno*',factor:2},               def:2, res:null,      inno:2, upgrade:false, diceColor:'blue'},
+  {id:'Z4', name:'Trojanisches Pferd',cat:'special',pts:{type:'def_sum'},                       def:0, res:null,      inno:0, upgrade:false, diceColor:'yellow', fragile:true},
+  {id:'Z5', name:'Ruinenmagier',     cat:'special', pts:{type:'deact*',factor:3},               def:1, res:null,      inno:0, upgrade:false, diceColor:'red'},
+  {id:'Z6', name:'Ritterburg',       cat:'special', pts:6,                                       def:1, res:null,      inno:0, upgrade:false, diceColor:'red',    special_mechanic:'direct_knight'},
+  {id:'Z7', name:'Gewürzmarkt',     cat:'special', pts:6,                                       def:1, res:'nahrung',inno:0, upgrade:false, diceColor:'yellow', special_mechanic:'dual_res_holz'},
+  {id:'Z8', name:'Druidenzirkel',    cat:'special', pts:{type:'season*',factor:3},               def:1, res:null,      inno:0, upgrade:false, diceColor:'spring', special_mechanic:'season_pts'},
+  {id:'Z9', name:'Alchemistenlabor', cat:'special', pts:{type:'res*',res:'glas',    factor:3},  def:1, res:'glas',   inno:1, upgrade:false, diceColor:'yellow'},
+  {id:'Z10', name:'Kristallpalast',   cat:'special', pts:15,                                      def:0, res:null,      inno:0, upgrade:false, diceColor:'yellow', special_mechanic:'destroyable', fragile:true},
+  {id:'Z11', name:'Versicherung',     cat:'special', pts:0,                                       def:2, res:null,      inno:0, upgrade:false, diceColor:'blue',   special_mechanic:'pts_if_plundered'},
+  {id:'Z12', name:'Versicherung',     cat:'special', pts:0,                                       def:2, res:null,      inno:0, upgrade:false, diceColor:'blue',   special_mechanic:'pts_if_plundered'},
+  {id:'Z13', name:'Schild des Rates', cat:'special', pts:{type:'dice+',color:'red',   bonus:5},  def:4, res:null,      inno:0, upgrade:false, diceColor:'red'},
+  {id:'Z14', name:'Nebelbastei',      cat:'special', pts:{type:'dice_sum*',a:'blue',b:'yellow',factor:2}, def:0, res:null, inno:0, upgrade:false, diceColor:'blue'},
+  {id:'Z15', name:'Immobilienhändler',cat:'special', pts:{type:'deact*',factor:3},              def:1, res:null,      inno:0, upgrade:false, diceColor:'blue',  special_mechanic:'sonder_count'},
+  {id:'Z16', name:'Offene Tore',      cat:'special', pts:5,                                       def:1, res:null,      inno:0, upgrade:false, diceColor:'spring', special_mechanic:'free_build'},
+  {id:'Z17', name:'Bogenwacht',       cat:'special', pts:3,                                       def:1, res:null,      inno:0, upgrade:false, diceColor:'red',    special_mechanic:'minus2_attackers'},
+  {id:'Z18', name:'Schildwall',       cat:'special', pts:2,                                       def:1, res:null,      inno:0, upgrade:false, diceColor:'yellow', special_mechanic:'neighbor_defense'},
+  {id:'Z19', name:'Ewige Bastion',    cat:'special', pts:6,                                       def:2, res:null,      inno:0, upgrade:false, diceColor:'blue',   special_mechanic:'indestructible'},
+  {id:'Z20', name:'Ewige Bastion',    cat:'special', pts:6,                                       def:2, res:null,      inno:0, upgrade:false, diceColor:'blue',   special_mechanic:'indestructible'},
+  {id:'Z21', name:'Fernkundschafter', cat:'special', pts:{type:'dice*',color:'yellow',factor:1}, def:1, res:null,      inno:0, upgrade:false, diceColor:'yellow', special_mechanic:'reveal_yellow', fragile:true},
+  {id:'Z22', name:'Zahlmeister',      cat:'special', pts:{type:'dice*',color:'blue',  factor:1}, def:1, res:null,      inno:0, upgrade:false, diceColor:'blue',   special_mechanic:'reveal_blue',   fragile:true},
+  {id:'Z23', name:'Münzprägung',    cat:'special', pts:4,                                       def:1, res:null,      inno:0, upgrade:false, diceColor:'yellow', special_mechanic:'direct_coins'},
+  {id:'Z24', name:'Münzprägung',    cat:'special', pts:4,                                       def:1, res:null,      inno:0, upgrade:false, diceColor:'yellow', special_mechanic:'direct_coins'},
+  {id:'Z25', name:'Bankhaus',         cat:'special', pts:5,                                       def:1, res:null,      inno:0, upgrade:false, diceColor:'blue',   special_mechanic:'direct_coins_seasonal'},
+  {id:'Z26', name:'Handelszentrum',   cat:'special', pts:{type:'blue*', factor:3},                def:1, res:null,      inno:0, upgrade:false, diceColor:'blue'},
+  {id:'Z27', name:'Bogenwacht',       cat:'special', pts:3,                                       def:1, res:null,      inno:0, upgrade:false, diceColor:'red',    special_mechanic:'minus2_attackers'},
+  {id:'Z28', name:'Bogenwacht',       cat:'special', pts:3,                                       def:1, res:null,      inno:0, upgrade:false, diceColor:'red',    special_mechanic:'minus2_attackers'},
+  {id:'Z29', name:'Schildwall',       cat:'special', pts:2,                                       def:1, res:null,      inno:0, upgrade:false, diceColor:'yellow', special_mechanic:'neighbor_defense'},
+  {id:'Z30', name:'Schildwall',       cat:'special', pts:2,                                       def:1, res:null,      inno:0, upgrade:false, diceColor:'yellow', special_mechanic:'neighbor_defense'},
 ];
 
 // ═══════════════════════════════════════════
@@ -545,115 +545,92 @@ function drawIsoBuilding(id, w, h, stroke, isSpecial, animated) {
 
   const map = {
     // ── Rathaus ──
-    rathaus:             () => isoTower(cx, cy, u*2.0, u*3.5, u*2.0, stroke, isSpecial),
+    rathaus:  () => isoTower(cx, cy, u*2.0, u*3.5, u*2.0, stroke, isSpecial),
 
     // ── WINTER ──
-    holzfaeller_a:       WATER,
-    holzfaeller_b:       WATER,
-    holzfaeller_inno:    WATER,
-    bauernhof_a:         WIND,
-    bauernhof_b:         WIND,
-    bauernhof_inno:      WIND,
-    glasblaeserei_a:     FORGE,
-    glasblaeserei_b:     FORGE,
-    glasblaeserei_inno:  FORGE,
-    kapelle_inno:        CHAPEL,
-    ratskeller:          () => HOUSE(2.2, 1.8, 2.2, 1.2),
-    bibliothek:          MANOR,
-    grundschule:         () => HOUSE(1.8, 1.4, 1.8, 1.0),
-    sternwarte:          () => TOWER(1.4, 3.2),
-    schmuckhaendler:     () => HOUSE(2.0, 1.6, 2.0, 1.0),
-    diamanthaendler:     () => HOUSE(2.0, 1.6, 2.0, 1.0),
-    juwelenhaendler:     () => HOUSE(2.2, 1.8, 2.2, 1.2),
-    schatzkammer:        () => HOUSE(2.4, 2.0, 2.4, 1.4),
-    observatorium:       () => TOWER(1.4, 3.2),
-    wachposten:          () => TOWER(1.2, 2.4),
-    gaukler:             MANOR,
-    wehrgang:            () => TOWER(1.2, 2.8),
+    W1: WATER, W2: WATER, W3: WATER,           // Holzfäller
+    W4: WIND,  W5: WIND,  W6: WIND,            // Bauernhof
+    W7: FORGE, W8: FORGE, W9: FORGE,           // Glashütte
+    W10: () => HOUSE(2.2, 1.8, 2.2, 1.2),      // Ratskeller
+    W11: () => HOUSE(2.2, 1.8, 2.2, 1.2),
+    W12: WATER,                                 // Holzfäller ⚡
+    W13: WIND,                                  // Bauernhof ⚡
+    W14: MANOR, W15: MANOR,                    // Bibliothek
+    W16: () => HOUSE(1.8, 1.4, 1.8, 1.0),      // Grundschule
+    W17: () => HOUSE(1.8, 1.4, 1.8, 1.0),
+    W18: () => TOWER(1.4, 3.2),                // Sternwarte
+    W19: () => HOUSE(2.0, 1.6, 2.0, 1.0),      // Schmuckhändler
+    W20: () => TOWER(1.2, 2.4), W21: () => TOWER(1.2, 2.4), // Wachposten
+    W22: MANOR,                                // Gaukler
+    W23: () => TOWER(1.4, 2.8), W24: () => TOWER(1.4, 2.8), // Stadttor
 
     // ── FRÜHLING ──
-    saegerei_a:          WATER,
-    saegerei_b:          WATER,
-    muehle_a:            WIND,
-    muehle_b:            WIND,
-    muehle_inno:         WIND,
-    schmelze_a:          FORGE,
-    marktplatz:          () => HOUSE(2.5, 1.6, 2.5, 1.0),
-    stadthaus:           () => HOUSE(2.8, 2.2, 2.8, 1.6),
-    wachturm_a:          () => TOWER(1.3, 3.2),
-    wachturm_b:          () => TOWER(1.4, 3.5),
-    wachturm_inno:       () => TOWER(1.3, 3.4),
-    orakel_gelb:         MANOR,
-    orakel_blau:         MANOR,
-    orakel_rot:          MANOR,
+    F1: WATER,  F2: WATER,                     // Sägemühle
+    F3: WIND,   F4: WIND,                      // Mühle
+    F5: FORGE,  F6: FORGE, F7: FORGE,          // Schmelze
+    F8: () => HOUSE(2.5, 1.6, 2.5, 1.0),       // Marktplatz
+    F9: () => HOUSE(2.5, 1.6, 2.5, 1.0),
+    F10: () => TOWER(1.4, 3.5), F11: () => TOWER(1.4, 3.5), F12: () => TOWER(1.4, 3.5), // Wachturm
+    F13: MANOR, F14: MANOR,                    // Orakel
+    F15: () => HOUSE(2.0, 1.6, 2.0, 1.0),      // Diamanthändler
+    F16: () => TOWER(1.4, 3.2),                // Observatorium
+    F17: MANOR,                                // Gaukler
+    F18: () => TOWER(1.4, 2.8),               // Stadttor
+    F19: MANOR, F20: MANOR,                   // Windrose
 
     // ── SOMMER ──
-    forsthaus_a:         WATER,
-    forsthaus_b:         WATER,
-    erntehof_a:          WIND,
-    erntehof_b:          WIND,
-    glashuette_a:        FORGE,
-    glashuette_inno:     FORGE,
-    kathedrale_s:        CATH,
-    schloss:             () => TOWER(2.0, 4.2),
-    kaserne:             () => HOUSE(3.0, 2.0, 3.0, 1.0),
-    prophet_gelb:        MANOR,
-    prophet_blau:        MANOR,
-    forstwirtschaft:     WATER,
-    brauerei:            WIND,
-    markthalle:          () => HOUSE(2.8, 1.8, 2.8, 1.0),
+    SO1: WATER, SO2: WATER,                    // Forsthaus
+    SO3: WIND,  SO4: WIND,                     // Erntehof
+    SO5: FORGE,                                // Glashütte
+    SO6: () => TOWER(2.0, 4.2),               // Schloss
+    SO7: MANOR, SO8: MANOR,                   // Prophet
+    SO9: WATER,                                // Forstwirtschaft
+    SO10: WIND,                                // Brauerei
+    SO11: () => HOUSE(2.8, 1.8, 2.8, 1.0),    // Markthalle
+    SO12: () => HOUSE(2.2, 1.8, 2.2, 1.2),    // Juwelenhändler
+    SO13: MANOR,                               // Gaukler
+    SO14: () => TOWER(1.4, 2.8),              // Stadttor
+    SO15: MANOR, SO16: MANOR,                 // Windrose
 
     // ── HERBST ──
-    grossbasar:          () => HOUSE(3.0, 2.0, 3.0, 1.2),
-    handelsgilde:        () => HOUSE(2.6, 2.2, 2.6, 1.6),
-    palast:              () => TOWER(2.2, 4.8),
-    festung:             () => HOUSE(3.2, 2.2, 3.2, 0.8),
-    burg:                () => TOWER(2.4, 4.0),
-    seher_gelb:          MANOR,
-    seher_blau:          MANOR,
-    seher_rot:           MANOR,
-    zimmerwerk:          WATER,
-    kornkammer:          WIND,
-    observatorium:       FORGE,
+    H1: () => HOUSE(3.0, 2.0, 3.0, 1.2),      // Großbasar
+    H2: () => TOWER(2.2, 4.8),                // Palast
+    H3: () => TOWER(2.4, 4.0),                // Burg
+    H4: MANOR, H5: MANOR,                     // Seher
+    H6: WATER,                                 // Zimmerwerk
+    H7: WIND,                                  // Kornkammer
+    H8: () => HOUSE(2.6, 2.2, 2.6, 1.6),      // Handelsgilde
+    H9: () => HOUSE(2.4, 2.0, 2.4, 1.4),      // Schatzkammer
+    H10: MANOR,                                // Gaukler
+    H11: MANOR, H12: MANOR,                   // Windrose
 
-    // ── SONDER ──
-    sonnentempel:        CATH,
-    mondturm:            () => TOWER(1.6, 4.0),
-    blutarena:           () => HOUSE(3.2, 1.6, 3.2, 0.6),
-    zwillingsturm:       () => TOWER(1.8, 3.8),
-    kriegsrat:           () => HOUSE(2.6, 2.0, 2.6, 1.4),
-    sturmtor:            () => TOWER(2.0, 3.2),
-    akademie:            CATH,
-    trojanisches_pferd:  () => HOUSE(3.4, 1.8, 3.4, 0.8),
-    ruinenmagier:        MANOR,
-    ritterburg:          () => TOWER(1.8, 4.2),
-    holzfestung:         () => HOUSE(2.4, 1.6, 2.4, 0.8),
-    handelshaus:         WATER,
-    gewuerzmarkt:        WIND,
-    kaiserpalast:        () => TOWER(2.4, 5.0),
-    gotteshaus:          CATH,
-    alchemistenlabor:    FORGE,
-    bankettsaal:         () => HOUSE(2.8, 2.4, 2.8, 1.8),
-    sternguckerei:       MANOR,
-    kristallpalast:      () => TOWER(2.0, 4.5),
-    orakelturm:          () => TOWER(1.6, 3.6),
-    schild_des_rates:    () => TOWER(2.0, 3.0),
-    nebelbastei:         MANOR,
-    drachenhort:         () => TOWER(2.2, 4.4),
-    freie_stadt:         () => HOUSE(2.6, 2.0, 2.6, 1.4),
-    offene_tore:         () => HOUSE(2.8, 1.8, 2.8, 1.2),
-    bogenwacht:          () => TOWER(1.4, 3.0),
-    schildwall:          () => HOUSE(2.8, 1.6, 2.8, 0.8),
-    ewige_bastion:       () => TOWER(2.0, 3.8),
-    spion_des_rates:     MANOR,
-    fernkundschafter:    MANOR,
-    zahlmeister:         MANOR,
-    muenzpraegung:       () => TOWER(1.2, 2.2),
-    bankhaus:            () => HOUSE(2.4, 2.0, 2.4, 1.4),
-    handelszentrum:      () => HOUSE(2.8, 2.2, 2.8, 1.6),
-    immobilienhaendler:  () => HOUSE(2.8, 2.0, 2.8, 1.4),
-    druidenzirkel:       CATH,
-    versicherung:        () => TOWER(1.6, 3.2),
+    // ── SONDERKARTEN ──
+    Z1: () => HOUSE(3.2, 1.6, 3.2, 0.6),      // Blutarena
+    Z2: () => TOWER(1.8, 3.8),                // Zwillingsturm
+    Z3: CATH,                                  // Akademie
+    Z4: () => HOUSE(3.4, 1.8, 3.4, 0.8),      // Trojanisches Pferd
+    Z5: MANOR,                                 // Ruinenmagier
+    Z6: () => TOWER(1.8, 4.2),                // Ritterburg
+    Z7: WIND,                                  // Gewürzmarkt
+    Z8: CATH,                                  // Druidenzirkel
+    Z9: FORGE,                                 // Alchemistenlabor
+    Z10: () => TOWER(2.0, 4.5),               // Kristallpalast
+    Z11: () => TOWER(1.6, 3.2), Z12: () => TOWER(1.6, 3.2), // Versicherung
+    Z13: () => TOWER(2.0, 3.0),               // Schild des Rates
+    Z14: MANOR,                                // Nebelbastei
+    Z15: () => HOUSE(2.8, 2.0, 2.8, 1.4),     // Immobilienhändler
+    Z16: () => HOUSE(2.8, 1.8, 2.8, 1.2),     // Offene Tore
+    Z17: () => TOWER(1.4, 3.0), Z18: () => TOWER(1.4, 3.0), // Bogenwacht ×3
+    Z19: () => TOWER(2.0, 3.8), Z20: () => TOWER(2.0, 3.8), // Ewige Bastion ×2
+    Z21: MANOR,                                // Fernkundschafter
+    Z22: MANOR,                                // Zahlmeister
+    Z23: () => TOWER(1.2, 2.2), Z24: () => TOWER(1.2, 2.2), // Münzprägung ×2
+    Z25: () => HOUSE(2.4, 2.0, 2.4, 1.4),     // Bankhaus
+    Z26: () => HOUSE(2.8, 2.2, 2.8, 1.6),     // Handelszentrum
+    Z27: () => TOWER(1.4, 3.0),               // Bogenwacht (weitere)
+    Z28: () => TOWER(1.4, 3.0),
+    Z29: () => HOUSE(2.8, 1.6, 2.8, 0.8),     // Schildwall (weitere)
+    Z30: () => HOUSE(2.8, 1.6, 2.8, 0.8),
   };
 
   return (map[id] || HOUSE)();

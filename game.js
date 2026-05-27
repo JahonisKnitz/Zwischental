@@ -234,7 +234,7 @@ const DICE_COLORS = ['yellow', 'blue', 'red'];
 
 // ── Tauschverhältnis — fest 2:1 ──
 const RATIO = 2;
-const VERSION = '0.9.40';
+const VERSION = '0.9.43';
 
 // ── Außenkanten-System für Barrieren ──────────────────────────────
 // 12 Außenkanten am 3×3-Grid: jedes Randfeld hat 1 (Kante) oder 2 (Ecke) Außenkanten.
@@ -271,14 +271,14 @@ function isBarricaded(idx) {
 // ── Überfall-Mechaniken ──────────────────────────────────────────
 // Angreifer-Anzahl Formeln (blau)
 const ATTACKER_POOL = [
-  { label: '5',              calc: ()  => 5 },
-  { label: '3',              calc: ()  => 3 },
-  { label: 'Jahr. × 2',      calc: ()  => (G.season + 1) * 2 },
-  { label: '⚡ × 2',         calc: ()  => Math.max(1, G.rathausLevel) * 2 },
-  { label: '🔵 + 3',         calc: ()  => G.dice.blue + 3 },
-  { label: '4 + ✦',          calc: ()  => 4 + G.board.filter((c,i) => c && i!==4 && c.cat==='special' && !G.plundered[i]).length },
-  { label: 'Σ niedrigste 2', calc: ()  => { const vals = [G.dice.yellow, G.dice.blue, G.dice.red].sort((a,b)=>a-b); return vals[0]+vals[1]; } },
-  { label: '6',              calc: ()  => 6 },
+  { id:'A1', label: '5',              calc: ()  => 5 },
+  { id:'A2', label: '3',              calc: ()  => 3 },
+  { id:'A3', label: 'Jahr. × 2',      calc: ()  => (G.season + 1) * 2 },
+  { id:'A4', label: '⚡ × 2',         calc: ()  => Math.max(1, G.rathausLevel) * 2 },
+  { id:'A5', label: '🔵 + 3',         calc: ()  => G.dice.blue + 3 },
+  { id:'A6', label: '4 + ✦',          calc: ()  => 4 + G.board.filter((c,i) => c && i!==4 && c.cat==='special' && !G.plundered[i]).length },
+  { id:'A7', label: 'Σ niedrigste 2', calc: ()  => { const vals = [G.dice.yellow, G.dice.blue, G.dice.red].sort((a,b)=>a-b); return vals[0]+vals[1]; } },
+  { id:'A8', label: '6',              calc: ()  => 6 },
 ];
 
 // Zeigt die Angreiferzahl berechnet, oder '?' wenn verborgen
@@ -375,18 +375,18 @@ function applyFragileDefenses({ startCell, clockwise }) {
 
 // ── Champions (roter Würfel) ─────────────────────────────────────
 const CHAMPION_POOL = [
-  { id:'plus_red',        label: '+🔴 Angreifer',       desc: (v) => `+${v} zusätzliche Angreifer` },
-  { id:'opposite_start',  label: 'Gegenrichtung',        desc: ()  => `Angriff startet gegenüber` },
-  { id:'reverse_dir',     label: 'Richtung umkehren',    desc: ()  => `↻ wird ↺ und umgekehrt` },
-  { id:'all_six',         label: '🟡🔵 auf 6',           desc: ()  => `Gelb und Blau werden auf 6 gesetzt` },
-  { id:'ignore_barriers', label: 'Barrieren ignorieren', desc: ()  => `Barrikaden wirkungslos — Start am gewürfelten Feld` },
-  { id:'coward',          label: 'Ohne Anführer',        desc: ()  => `Kein Anführer` },
-  { id:'all_hidden',      label: 'Alle verborgen',       desc: ()  => `Alle Überfallkarten bleiben verborgen` },
-  { id:'all_one',         label: '🟡🔵 auf 1',           desc: ()  => `Gelb und Blau werden auf 1 gesetzt` },
-  { id:'arsonist',        label: 'Brandstifter',         desc: ()  => `Mindestens 1 Karte wird immer deaktiviert` },
-  { id:'switcher',        label: 'Wechselhafter Anführer',desc: ()  => `Gelb und Blau tauschen die Rollen` },
-  { id:'vacationer',      label: 'Urlauber',             desc: ()  => `Sommer: −3 · Frühling/Herbst: +6` },
-  { id:'volksaufstand',   label: 'Volksaufstand',        desc: ()  => `Führender Spieler: +1 Gebäude deaktiviert` },
+  { id:'C1',  label: '+🔴 Angreifer',        desc: (v) => `+${v} zusätzliche Angreifer` },
+  { id:'C2',  label: 'Gegenrichtung',         desc: ()  => `Angriff startet gegenüber` },
+  { id:'C3',  label: 'Richtung umkehren',     desc: ()  => `↻ wird ↺ und umgekehrt` },
+  { id:'C4',  label: '🟡🔵 auf 6',            desc: ()  => `Gelb und Blau werden auf 6 gesetzt` },
+  { id:'C5',  label: 'Barrieren ignorieren',  desc: ()  => `Barrikaden wirkungslos — Start am gewürfelten Feld` },
+  { id:'C6',  label: 'Ohne Anführer',         desc: ()  => `Kein Anführer` },
+  { id:'C7',  label: 'Alle verborgen',        desc: ()  => `Alle Überfallkarten bleiben verborgen` },
+  { id:'C8',  label: '🟡🔵 auf 1',            desc: ()  => `Gelb und Blau werden auf 1 gesetzt` },
+  { id:'C9',  label: 'Brandstifter',          desc: ()  => `Mindestens 1 Karte wird immer deaktiviert` },
+  { id:'C10', label: 'Wechselhafter Anführer',desc: ()  => `Gelb und Blau tauschen die Rollen` },
+  { id:'C11', label: 'Urlauber',              desc: ()  => `Sommer: −3 · Frühling/Herbst: +6` },
+  { id:'C12', label: 'Volksaufstand',         desc: ()  => `Führender Spieler: +1 Gebäude deaktiviert` },
 ];
 
 G.attackDir      = null;
@@ -452,7 +452,7 @@ function rollDice() {
   G.attackDir  = calcAttackDirection(); // setzt G.dice.yellow — muss vor diceConcealed laufen
 
   // all_hidden: alle drei Würfel verborgen
-  if (G.attackChampion.id === 'all_hidden') {
+  if (G.attackChampion.id === 'C7') {
     G.diceConcealed = new Set(['yellow', 'blue', 'red']);
   } else {
     const maxVal = Math.max(...DICE_COLORS.map(c => G.dice[c]));
@@ -2363,10 +2363,10 @@ function startRaidSequence() {
     const ch = G.attackChampion;
     const rv = G.dice.red;
     switch (ch.id) {
-      case 'plus_red':
+      case 'C1':
         attackers += rv;
         break;
-      case 'opposite_start': {
+      case 'C2': {
         // Gegenüberliegende Position in CLOCKWISE_ORDER (relativ zur ROHEN Startposition)
         const baseCell = rawStartCell != null ? rawStartCell : startCell;
         const ci = CLOCKWISE_ORDER.indexOf(baseCell);
@@ -2375,14 +2375,14 @@ function startRaidSequence() {
         effectiveStart = resolveStartCell(oppositeRaw, effectiveClockwise, false);
         break;
       }
-      case 'reverse_dir':
+      case 'C3':
         effectiveClockwise = !clockwise;
         // Bei umgekehrter Laufrichtung muss Startfeld neu resolved werden (vom rohen Würfelfeld)
         if (rawStartCell != null) {
           effectiveStart = resolveStartCell(rawStartCell, effectiveClockwise, false);
         }
         break;
-      case 'all_six':
+      case 'C4':
         G.dice.yellow = 6;
         G.dice.blue   = 6;
         attackers = 6;
@@ -2391,7 +2391,7 @@ function startRaidSequence() {
         G.attackDir = { ...G.attackDir, clockwise: true }; // Richtung aktualisieren
         renderDice(false);
         break;
-      case 'all_one':
+      case 'C8':
         G.dice.yellow = 1;
         G.dice.blue   = 1;
         attackers = 1;
@@ -2400,7 +2400,7 @@ function startRaidSequence() {
         G.attackDir = { ...G.attackDir, clockwise: false };
         renderDice(false);
         break;
-      case 'ignore_barriers':
+      case 'C5':
         // Champion durchbricht die Front: Angriff startet am gewürfelten Feld,
         // egal ob barrikadiert (Barrieren bleiben physisch bestehen, sind aber wirkungslos)
         ignoreBarriers = true;
@@ -2408,10 +2408,10 @@ function startRaidSequence() {
           effectiveStart = rawStartCell;
         }
         break;
-      case 'arsonist':
+      case 'C9':
         // Mindestens 1 Karte wird deaktiviert — wird bei der Sequenz erzwungen
         break;
-      case 'switcher':
+      case 'C10':
         { const tmp = G.dice.yellow;
           G.dice.yellow = G.dice.blue;
           G.dice.blue   = tmp;
@@ -2425,12 +2425,12 @@ function startRaidSequence() {
           renderDice(false);
         }
         break;
-      case 'vacationer':
+      case 'C11':
         if (G.season === 2)      attackers = Math.max(0, attackers - 3); // Sommer
         else if (G.season === 1 || G.season === 3) attackers += 3;        // Frühling/Herbst
         break;
-      case 'coward':
-      case 'all_hidden':
+      case 'C6':
+      case 'C7':
       default:
         break;
     }
@@ -2485,7 +2485,7 @@ function startRaidSequence() {
     return;
   }
 
-  const champHint = G.attackChampion && G.attackChampion.id !== 'coward' && G.attackChampion.id !== 'all_hidden'
+  const champHint = G.attackChampion && G.attackChampion.id !== 'C6' && G.attackChampion.id !== 'C7'
     ? ` [${G.attackChampion.label}]` : '';
   setHint(`Angriff aus ${GRID_DIRECTION[effectiveStart] || '?'} ${effectiveClockwise ? '↻' : '↺'} · ${attackers} Angreifer${champHint}`, true);
 
@@ -2511,7 +2511,7 @@ function startRaidSequence() {
   }
 
   // Brandstifter: mindestens 1 Karte erzwingen wenn keine deaktiviert wurde
-  if (G.attackChampion && G.attackChampion.id === 'arsonist') {
+  if (G.attackChampion && G.attackChampion.id === 'C9') {
     const hasDeactivation = steps.some(s => s.type === 'attack' && s.deactivate);
     if (!hasDeactivation) {
       // Erste Angriffs-Karte erzwingen
@@ -2606,7 +2606,7 @@ function startRaidSequence() {
     clearAttackerBar();
 
     // Volksaufstand: nach dem Überfall eine weitere Karte deaktivieren
-    if (G.attackChampion && G.attackChampion.id === 'volksaufstand') {
+    if (G.attackChampion && G.attackChampion.id === 'C12') {
       const hits = Math.random() < 0.34;
       if (hits) {
         const routeOrder = [...Array(8)].map((_, i) => {
@@ -2763,98 +2763,38 @@ const SPECIAL_MECHANIC_DESC = {
   sonder_count:      'Punkte = Anzahl Sonderkarten auf dem Feld × 2',
 };
 
-const CARD_INFO = {
-  // Winter
-  holzfaeller_b:       { name: 'Holzfäller',         desc: 'Produziert Holz. Stapelbar bis ×3.' },
-  bauernhof_b:         { name: 'Bauernhof',           desc: 'Produziert Nahrung. Stapelbar bis ×3.' },
-  glasblaeserei_b:     { name: 'Glashütte',           desc: 'Produziert Glas. Stapelbar bis ×3.' },
-  holzfaeller_inno:    { name: 'Holzfäller ⚡',       desc: 'Produziert Holz. Punkte skalieren mit Rathaus-Level.' },
-  bauernhof_inno:      { name: 'Bauernhof ⚡',        desc: 'Produziert Nahrung. Punkte skalieren mit Rathaus-Level.' },
-  ratskeller:          { name: 'Ratskeller',           desc: 'Produziert nichts — gibt Siegpunkte und Innovation.' },
-  grundschule:         { name: 'Grundschule',          desc: 'Gibt Siegpunkte.' },
-  wachposten:          { name: 'Wachposten',           desc: 'Verteidigung +2. Kein Rohstoff.' },
-  wachturm_b:          { name: 'Wachturm',             desc: 'Solide Verteidigung. Stapelbar.' },
-  // Frühling
-  saegerei_b:          { name: 'Sägemühle',            desc: 'Produziert Holz. Stapelbar.' },
-  muehle_b:            { name: 'Mühle',                desc: 'Produziert Nahrung. Stapelbar.' },
-  glashuette_a:        { name: 'Glashütte',            desc: 'Produziert Glas. Stapelbar.' },
-  forsthaus_a:         { name: 'Forsthaus',             desc: 'Produziert Holz. Innovation.' },
-  erntehof_a:          { name: 'Erntehof',              desc: 'Produziert Nahrung. Innovation.' },
-  schmelze_a:          { name: 'Schmelze',              desc: 'Produziert Glas. Innovation.' },
-  marktplatz:          { name: 'Marktplatz',            desc: 'Produziert Holz und Nahrung. Doppelressource.' },
-  brauerei:            { name: 'Brauerei',              desc: 'Gibt Siegpunkte.' },
-  zimmerwerk:          { name: 'Zimmerwerk',            desc: 'Gibt Siegpunkte und Verteidigung.' },
-  // Sommer
-  forstwirtschaft:     { name: 'Forstwirtschaft',       desc: 'Starke Holzproduktion.' },
-  kornkammer:          { name: 'Kornkammer',            desc: 'Starke Nahrungsproduktion.' },
-  markthalle:          { name: 'Markthalle',            desc: 'Holz und Nahrung. Doppelressource.' },
-  handelsgilde:        { name: 'Handelsgilde',          desc: 'Gibt Siegpunkte.' },
-  akademie:            { name: 'Akademie',              desc: 'Innovation: Punkte skalieren mit Rathaus-Level.' },
-  bibliothek:          { name: 'Bibliothek',            desc: 'Gibt viele Siegpunkte.' },
-  burg:                { name: 'Burg',                  desc: 'Hohe Verteidigung. Gibt Punkte.' },
-  // Herbst
-  grossbasar:          { name: 'Großbasar',             desc: 'Holz und Nahrung. Stark.' },
-  palast:              { name: 'Palast',                desc: 'Viele Siegpunkte.' },
-  schloss:             { name: 'Schloss',               desc: 'Hohe Punkte und Verteidigung.' },
-  handelszentrum:      { name: 'Handelszentrum',        desc: 'Rohstoffe und Punkte.' },
-  observatorium:       { name: 'Observatorium',         desc: 'Innovation: skaliert mit Rathaus.' },
-  sternwarte:          { name: 'Sternwarte',            desc: 'Innovation: skaliert mit Rathaus.' },
-  zwillingsturm:       { name: 'Zwillingsturm',         desc: 'Doppelte Verteidigung.' },
-  // Sonderkarten
-  bogenwacht:          { name: 'Bogenwacht',            desc: '−2 Angreifer vor dem Überfall.' },
-  schildwall:          { name: 'Schildwall',            desc: 'Nachbarn erhalten +1 Verteidigung.' },
-  versicherung:        { name: 'Versicherung',          desc: '0 Punkte aktiv — 8 Punkte wenn geplündert.' },
-  offene_tore:         { name: 'Offene Tore',           desc: 'Kostenlos bauen — zählt nicht zum Limit.' },
-  ritterburg:          { name: 'Ritterburg',            desc: 'Gibt sofort +2 Ritter.' },
-  muenzpraegung:       { name: 'Münzprägung',           desc: 'Gibt sofort +2 Münzen.' },
-  bankhaus:            { name: 'Bankhaus',              desc: 'Gibt Münzen je Jahreszeit.' },
-  schatzkammer:        { name: 'Schatzkammer',          desc: 'Gibt sofort +2 Barrieren.' },
-  schild_des_rates:    { name: 'Schild des Rates',      desc: 'Gibt sofort +2 Barrieren.' },
-  orakel_gelb:         { name: 'Orakel',                desc: 'Deckt Angriffsrichtung auf.' },
-  orakel_blau:         { name: 'Orakel',                desc: 'Deckt Angreiferzahl auf.' },
-  seher_gelb:          { name: 'Seher',                 desc: 'Deckt Angriffsrichtung auf.' },
-  seher_blau:          { name: 'Seher',                 desc: 'Deckt Angreiferzahl auf.' },
-  prophet_gelb:        { name: 'Prophet',               desc: 'Deckt Angriffsrichtung auf.' },
-  prophet_blau:        { name: 'Prophet',               desc: 'Deckt Angreiferzahl auf.' },
-  fernkundschafter:    { name: 'Fernkundschafter',      desc: 'Deckt Angriffsrichtung auf.' },
-  zahlmeister:         { name: 'Zahlmeister',           desc: 'Deckt Angreiferzahl auf.' },
-  nebelbastei:         { name: 'Nebelbastei',           desc: 'Alle Würfel werden verborgen.' },
-  kristallpalast:      { name: 'Kristallpalast',        desc: '15 Punkte — wird bei Deaktivierung zerstört.' },
-  diamanthaendler:     { name: 'Diamanthändler',        desc: 'Punkte = Sonderkarten × 2.' },
-  juwelenhaendler:     { name: 'Juwelenhändler',        desc: 'Punkte nach Jahreszeit.' },
-  schmuckhaendler:     { name: 'Schmuckhändler',        desc: 'Punkte nach Jahreszeit.' },
-  immobilienhaendler:  { name: 'Immobilienhändler',     desc: 'Punkte nach Jahreszeit.' },
-  gewuerzmarkt:        { name: 'Gewürzmarkt',           desc: 'Doppelressource.' },
-  alchemistenlabor:    { name: 'Alchemistenlabor',      desc: 'Sondereffekt.' },
-  druidenzirkel:       { name: 'Druidenzirkel',         desc: 'Sondereffekt.' },
-  blutarena:           { name: 'Blutarena',             desc: 'Sondereffekt.' },
-  ruinenmagier:        { name: 'Ruinenmagier',          desc: 'Sondereffekt.' },
-  wachturm_b:          { name: 'Wachturm',              desc: 'Verteidigung. Stapelbar.' },
-  ewige_bastion:       { name: 'Ewige Bastion',         desc: 'Kann nie deaktiviert werden.' },
-  trojanisches_pferd:  { name: 'Trojanisches Pferd',    desc: 'Decoy — schützt Karte darunter.' },
-  gaukler:             { name: 'Gaukler',               desc: 'Decoy — schützt Karte darunter.' },
-  // Fragile Test-Karten
-  fragile_w3:          { name: 'Stadttor',              desc: 'Überfall startet an dieser Position.' },
-  fragile_f1:          { name: 'Ablenkung',             desc: 'Decoy — einmalig.' },
-  fragile_f3:          { name: 'Stadttor',              desc: 'Überfall startet hier.' },
-  fragile_f4:          { name: 'Windrose ↻',            desc: 'Überfall läuft im Uhrzeigersinn.' },
-  fragile_f5:          { name: 'Windrose ↺',            desc: 'Überfall läuft gegen den Uhrzeigersinn.' },
-  fragile_s1:          { name: 'Ablenkung',             desc: 'Decoy — einmalig.' },
-  fragile_s3:          { name: 'Stadttor',              desc: 'Überfall startet hier.' },
-  fragile_s4:          { name: 'Windrose ↻',            desc: 'Überfall läuft im Uhrzeigersinn.' },
-  fragile_s5:          { name: 'Windrose ↺',            desc: 'Überfall läuft gegen den Uhrzeigersinn.' },
-  fragile_h1:          { name: 'Ablenkung',             desc: 'Decoy — einmalig.' },
-  fragile_h4:          { name: 'Windrose ↻',            desc: 'Überfall läuft im Uhrzeigersinn.' },
-  fragile_h5:          { name: 'Windrose ↺',            desc: 'Überfall läuft gegen den Uhrzeigersinn.' },
+// CARD_INFO: name kommt direkt aus card.name (seit ID-Umbenennung in cards.js)
+// desc bleibt hier als Fallback für Karten ohne eigene Beschreibung
+const CARD_DESC_FALLBACK = {
+  decoy:              'Decoy — zieht Angreifer auf sich, schützt den Rest.',
+  force_start:        'Überfall startet an dieser Position.',
+  force_dir_cw:       'Überfall läuft im Uhrzeigersinn.',
+  force_dir_ccw:      'Überfall läuft gegen den Uhrzeigersinn.',
+  dual_res_nahrung:   'Produziert Holz und Nahrung.',
+  dual_res_holz:      'Produziert Nahrung und Holz.',
+  direct_knight:      'Gibt sofort +2 Ritter.',
+  direct_coins:       'Gibt sofort +2 Münzen.',
+  direct_coins_seasonal: 'Gibt Münzen je Jahreszeit.',
+  minus2_attackers:   '−2 Angreifer vor dem Überfall.',
+  neighbor_defense:   'Nachbarn erhalten +1 Verteidigung.',
+  indestructible:     'Kann nie deaktiviert werden.',
+  destroyable:        '15 Punkte — wird bei Deaktivierung zerstört.',
+  pts_if_plundered:   '0 Punkte aktiv · 8 Punkte wenn geplündert.',
+  season_pts:         'Punkte = Jahreszeit × 2 (max 8 in Herbst).',
+  sonder_count:       'Punkte = Anzahl Sonderkarten auf dem Feld × 2.',
+  reveal_yellow:      'Deckt Angriffsrichtung auf.',
+  reveal_blue:        'Deckt Angreiferzahl auf.',
+  free_build:         'Kostenlos bauen — zählt nicht zum Limit.',
 };
 
 function getCardInfo(card) {
   if (!card) return null;
-  const info = CARD_INFO[card.id] || { name: card.id, desc: '' };
-  return info;
+  const name = card.name || card.id;
+  const desc = card.special_mechanic
+    ? (CARD_DESC_FALLBACK[card.special_mechanic] || '')
+    : '';
+  return { name, desc };
 }
-
-
 
 function showCardPreview(card) {
   const panel = document.getElementById('card-preview');
@@ -3738,3 +3678,31 @@ document.getElementById('glossar-screen').addEventListener('click', (e) => {
     e.currentTarget.classList.remove('active');
   }
 });
+
+// ── Layout-Shift Observer ─────────────────────────────────────────
+// Barrieren und Edge-Zonen werden absolut positioniert und müssen
+// bei jedem Layout-Shift (Hand hoch/runter, Overlay, Resize) neu
+// berechnet werden, damit sie mit dem Grid wandern.
+{
+  let reposTimer = null;
+  function reposBarriers() {
+    clearTimeout(reposTimer);
+    reposTimer = setTimeout(() => {
+      renderBarriers();
+      // Edge-Zonen nur neu rendern wenn gerade aktiv (Rüstphase)
+      if (document.querySelector('.edge-zone')) {
+        renderEdgeZones(true);
+      }
+    }, 30);
+  }
+
+  // Grid und Hand beobachten
+  const ro = new ResizeObserver(reposBarriers);
+  const gridEl = document.getElementById('grid');
+  const handEl = document.getElementById('hand-area');
+  if (gridEl) ro.observe(gridEl);
+  if (handEl) ro.observe(handEl);
+
+  // Auch window-Resize abfangen (Rotation, Zoom)
+  window.addEventListener('resize', reposBarriers, { passive: true });
+}
