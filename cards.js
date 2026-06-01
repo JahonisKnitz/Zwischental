@@ -172,7 +172,7 @@ function makeCard(card, w, h, isRathaus, score, fortified, boosted, plundered, a
 
   if (isRathaus) return makeRathaus(w, h, score);
 
-  const imgTag  = `<image href="bilder/${card.id}.png" x="1" y="1" width="${Math.round(w*0.97)}" height="${Math.round(h*0.98)}" preserveAspectRatio="xMidYMid slice" opacity="1" clip-path="inset(0 round 3px)" onerror="this.style.display='none'"/>`;
+  const imgTag  = `<image href="${card.id}.png" x="1" y="1" width="${Math.round(w*0.97)}" height="${Math.round(h*0.98)}" preserveAspectRatio="xMidYMid slice" opacity="1" clip-path="inset(0 round 3px)" onerror="this.style.display='none'"/>`;
   const ill = drawIsoBuilding(card.id, w, h, plundered ? '#a0a098' : sc, isSpecial && !plundered, animated);
 
   // Punkte-Banner: Jahreszeit-Farbe wenn nicht befestigt; grau wenn geplündert
