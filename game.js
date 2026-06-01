@@ -927,9 +927,9 @@ function calcCardPts(card) {
     case 'deact*':    return G.plundered.filter(Boolean).length * (p.factor || 1);
     case 'season*':   return (G.season + 1) * (p.factor || 1);  // Jahreszeit × Faktor
     case 'season_table': return (p.table || [0,0,0,0])[G.season] || 0; // feste Werte je Jahreszeit
-    case 'blue*': {  // Handelsgilde: aktive blaue Karten (keine Ressource, nicht fragile, nicht special) × Faktor
+    case 'blue*': {  // Handelszentrum: aktive Rohstoffkarten × Faktor
       const count = G.board.filter((c, i) =>
-        c && i !== 4 && !G.plundered[i] && !c.fragile && !c.res && c.cat !== 'special'
+        c && i !== 4 && !G.plundered[i] && c.res
       ).length;
       return count * (p.factor || 1);
     }
@@ -3025,10 +3025,10 @@ const SPECIAL_MECHANIC_DESC = {
   reveal_red:        'Deckt roten Würfel (Champion) auf, wenn verborgen',
   reveal_yellow:     'Deckt gelben Würfel (Richtung) auf, wenn verborgen',
   reveal_blue:       'Deckt blauen Würfel (Angreifer) auf, wenn verborgen',
-  direct_knight:     'Gibt sofort 3 Ritter beim Bau',
+  direct_knight:     'Gibt sofort 2 Ritter beim Bau',
   direct_barrier:    'Gibt sofort 2 Barrieren beim Bau',
   direct_coins:          'Gibt sofort 2 Münzen beim Bau',
-  direct_coins_seasonal: 'Gibt sofort Jahreszeit × 1 Münzen beim Bau',
+  direct_coins_seasonal: 'Münzen je nach Jahreszeit beim Bau',
   dual_res_nahrung:  'Produziert Holz UND Nahrung',
   dual_res_holz:     'Produziert Nahrung UND Holz',
   schutzpatronin:    'Alle fragilen Gebäude erhalten def 2 und werden nicht zerstört',
@@ -3042,28 +3042,44 @@ const SPECIAL_MECHANIC_DESC = {
 // CARD_INFO: name kommt direkt aus card.name (seit ID-Umbenennung in cards.js)
 // desc bleibt hier als Fallback für Karten ohne eigene Beschreibung
 const CARD_DESC_FALLBACK = {
-  decoy:              'Decoy — zieht Angreifer auf sich, schützt den Rest.',
-  force_start:        'Überfall startet an dieser Position.',
-  force_dir_cw:       'Überfall läuft im Uhrzeigersinn.',
-  force_dir_ccw:      'Überfall läuft gegen den Uhrzeigersinn.',
+  decoy:              'Zieht Angreifer auf sich — schützt alle anderen Gebäude.',
+  force_start:        'Überfall startet immer an dieser Position.',
+  force_dir_cw:       'Überfall läuft immer mit dem Uhrzeigersinn.',
+  force_dir_ccw:      'Überfall läuft immer gegen den Uhrzeigersinn.',
   dual_res_nahrung:   'Produziert Holz und Nahrung.',
   dual_res_holz:      'Produziert Nahrung und Holz.',
-  schutzpatronin:     'Solange diese Karte aktiv ist, haben alle fragilen Gebäude def 2 und werden nach einem Überfall nicht zerstört.',
-  direct_knight:      'Gibt sofort +2 Ritter.',
-  direct_coins:       'Gibt sofort +2 Münzen.',
-  direct_coins_seasonal: 'Gibt Münzen je Jahreszeit.',
+  dual_res_glas:      'Produziert Holz und Glas.',
+  schutzpatronin:     'Solange aktiv haben alle fragilen Gebäude Verteidigung 2 und werden nicht zerstört.',
+  direct_knight:      'Gibt sofort +2 Ritter beim Bau.',
+  direct_barrier:     'Gibt sofort +2 Barrieren beim Bau.',
+  direct_coins:       'Gibt sofort +2 Münzen beim Bau.',
+  direct_coins_seasonal: 'Gibt Münzen je nach Jahreszeit beim Bau.',
   minus2_attackers:   '−2 Angreifer vor dem Überfall.',
   neighbor_defense:   'Nachbarn erhalten +1 Verteidigung.',
   neighbor_defense_2: 'Nachbarn erhalten +2 Verteidigung.',
   zwillingsturm:      'Verdoppelt die Siegpunkte aller direkt angrenzenden Gebäude.',
-  indestructible:     'Kann nie deaktiviert werden.',
+  indestructible:     'Kann nie geplündert werden.',
   destroyable:        '15 Punkte — wird bei Deaktivierung zerstört.',
-  pts_if_plundered:   '0 Punkte aktiv · 8 Punkte wenn geplündert.',
-  season_pts:         'Punkte = Jahreszeit × 2 (max 8 in Herbst).',
-  sonder_count:       'Punkte = Anzahl Sonderkarten auf dem Feld × 2.',
-  reveal_yellow:      'Angriffsrichtung immer sichtbar, solange die Karte liegt.',
-  reveal_blue:        'Angreiferzahl immer sichtbar, solange die Karte liegt.',
+  pts_if_plundered:   '0 Punkte wenn aktiv · 8 Punkte wenn geplündert.',
+  season_pts:         'Punkte steigen je Jahreszeit: 0 · 4 · 8 · 12.',
+  sonder_count:       'Punkte = Anzahl aktiver Sonderkarten × 2.',
+  reveal_yellow:      'Angriffsrichtung ist immer sichtbar, solange die Karte liegt.',
+  reveal_blue:        'Angreiferzahl ist immer sichtbar, solange die Karte liegt.',
+  reveal_red:         'Champion ist immer sichtbar, solange die Karte liegt.',
   free_build:         'Kostenlos bauen — zählt nicht zum Baulimit.',
+};
+
+// Erklärtexte für Karten ohne special_mechanic — per Karten-ID
+const CARD_DESC_BY_ID = {
+  Z1:  'Punkte = roter Würfel × 3.',
+  Z3:  'Punkte = Rathaus-Level × 2.',
+  Z4:  'Punkte = Summe aller Verteidigungswerte in der Stadt.',
+  Z5:  'Punkte = Anzahl geplünderter Gebäude × 3.',
+  Z9:  'Punkte = Glas-Produktion × 3.',
+  Z13: 'Punkte = roter Würfel + 7.',
+  Z14: 'Punkte = (blauer + gelber Würfel) × 2.',
+  Z26: 'Punkte = Anzahl aktiver Rohstoffgebäude × 2.',
+  Z33: '48 Punkte — aber nur wenn als einziges Gebäude nicht geplündert.',
 };
 
 function getCardInfo(card) {
@@ -3071,7 +3087,7 @@ function getCardInfo(card) {
   const name = card.name || card.id;
   const desc = card.special_mechanic
     ? (CARD_DESC_FALLBACK[card.special_mechanic] || '')
-    : '';
+    : (CARD_DESC_BY_ID[card.id] || '');
   return { name, desc };
 }
 
@@ -3333,7 +3349,7 @@ function commitPlacement() {
   const mech = newCard.special_mechanic;
   if (mech === 'free_build') {
     G.builtThisSeason--;
-    showToast('Freie Stadt — zählt nicht zum Baulimit!');
+    showToast('Außenposten — zählt nicht zum Baulimit!');
   } else if (mech === 'minus2_attackers') {
     G.bogenwacht = (G.bogenwacht || 0) + 1;
     showToast('Bogenwacht — −2 Angreifer beim nächsten Überfall');

@@ -126,9 +126,9 @@ const SPECIAL_BUILDINGS = [
   {id:'Z11', name:'Versicherung',      cat:'special', pts:0,                                     def:2, res:null,      inno:0, upgrade:false, diceColor:'blue',   special_mechanic:'pts_if_plundered'},
   {id:'Z12', name:'Versicherung',      cat:'special', pts:0,                                     def:2, res:null,      inno:0, upgrade:false, diceColor:'blue',   special_mechanic:'pts_if_plundered'},
   {id:'Z13', name:'Schild des Rates',  cat:'special', pts:{type:'dice+',color:'red',bonus:7},    def:4, res:null,      inno:0, upgrade:false, diceColor:'red'},
-  {id:'Z14', name:'Treppe zum Himmel',       cat:'special', pts:{type:'dice_sum*',a:'blue',b:'yellow',factor:2}, def:0, res:null, inno:0, upgrade:false, diceColor:'blue'},
+  {id:'Z14', name:'Zitadelle',            cat:'special', pts:{type:'dice_sum*',a:'blue',b:'yellow',factor:2}, def:0, res:null, inno:0, upgrade:false, diceColor:'blue'},
   {id:'Z15', name:'Immobilienhändler', cat:'special', pts:{type:'sonder_count',factor:2},          def:1, res:null,      inno:0, upgrade:false, diceColor:'blue',   special_mechanic:'sonder_count'},
-  {id:'Z16', name:'Zeltlager',         cat:'special', pts:7,                                     def:0, res:null,      inno:0, upgrade:false, diceColor:'spring', special_mechanic:'free_build'},
+  {id:'Z16', name:'Außenposten',       cat:'special', pts:7,                                     def:0, res:null,      inno:0, upgrade:false, diceColor:'spring', special_mechanic:'free_build'},
   {id:'Z17', name:'Bogenwacht',        cat:'special', pts:3,                                     def:1, res:null,      inno:0, upgrade:false, diceColor:'red',    special_mechanic:'minus2_attackers'},
   {id:'Z18', name:'Schildwall',        cat:'special', pts:2,                                     def:1, res:null,      inno:0, upgrade:false, diceColor:'yellow', special_mechanic:'neighbor_defense'},
   {id:'Z19', name:'Luftschloss',     cat:'special', pts:7,                                     def:2, res:null,      inno:0, upgrade:false, diceColor:'blue',   special_mechanic:'indestructible'},
@@ -503,7 +503,7 @@ function drawIsoBuilding(id, w, h, stroke, isSpecial, animated) {
     Z13: () => TOWER(2.0, 3.0),               // Schild des Rates
     Z14: MANOR,                                // Nebelbastei
     Z15: () => HOUSE(2.8, 2.0, 2.8, 1.4),     // Immobilienhändler
-    Z16: () => HOUSE(1.6, 1.2, 1.6, 0.8),     // Zeltlager
+    Z16: () => HOUSE(1.6, 1.2, 1.6, 0.8),     // Außenposten
     Z17: () => TOWER(1.4, 3.0), Z18: () => TOWER(1.4, 3.0), // Bogenwacht ×3
     Z19: () => TOWER(2.0, 3.8), Z20: () => TOWER(2.0, 3.8), // Ewige Bastion ×2
     Z21: MANOR,                                // Fernkundschafter
