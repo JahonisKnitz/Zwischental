@@ -234,7 +234,7 @@ const DICE_COLORS = ['yellow', 'blue', 'red'];
 
 // ── Tauschverhältnis — fest 2:1 ──
 const RATIO = 2;
-const VERSION = '0.9.49';
+const VERSION = '0.9.59';
 
 // ── Außenkanten-System für Barrieren ──────────────────────────────
 // 12 Außenkanten am 3×3-Grid: jedes Randfeld hat 1 (Kante) oder 2 (Ecke) Außenkanten.
@@ -653,6 +653,7 @@ function calcCardPts(card) {
     case 'def_sum':   return G.board.reduce((s,c,i) => c && i!==4 && !G.plundered[i] ? s + (c.def||0) + (G.boosted[i]||0) : s, 0);
     case 'deact*':    return G.plundered.filter(Boolean).length * (p.factor || 1);
     case 'season*':   return (G.season + 1) * (p.factor || 1);  // Jahreszeit × Faktor
+    case 'season_table': return (p.table || [0,0,0,0])[G.season] || 0; // feste Werte je Jahreszeit
     case 'blue*': {  // Handelsgilde: aktive blaue Karten (keine Ressource, nicht fragile, nicht special) × Faktor
       const count = G.board.filter((c, i) =>
         c && i !== 4 && !G.plundered[i] && !c.fragile && !c.res && c.cat !== 'special'
@@ -664,6 +665,10 @@ function calcCardPts(card) {
     case 'sonder_count': {                                        // Immobilienhändler: Sonderkarten × 2
       const count = G.board.filter((c,i) => c && i!==4 && c.cat==='special' && !G.plundered[i]).length;
       return count * 2;
+    }
+    case 'sole_survivor': {                                       // Schwarze Kathedrale: 48 Pkt wenn als einzige nicht deaktiviert
+      const activeCount = G.board.filter((c,i) => c && i!==4 && !G.plundered[i]).length;
+      return activeCount === 1 ? (p.value || 48) : 0;
     }
     default:          return 0;
   }
@@ -681,9 +686,11 @@ function formatPts(pts) {
     case 'def_sum':     return `Σ🛡`;
     case 'deact*':      return `💀×${pts.factor}`;
     case 'season*':     return `Jahr.×${pts.factor}`;
+    case 'season_table': return `${(pts.table||[]).join('/')}✦`;
     case 'blue*':       return `🔵×${pts.factor}`;
     case 'dice_sum*':   return `(${DICE_SYMBOLS[pts.a]}+${DICE_SYMBOLS[pts.b]})×${pts.factor}`;
     case 'sonder_count':return `✦×2`;
+    case 'sole_survivor':return `☩48`;
     default:            return '?';
   }
 }
@@ -1056,26 +1063,17 @@ function canPlaceDecoy(targetIdx) {
 function getCardPlayability(card) {
   if (!card) return { playable: false, reason: '' };
 
-  // Sonderkarte: Rathaus-Level prüfen
-  if (card.cat === 'special' && card.minLevel) {
-    const missing = Math.max(0, card.minLevel - G.rathausLevel);
-    if (missing > 0) {
-      if (G.coins < missing) {
-        return {
-          playable: false,
-          reason: `Braucht Rathaus Level ${card.minLevel} (oder ${missing} Münze${missing > 1 ? 'n' : ''} — du hast ${G.coins})`,
-          coinBypass: false,
-          coinCost: missing,
-        };
-      }
+  // Sonderkarte: Slot-Kapazität prüfen (Rathaus Level = max. Sonderkarten auf dem Feld)
+  if (card.cat === 'special') {
+    const sonderCount = G.board.filter((c, i) => c && i !== 4 && c.cat === 'special' && !G.plundered[i]).length;
+    if (sonderCount >= G.rathausLevel) {
       return {
-        playable: true,
-        reason: `${missing} Münze${missing > 1 ? 'n' : ''} zahlen (Level ${G.rathausLevel} statt ${card.minLevel})`,
-        coinBypass: true,
-        coinCost: missing,
+        playable: false,
+        reason: `Rathaus Level ${G.rathausLevel} erlaubt nur ${G.rathausLevel} Sonderkarte${G.rathausLevel > 1 ? 'n' : ''} — Rathaus upgraden für mehr Slots`,
+        coinBypass: false,
+        coinCost: 0,
       };
     }
-    // Level erreicht — kostenlos
   }
 
   // Fragile-Karte: nur eine pro Mechanik-Gruppe in der Stadt
@@ -1228,7 +1226,7 @@ function renderGrid(skipGlows) {
 
     if (i === 4) {
       cell.classList.add('rathaus');
-      cell.innerHTML = makeCard(RATHAUS, 92, 128, true, G.score);
+      cell.innerHTML = makeCard(RATHAUS, 130, 182, true, G.score);
     } else if (G.board[i]) {
       cell.classList.add('placed');
 
@@ -1250,7 +1248,7 @@ function renderGrid(skipGlows) {
           }
           const sub = document.createElement('div');
           sub.style.cssText = `position:absolute; inset:0; transform:${transform}; z-index:${si};`;
-          sub.innerHTML = makeCard(c, 92, 128, false, undefined, false, false, G.plundered[i], false);
+          sub.innerHTML = makeCard(c, 130, 182, false, undefined, false, false, G.plundered[i], false);
           cell.appendChild(sub);
         });
       }
@@ -1267,7 +1265,7 @@ function renderGrid(skipGlows) {
       // Oberste Karte
       const topDiv = document.createElement('div');
       topDiv.style.cssText = 'position:absolute; inset:0; z-index:10;';
-      topDiv.innerHTML = makeCard(G.board[i], 92, 128, false, undefined, G.fortified[i], G.boosted[i], G.plundered[i], !G.plundered[i]);
+      topDiv.innerHTML = makeCard(G.board[i], 130, 182, false, undefined, G.fortified[i], G.boosted[i], G.plundered[i], !G.plundered[i]);
       // Sonderkarten: Premium-Shimmer
       if (G.board[i].cat === 'special' && !G.plundered[i]) {
         topDiv.className = 'cell-card special-card';
@@ -1452,7 +1450,8 @@ function renderHand() {
     slot.className = 'hand-card'
       + (cardLocked ? ' used' : '')
       + (isUnplayable ? ' unplayable' : '')
-      + (isCoinBypass ? ' coin-bypass' : '');
+      + (isCoinBypass ? ' coin-bypass' : '')
+      + (isUnplayable && card.cat === 'special' ? ' special-slot-full' : '');
     if (isUnplayable) slot.title = playability.reason;
     if (isCoinBypass) slot.title = `🪙 ${playability.reason}`;
     const tilt = getTilt(pos, n);
@@ -1517,7 +1516,13 @@ function renderHand() {
     if (G.phase === 1 && G.hand.some(c => c)) {
       const actionsLeft = 5 - G.builtThisSeason;
       const levelDots = '●'.repeat(G.rathausLevel - 1) + '○'.repeat(6 - G.rathausLevel);
-      discardHintEl.innerHTML = `· ${actionsLeft} Aktionen · 🏛 ${levelDots}`;
+      const sonderOnBoard = G.board.filter((c, i) => c && i !== 4 && c.cat === 'special' && !G.plundered[i]).length;
+      const sonderMax = G.rathausLevel;
+      let pipHtml = '';
+      for (let i = 0; i < sonderMax; i++) {
+        pipHtml += `<span class="sonder-slot-pip${i < sonderOnBoard ? ' filled' : ''}">✦</span>`;
+      }
+      discardHintEl.innerHTML = `· ${actionsLeft} Aktionen · 🏛 ${levelDots}<span class="sonder-slots">${pipHtml}</span>`;
     } else {
       discardHintEl.textContent = '';
     }
@@ -1563,6 +1568,14 @@ function discardSelected(idx) {
         renderHand();
       }
       renderGrid(true);
+
+      // Slot-Unlock: Sonderkarten in der Hand kurz aufleuchten lassen
+      setTimeout(() => {
+        document.querySelectorAll('.hand-card.special-card').forEach(el => {
+          el.classList.add('slot-unlocked');
+          setTimeout(() => el.classList.remove('slot-unlocked'), 950);
+        });
+      }, 80);
     }, 350);
     return;
   } else {
@@ -1704,13 +1717,6 @@ function renderResources() {
   }
   if (G.selectedTower) towerPair.style.outline = '1.5px solid #5a2d82';
   row.appendChild(towerPair);
-
-  // Glossar-Button — immer rechts
-  const glossarBtn = document.createElement('button');
-  glossarBtn.id = 'btn-glossar';
-  glossarBtn.textContent = 'Glossar';
-  glossarBtn.addEventListener('click', openGlossar);
-  row.appendChild(glossarBtn);
 }
 
 // Hochkante Barriere in der Hand — identisch zur vertikalen Barriere zwischen Karten
@@ -1807,7 +1813,7 @@ function renderEdgeZones(active) {
 
 function updateRathausScore() {
   const cell = document.querySelector('.cell.rathaus');
-  if (cell) cell.innerHTML = makeCard(RATHAUS, 92, 128, true, G.score);
+  if (cell) cell.innerHTML = makeCard(RATHAUS, 130, 182, true, G.score);
 }
 
 const PHASE_DESCRIPTIONS = [
@@ -2050,15 +2056,25 @@ function showGameEnd() {
 // Score aus dem aktuellen Brettzustand neu berechnen.
 // Identisch zur Logik in doScoringInternal, aber als Standalone nutzbar
 // (z.B. nach Decoy-Aufdeckung, um G.score sofort konsistent zu halten).
+// Zwillingsturm: prüft ob Karte an Index i einen aktiven Zwillingsturm als Nachbar hat
+function getZwillingsturmMultiplier(i) {
+  const neighbors = [i-3, i+3, i-1, i+1].filter(n => n >= 0 && n < 9 && n !== 4);
+  return neighbors.some(n => {
+    const c = G.board[n];
+    return c && !G.plundered[n] && c.special_mechanic === 'zwillingsturm';
+  }) ? 2 : 1;
+}
+
 function recomputeScoreFromBoard() {
   G.score = G.board.reduce((sum, card, i) => {
     if (!card || i === 4) return sum;
     if (G.plundered[i]) {
-      // Versicherung: 8 Punkte wenn geplündert
       if (card.special_mechanic === 'pts_if_plundered') return sum + 8;
       return sum;
     }
-    return sum + calcCardPts(card);
+    // Zwillingsturm selbst zählt normal (keine Selbstverdopplung)
+    const mult = (card.special_mechanic === 'zwillingsturm') ? 1 : getZwillingsturmMultiplier(i);
+    return sum + calcCardPts(card) * mult;
   }, 0);
 }
 
@@ -2072,7 +2088,7 @@ function doScoring() {
   const fragileVictims = [];
   G.board.forEach((card, i) => {
     if (!card || i === 4) return;
-    if (card.fragile && G.entered[i]) fragileVictims.push(i);
+    if (card.fragile && G.entered[i] && !hasSchutzpatronin()) fragileVictims.push(i);
   });
 
   if (fragileVictims.length > 0) {
@@ -2343,6 +2359,11 @@ function getSchildwallBonus(idx) {
   return bonus;
 }
 
+// Schutzpatronin (Z7): prüft ob eine aktive Karte mit 'schutzpatronin'-Mechanik auf dem Feld liegt
+function hasSchutzpatronin() {
+  return G.board.some((c, i) => c && i !== 4 && !G.plundered[i] && c.special_mechanic === 'schutzpatronin');
+}
+
 function startRaidSequence() {
   const stage = document.getElementById('stage');
 
@@ -2511,7 +2532,8 @@ function startRaidSequence() {
     if (!card) continue; // sollte durch raidRoute-Filter nicht vorkommen, aber sicher ist sicher
 
     const schildwallBonus = getSchildwallBonus(idx);
-    const def  = (card.def || 0) + (G.boosted[idx] || 0) + schildwallBonus;
+    const schutzBonus = (card.fragile && hasSchutzpatronin()) ? Math.max(0, 2 - card.def) : 0;
+    const def  = (card.def || 0) + (G.boosted[idx] || 0) + schildwallBonus + schutzBonus;
     const hasTower = G.fortified[idx];
     const incoming = attackers;
     attackers = Math.max(0, attackers - def);
@@ -2757,6 +2779,7 @@ const SPECIAL_MECHANIC_DESC = {
   minus2_attackers:  '−2 Angreifer vor dem Überfall',
   neighbor_defense:  'Nachbarkarten erhalten +1 Verteidigung',
   neighbor_defense_2:'Nachbarkarten erhalten +2 Verteidigung',
+  zwillingsturm:     'Verdoppelt die Punkte aller direkten Nachbarkarten',
   indestructible:    'Kann nie deaktiviert werden',
   reveal_red:        'Deckt roten Würfel (Champion) auf, wenn verborgen',
   reveal_yellow:     'Deckt gelben Würfel (Richtung) auf, wenn verborgen',
@@ -2767,6 +2790,7 @@ const SPECIAL_MECHANIC_DESC = {
   direct_coins_seasonal: 'Gibt sofort Jahreszeit × 1 Münzen beim Bau',
   dual_res_nahrung:  'Produziert Holz UND Nahrung',
   dual_res_holz:     'Produziert Nahrung UND Holz',
+  schutzpatronin:    'Alle fragilen Gebäude erhalten def 2 und werden nicht zerstört',
   dual_res_glas:     'Produziert Holz UND Glas',
   destroyable:       '15 Punkte — wird bei Deaktivierung zerstört',
   pts_if_plundered:  '0 Punkte wenn aktiv · 8 Punkte wenn deaktiviert',
@@ -2783,12 +2807,14 @@ const CARD_DESC_FALLBACK = {
   force_dir_ccw:      'Überfall läuft gegen den Uhrzeigersinn.',
   dual_res_nahrung:   'Produziert Holz und Nahrung.',
   dual_res_holz:      'Produziert Nahrung und Holz.',
+  schutzpatronin:     'Solange diese Karte aktiv ist, haben alle fragilen Gebäude def 2 und werden nach einem Überfall nicht zerstört.',
   direct_knight:      'Gibt sofort +2 Ritter.',
   direct_coins:       'Gibt sofort +2 Münzen.',
   direct_coins_seasonal: 'Gibt Münzen je Jahreszeit.',
   minus2_attackers:   '−2 Angreifer vor dem Überfall.',
   neighbor_defense:   'Nachbarn erhalten +1 Verteidigung.',
   neighbor_defense_2: 'Nachbarn erhalten +2 Verteidigung.',
+  zwillingsturm:      'Verdoppelt die Siegpunkte aller direkt angrenzenden Gebäude.',
   indestructible:     'Kann nie deaktiviert werden.',
   destroyable:        '15 Punkte — wird bei Deaktivierung zerstört.',
   pts_if_plundered:   '0 Punkte aktiv · 8 Punkte wenn geplündert.',
@@ -2936,11 +2962,11 @@ function onCellClick(idx) {
   }
 
   // ── Validierung vor dem Overlay ───────────────────────────────
-  // Sonderkarte: Level-Voraussetzung prüfen
-  if (selCard.cat === 'special' && selCard.minLevel) {
-    const missing = Math.max(0, selCard.minLevel - G.rathausLevel);
-    if (missing > G.coins) {
-      showToast(`Rathaus Level ${selCard.minLevel} nötig (fehlen ${missing - G.coins} Münzen)`);
+  // Sonderkarte: Slot-Kapazität prüfen
+  if (selCard.cat === 'special') {
+    const sonderCount = G.board.filter((c, i) => c && i !== 4 && c.cat === 'special' && !G.plundered[i]).length;
+    if (sonderCount >= G.rathausLevel) {
+      showToast(`Rathaus Level ${G.rathausLevel} — nur ${G.rathausLevel} Sonderkarte${G.rathausLevel > 1 ? 'n' : ''} erlaubt. Rathaus upgraden!`);
       return;
     }
   }
@@ -3003,16 +3029,7 @@ function commitPlacement() {
 
   const existing = G.board[targetIdx];
 
-  // ── Münzkosten für Sonderkarten (fehlende Level) abziehen ─────
-  if (newCard.cat === 'special' && newCard.minLevel) {
-    const missing = Math.max(0, newCard.minLevel - G.rathausLevel);
-    if (missing > 0) {
-      if (missing > G.coins) { showToast('Nicht genug Münzen'); clearSelection(); renderGrid(true); return; }
-      G.coins -= missing;
-      SFX.coin && SFX.coin();
-      showToast(`${missing} Münze${missing > 1 ? 'n' : ''} gezahlt (Level-Ausgleich)`);
-    }
-  }
+  // ── Sonderkarten sind kostenlos — Slot-Prüfung erfolgt in canPlayCard ──
 
   // ── State-Mutation ─────────────────────────────────────────────
   G.hand[handIdx] = null;
@@ -3666,6 +3683,7 @@ const GLOSSAR_ENTRIES = [
   { term: 'Angriffsrichtung', def: 'Der gelbe Würfel. Bestimmt von welcher Seite die Horde einmarschiert (NW, N, NO, SO, S). Beeinflusst welche Felder zuerst getroffen werden.' },
   { term: 'Upgrade',        def: 'Lege weitere Karten gleichen Rohstoffs auf ein bestehendes Gebäude (max. 6). Erhöht Rohstoffproduktion und oft auch Verteidigung.' },
   { term: 'Innovation (⚡)', def: 'Karten mit ⚡ skalieren ihre Siegpunkte mit dem Rathaus-Level. Bei Level 6 können sie sehr hohe Punktzahlen erreichen.' },
+  { term: 'Stärkende Säulen', def: 'Solange diese Karte aktiv ist, erhalten alle fragilen Gebäude in der Stadt def 2 und werden nach einem Überfall nicht zerstört.' },
 ];
 
 function openGlossar() {
@@ -3688,11 +3706,15 @@ document.getElementById('glossar-screen').addEventListener('click', (e) => {
     e.currentTarget.classList.remove('active');
   }
 });
+document.getElementById('btn-info').addEventListener('click', openGlossar);
 
 // ── Layout-Shift Observer ─────────────────────────────────────────
 // Barrieren und Edge-Zonen werden absolut positioniert und müssen
 // bei jedem Layout-Shift (Hand hoch/runter, Overlay, Resize) neu
 // berechnet werden, damit sie mit dem Grid wandern.
+// WICHTIG: Observer wird erst nach 500ms aktiviert, damit die vielen
+// Layout-Shifts beim Startup (Font-Loading, Splash, Rules-Screen) ihn
+// nicht mehrfach feuern lassen.
 {
   let reposTimer = null;
   function reposBarriers() {
@@ -3703,15 +3725,17 @@ document.getElementById('glossar-screen').addEventListener('click', (e) => {
       if (document.querySelector('.edge-zone')) {
         renderEdgeZones(true);
       }
-    }, 30);
+    }, 80);
   }
 
-  // Grid und Hand beobachten
-  const ro = new ResizeObserver(reposBarriers);
-  const gridEl = document.getElementById('grid');
-  const handEl = document.getElementById('hand-area');
-  if (gridEl) ro.observe(gridEl);
-  if (handEl) ro.observe(handEl);
+  // Grid und Hand beobachten — verzögert starten
+  setTimeout(() => {
+    const ro = new ResizeObserver(reposBarriers);
+    const gridEl = document.getElementById('grid');
+    const handEl = document.getElementById('hand-area');
+    if (gridEl) ro.observe(gridEl);
+    if (handEl) ro.observe(handEl);
+  }, 500);
 
   // Auch window-Resize abfangen (Rotation, Zoom)
   window.addEventListener('resize', reposBarriers, { passive: true });
