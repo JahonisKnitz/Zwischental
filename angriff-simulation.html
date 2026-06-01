@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zwischental — Angriff</title>
+<link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Cinzel:wght@400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --parchment: #f0e8d8;
+  --parchment-dark: #d8c8a8;
+  --ink: #1a1208;
+  --ink-50: rgba(26,18,8,0.5);
+  --ink-20: rgba(26,18,8,0.2);
+  --blood: #8a1818;
+  --gold: #c8920a;
+  --concealed-bg: #2e2820;
+  --concealed-text: rgba(240,232,216,0.18);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  min-height: 100dvh;
+  background: var(--parchment);
+  color: var(--ink);
+  font-family: 'Crimson Text', serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 16px 60px;
+  position: relative;
+}
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 0;
+}
+
+/* ── HEADER ── */
+header { text-align: center; margin-bottom: 28px; position: relative; z-index: 1; }
+.title { font-family: 'Pirata One', cursive; font-size: clamp(2rem,5vw,3rem); letter-spacing: 0.06em; }
+.subtitle { font-family: 'Cinzel', serif; font-size: 0.6rem; letter-spacing: 0.28em; color: var(--ink-50); text-transform: uppercase; margin-top: 5px; }
+.rule { width: 180px; height: 1px; background: linear-gradient(to right,transparent,var(--gold),transparent); margin: 10px auto 0; }
+
+/* ── DICE ARENA ── */
+.dice-arena {
+  display: flex; gap: clamp(16px,4vw,40px);
+  align-items: flex-start; justify-content: center;
+  margin-bottom: 32px; position: relative; z-index: 1;
+}
+.die-col { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+
+/* 3D die */
+.die-scene { width: clamp(82px,18vw,108px); height: clamp(82px,18vw,108px); perspective: 600px; }
+.die-cube { width:100%; height:100%; position:relative; transform-style:preserve-3d; }
+.die-cube.rolling { animation: roll3d 0.9s cubic-bezier(0.15,0.8,0.3,1) forwards; }
+@keyframes roll3d {
+  0%   { transform: rotateX(0)    rotateY(0)    rotateZ(0); }
+  20%  { transform: rotateX(200deg) rotateY(120deg) rotateZ(40deg); }
+  45%  { transform: rotateX(380deg) rotateY(300deg) rotateZ(-25deg); }
+  70%  { transform: rotateX(600deg) rotateY(500deg) rotateZ(12deg); }
+  88%  { transform: rotateX(700deg) rotateY(680deg) rotateZ(-4deg); }
+  100% { transform: rotateX(720deg) rotateY(720deg) rotateZ(0); }
+}
+.die-face {
+  position:absolute; width:100%; height:100%; border-radius:14%;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Pirata One',cursive; font-size:clamp(1.8rem,5vw,2.5rem); color:white;
+  backface-visibility:hidden;
+  border:2px solid rgba(255,255,255,0.12);
+  box-shadow: inset 0 2px 6px rgba(255,255,255,0.18), inset 0 -2px 6px rgba(0,0,0,0.28);
+}
+.half { --h: calc(clamp(82px,18vw,108px) / 2); }
+.die-face.front  { transform: translateZ(var(--h,42px)); }
+.die-face.back   { transform: rotateY(180deg)  translateZ(var(--h,42px)); }
+.die-face.right  { transform: rotateY(90deg)   translateZ(var(--h,42px)); }
+.die-face.left   { transform: rotateY(-90deg)  translateZ(var(--h,42px)); }
+.die-face.top    { transform: rotateX(90deg)   translateZ(var(--h,42px)); }
+.die-face.bottom { transform: rotateX(-90deg)  translateZ(var(--h,42px)); }
+
+.die-yellow .die-face { background: linear-gradient(140deg,#e8c030,#b08010); }
+.die-blue   .die-face { background: linear-gradient(140deg,#5090d0,#1a4880); }
+.die-red    .die-face { background: linear-gradient(140deg,#c04040,#780818); }
+
+.die-shadow {
+  width:65%; height:7px;
+  background: radial-gradient(ellipse,rgba(26,18,8,0.28) 0%,transparent 70%);
+  border-radius:50%;
+}
+
+/* Die info card (inside details drawer) */
+.die-info {
+  width: clamp(82px,18vw,108px);
+  background: white; border-radius:8px;
+  border:1px solid var(--parchment-dark);
+  box-shadow: 0 2px 8px rgba(26,18,8,0.08);
+  padding: 7px 9px;
+  opacity:0; transform:translateY(6px);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+.die-info.visible { opacity:1; transform:translateY(0); }
+.die-info.is-concealed { background: var(--concealed-bg); border-color:#4a4038; }
+
+.di-label {
+  font-family:'Cinzel',serif; font-size:0.54rem; letter-spacing:0.14em;
+  text-transform:uppercase; margin-bottom:3px;
+}
+.die-yellow .di-label { color:#b08010; }
+.die-blue   .di-label { color:#2a5890; }
+.die-red    .di-label { color:#8a1828; }
+.die-info.is-concealed .di-label { color:rgba(255,255,255,0.25); }
+
+.di-val {
+  font-family:'Pirata One',cursive; font-size:0.95rem; color:var(--ink); line-height:1.1;
+}
+.die-info.is-concealed .di-val { color:rgba(255,255,255,0.15); }
+.di-sub {
+  font-family:'Crimson Text',serif; font-style:italic; font-size:0.72rem; color:var(--ink-50); line-height:1.2;
+}
+.die-info.is-concealed .di-sub { color:rgba(255,255,255,0.1); }
+
+/* ── LORE ── */
+.lore-area {
+  max-width: 400px; width:100%; text-align:center;
+  margin-bottom: 28px; position:relative; z-index:1;
+  min-height: 5rem;
+}
+.lore-divider {
+  display:flex; align-items:center; gap:10px; justify-content:center;
+  margin-bottom:14px; opacity:0; transition:opacity 0.6s ease;
+}
+.lore-divider.visible { opacity:1; }
+.lore-line { flex:1; height:1px; background:linear-gradient(to right,transparent,var(--parchment-dark)); }
+.lore-line.r { background:linear-gradient(to left,transparent,var(--parchment-dark)); }
+.lore-sigil { font-size:0.8rem; color:var(--ink-20); letter-spacing:0.2em; }
+
+#lore-text {
+  font-family:'Crimson Text',serif; font-style:italic;
+  font-size:clamp(1rem,2.8vw,1.12rem); line-height:1.7; color:var(--ink);
+  min-height:3em;
+}
+
+/* Lore word spans */
+.lw { display:inline; }
+.lw.concealed-word {
+  /* blurred placeholder — visible as smudge */
+  color: transparent;
+  background: rgba(26,18,8,0.13);
+  border-radius:3px;
+  padding:0 1px;
+  filter: blur(0);
+  transition: none;
+}
+.lw.key-dir   { color:#9a7010; font-weight:600; }
+.lw.key-count { color:#1a4880; font-weight:600; }
+.lw.key-champ { color:#780818; font-weight:600; }
+
+@keyframes wordIn {
+  0%   { opacity:0; transform:translateY(5px) scale(0.9); filter:blur(5px); }
+  55%  { opacity:1; filter:blur(0); }
+  80%  { transform:translateY(-1px) scale(1.03); }
+  100% { transform:translateY(0) scale(1); }
+}
+.lw.animating { animation: wordIn 0.5s cubic-bezier(0.22,1.4,0.36,1) forwards; }
+
+/* ── MAIN BUTTON ── */
+.btn-wrap { position:relative; z-index:1; margin-bottom:24px; }
+.btn-main {
+  font-family:'Pirata One',cursive; font-size:clamp(1rem,3vw,1.25rem);
+  letter-spacing:0.08em; color:white; border:none; border-radius:6px;
+  padding: clamp(12px,3vw,15px) clamp(32px,7vw,52px);
+  cursor:pointer; position:relative; overflow:hidden;
+  transition:transform 0.1s, box-shadow 0.15s;
+}
+.btn-main.roll {
+  background: linear-gradient(160deg,#9a2020,#4a0808);
+  box-shadow: 0 4px 16px rgba(100,10,10,0.4), 0 1px 0 rgba(255,255,255,0.1) inset;
+}
+.btn-main.reveal {
+  background: linear-gradient(160deg,#3a5a8a,#0a1a3a);
+  box-shadow: 0 4px 16px rgba(10,30,80,0.4), 0 1px 0 rgba(255,255,255,0.1) inset;
+}
+.btn-main::before {
+  content:''; position:absolute; top:0; left:-100%; width:60%; height:100%;
+  background: linear-gradient(90deg,transparent,rgba(255,255,255,0.1),transparent);
+  transition:left 0.5s;
+}
+.btn-main:hover::before { left:150%; }
+.btn-main:hover { transform:translateY(-2px); }
+.btn-main:active { transform:translateY(1px); }
+.btn-main:disabled { opacity:0.6; cursor:default; transform:none; }
+
+/* ── DETAILS DRAWER ── */
+.drawer-toggle {
+  display:flex; align-items:center; gap:8px; justify-content:center;
+  cursor:pointer; margin-bottom:0; position:relative; z-index:1;
+  padding:8px 16px; border-radius:20px;
+  border:1px solid var(--parchment-dark); background:transparent;
+  font-family:'Cinzel',serif; font-size:0.6rem; letter-spacing:0.18em;
+  text-transform:uppercase; color:var(--ink-50);
+  transition:background 0.2s, color 0.2s;
+  opacity:0; pointer-events:none;
+  transition:opacity 0.4s ease, background 0.2s;
+}
+.drawer-toggle.visible { opacity:1; pointer-events:auto; }
+.drawer-toggle:hover { background:rgba(26,18,8,0.06); color:var(--ink); }
+.drawer-arrow { transition:transform 0.35s cubic-bezier(0.34,1.2,0.64,1); font-size:0.7rem; }
+.drawer-toggle.open .drawer-arrow { transform:rotate(180deg); }
+
+.drawer {
+  max-width:420px; width:100%;
+  max-height:0; overflow:hidden;
+  transition:max-height 0.5s cubic-bezier(0.4,0,0.2,1);
+  position:relative; z-index:1;
+}
+.drawer.open { max-height:1200px; }
+.drawer-inner { padding:20px 0 8px; display:flex; flex-direction:column; gap:16px; }
+
+/* Season selector */
+.season-wrap { display:flex; gap:6px; flex-wrap:wrap; justify-content:center; }
+.season-btn {
+  font-family:'Cinzel',serif; font-size:0.58rem; letter-spacing:0.1em;
+  padding:4px 12px; border-radius:20px; border:1.5px solid var(--parchment-dark);
+  background:white; color:var(--ink-50); cursor:pointer; transition:all 0.15s;
+}
+.season-btn:hover { background:var(--parchment); }
+.season-btn.active { color:white; border-color:transparent; }
+.season-btn[data-s="0"].active { background:#5a88b8; }
+.season-btn[data-s="1"].active { background:#5a9a5a; }
+.season-btn[data-s="2"].active { background:#c89010; }
+.season-btn[data-s="3"].active { background:#9a4818; }
+
+/* Summary panel */
+.summary { background:white; border-radius:10px; border:1px solid var(--parchment-dark); padding:16px 18px; }
+.sum-title {
+  font-family:'Pirata One',cursive; font-size:1rem; letter-spacing:0.05em;
+  margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid var(--parchment-dark);
+  display:flex; align-items:center; gap:7px;
+}
+.sum-dot { width:7px; height:7px; border-radius:50%; background:var(--blood); flex-shrink:0; }
+.sum-grid { display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-bottom:7px; }
+.sum-cell { background:#fafaf8; border-radius:6px; padding:7px 9px; border:1px solid #eee; }
+.sum-cell.full { grid-column:1/-1; }
+.sum-cell.dark { background:var(--concealed-bg); border-color:#4a4038; }
+.sc-label { font-family:'Cinzel',serif; font-size:0.54rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink-50); margin-bottom:2px; }
+.sum-cell.dark .sc-label { color:rgba(255,255,255,0.25); }
+.sc-val { font-family:'Pirata One',cursive; font-size:0.95rem; color:var(--ink); }
+.sum-cell.dark .sc-val { color:rgba(255,255,255,0.12); }
+.sc-sub { font-family:'Crimson Text',serif; font-style:italic; font-size:0.72rem; color:var(--ink-50); }
+.sum-cell.dark .sc-sub { color:rgba(255,255,255,0.1); }
+
+/* Die info row inside drawer */
+.die-info-row { display:flex; gap:10px; justify-content:center; }
+
+/* Bag counters */
+.bag-row { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+.bag-item { display:flex; align-items:center; gap:5px; font-size:0.78rem; color:var(--ink-50); }
+.bag-pip { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+
+/* History */
+.history-title { font-family:'Cinzel',serif; font-size:0.55rem; letter-spacing:0.18em; text-transform:uppercase; color:var(--ink-20); margin-bottom:8px; text-align:center; }
+.history-entry { display:flex; gap:8px; padding:5px 0; border-bottom:1px solid var(--ink-20); font-size:0.8rem; color:var(--ink-50); animation:entryIn 0.3s ease; }
+@keyframes entryIn { from{opacity:0;transform:translateX(-6px)} to{opacity:1;transform:none} }
+.h-num { font-family:'Cinzel',serif; font-size:0.58rem; color:var(--ink-20); min-width:18px; padding-top:2px; }
+
+/* Particle */
+.particle { position:fixed; border-radius:50%; pointer-events:none; z-index:999; animation:pfly 0.7s ease-out forwards; }
+@keyframes pfly { 0%{opacity:1;transform:translate(0,0) scale(1)} 100%{opacity:0;transform:translate(var(--px),var(--py)) scale(0.2)} }
+
+/* Toast */
+.toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(50px); background:var(--ink); color:var(--parchment); font-family:'Cinzel',serif; font-size:0.65rem; letter-spacing:0.12em; padding:7px 18px; border-radius:20px; opacity:0; transition:transform 0.3s,opacity 0.3s; pointer-events:none; z-index:1000; white-space:nowrap; }
+.toast.show { transform:translateX(-50%) translateY(0); opacity:1; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="title">Zwischental</div>
+  <div class="subtitle">Angriff · Simulation</div>
+  <div class="rule"></div>
+</header>
+
+<!-- Dice (always visible) -->
+<div class="dice-arena" id="dice-arena">
+
+  <div class="die-col die-yellow" id="col-yellow">
+    <div class="die-scene">
+      <div class="die-cube die-yellow" id="cube-yellow">
+        <div class="die-face front"><span id="face-yellow">—</span></div>
+        <div class="die-face back">⚔</div>
+        <div class="die-face right">☽</div>
+        <div class="die-face left">✦</div>
+        <div class="die-face top">⚔</div>
+        <div class="die-face bottom">☽</div>
+      </div>
+    </div>
+    <div class="die-shadow"></div>
+  </div>
+
+  <div class="die-col die-blue" id="col-blue">
+    <div class="die-scene">
+      <div class="die-cube die-blue" id="cube-blue">
+        <div class="die-face front"><span id="face-blue">—</span></div>
+        <div class="die-face back">⚔</div>
+        <div class="die-face right">☽</div>
+        <div class="die-face left">✦</div>
+        <div class="die-face top">⚔</div>
+        <div class="die-face bottom">☽</div>
+      </div>
+    </div>
+    <div class="die-shadow"></div>
+  </div>
+
+  <div class="die-col die-red" id="col-red">
+    <div class="die-scene">
+      <div class="die-cube die-red" id="cube-red">
+        <div class="die-face front"><span id="face-red">—</span></div>
+        <div class="die-face back">⚔</div>
+        <div class="die-face right">☽</div>
+        <div class="die-face left">✦</div>
+        <div class="die-face top">⚔</div>
+        <div class="die-face bottom">☽</div>
+      </div>
+    </div>
+    <div class="die-shadow"></div>
+  </div>
+
+</div>
+
+<!-- Lore sentence (always visible after first roll) -->
+<div class="lore-area">
+  <div class="lore-divider" id="lore-divider">
+    <div class="lore-line"></div>
+    <span class="lore-sigil">⚔ ✦ ⚔</span>
+    <div class="lore-line r"></div>
+  </div>
+  <p id="lore-text"></p>
+</div>
+
+<!-- Single action button -->
+<div class="btn-wrap">
+  <button class="btn-main roll" id="btn-main" onclick="handleButton()">⚔ Angriff würfeln</button>
+</div>
+
+<!-- Drawer toggle -->
+<button class="drawer-toggle" id="drawer-toggle" onclick="toggleDrawer()">
+  <span>Details</span>
+  <span class="drawer-arrow" id="drawer-arrow">▾</span>
+</button>
+
+<!-- Collapsible drawer -->
+<div class="drawer" id="drawer">
+  <div class="drawer-inner">
+
+    <!-- Season -->
+    <div class="season-wrap">
+      <button class="season-btn active" data-s="0">❄ Winter</button>
+      <button class="season-btn" data-s="1">🌱 Frühling</button>
+      <button class="season-btn" data-s="2">☀ Sommer</button>
+      <button class="season-btn" data-s="3">🍂 Herbst</button>
+    </div>
+
+    <!-- Die info cards -->
+    <div class="die-info-row">
+      <div class="die-info die-yellow" id="info-yellow">
+        <div class="di-label">🟡 Richtung</div>
+        <div class="di-val" id="info-yellow-val">—</div>
+        <div class="di-sub" id="info-yellow-sub"></div>
+      </div>
+      <div class="die-info die-blue" id="info-blue">
+        <div class="di-label">🔵 Angreifer</div>
+        <div class="di-val" id="info-blue-val">—</div>
+        <div class="di-sub" id="info-blue-sub"></div>
+      </div>
+      <div class="die-info die-red" id="info-red">
+        <div class="di-label">🔴 Champion</div>
+        <div class="di-val" id="info-red-val">—</div>
+        <div class="di-sub" id="info-red-sub"></div>
+      </div>
+    </div>
+
+    <!-- Summary -->
+    <div class="summary" id="summary" style="display:none">
+      <div class="sum-title"><div class="sum-dot"></div> Überfallbericht</div>
+      <div class="sum-grid">
+        <div class="sum-cell" id="sum-dir">
+          <div class="sc-label">Richtung</div>
+          <div class="sc-val" id="sum-dir-val">—</div>
+          <div class="sc-sub" id="sum-dir-sub"></div>
+        </div>
+        <div class="sum-cell" id="sum-att">
+          <div class="sc-label">Angreifer</div>
+          <div class="sc-val" id="sum-att-val">—</div>
+          <div class="sc-sub" id="sum-att-sub"></div>
+        </div>
+        <div class="sum-cell full" id="sum-champ">
+          <div class="sc-label">Champion</div>
+          <div class="sc-val" id="sum-champ-val">—</div>
+          <div class="sc-sub" id="sum-champ-sub"></div>
+        </div>
+      </div>
+      <div class="bag-row">
+        <div class="bag-item"><div class="bag-pip" style="background:#c89010"></div>🟡 <span id="bag-y">—</span></div>
+        <div class="bag-item"><div class="bag-pip" style="background:#2a5890"></div>🔵 <span id="bag-b">—</span></div>
+        <div class="bag-item"><div class="bag-pip" style="background:#8a1828"></div>🔴 <span id="bag-r">—</span></div>
+      </div>
+    </div>
+
+    <!-- History -->
+    <div id="history-wrap" style="display:none">
+      <div class="history-title">Verlauf</div>
+      <div id="history-list"></div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════
+//  POOLS
+// ══════════════════════════════════════
+const ATTACKER_POOL = [
+  { id:'A1', label:'7',          calc:(d,s,rl)=>7 },
+  { id:'A2', label:'5 + Max',    calc:(d,s,rl)=>5+Math.max(d.yellow,d.blue,d.red) },
+  { id:'A3', label:'Jahr. + 🔵', calc:(d,s,rl)=>(s+1)+d.blue },
+  { id:'A4', label:'6 + ⚡',     calc:(d,s,rl)=>6+rl },
+  { id:'A5', label:'🔵 + 3',     calc:(d,s,rl)=>d.blue+3 },
+  { id:'A6', label:'4 + ✦',      calc:(d,s,rl)=>4 },
+  { id:'A7', label:'🔵 + 🟡',    calc:(d,s,rl)=>d.blue+d.yellow },
+  { id:'A8', label:'6',          calc:(d,s,rl)=>6 },
+];
+const CHAMPION_POOL = [
+  { id:'C1',  label:'+🔴 Angreifer',         desc:v=>`+${v} zusätzliche Angreifer` },
+  { id:'C2',  label:'Gegenrichtung',          desc:()=>'Angriff startet gegenüber' },
+  { id:'C3',  label:'Richtung umkehren',      desc:()=>'↻ wird ↺ und umgekehrt' },
+  { id:'C4',  label:'🟡🔵 auf 6',             desc:()=>'Gelb und Blau werden auf 6 gesetzt' },
+  { id:'C5',  label:'Barrieren ignorieren',   desc:()=>'Barrikaden wirkungslos' },
+  { id:'C6',  label:'Ohne Anführer',          desc:()=>'Kein Anführer' },
+  { id:'C7',  label:'Alle verborgen',         desc:()=>'Alle Überfallkarten bleiben verborgen' },
+  { id:'C8',  label:'🟡🔵 auf 1',             desc:()=>'Gelb und Blau werden auf 1 gesetzt' },
+  { id:'C9',  label:'Brandstifter',           desc:()=>'Mindestens 1 Karte wird immer deaktiviert' },
+  { id:'C10', label:'Wechselhafter Anführer', desc:()=>'Gelb und Blau tauschen die Rollen' },
+  { id:'C11', label:'Urlauber',               desc:()=>'Sommer: −3 · Frühling/Herbst: +6' },
+  { id:'C12', label:'Volksaufstand',          desc:()=>'Führender Spieler: +1 Gebäude deaktiviert' },
+];
+const DIRECTION_POOL = [
+  {id:'Y1',label:'NW',gridIdx:0},{id:'Y2',label:'N',gridIdx:1},
+  {id:'Y3',label:'NO',gridIdx:2},{id:'Y4',label:'O',gridIdx:5},
+  {id:'Y5',label:'SO',gridIdx:8},{id:'Y6',label:'S',gridIdx:7},
+  {id:'Y7',label:'SW',gridIdx:6},{id:'Y8',label:'W',gridIdx:3},
+];
+const DIR_NAMES = {NW:'Nordwest',N:'Nord',NO:'Nordost',O:'Ost',SO:'Südost',S:'Süd',SW:'Südwest',W:'West'};
+const CLOCKWISE_ORDER = [0,1,2,5,8,7,6,3];
+
+// ══════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════
+let SIM = {
+  season:0, rathausLevel:1,
+  dice:{yellow:1,blue:1,red:1},
+  concealed: new Set(),
+  attackDir:null, attackBlue:null, attackChampion:null,
+  rollCount:0,
+};
+const BAGS = {
+  yellow:{pool:[],used:[],lastIdx:null},
+  blue:{pool:[],used:[]},
+  champion:{pool:[],used:[]},
+};
+function initBags() {
+  BAGS.yellow.lastIdx=null; BAGS.yellow.used=[]; BAGS.blue.used=[...ATTACKER_POOL]; BAGS.blue.pool=[];
+  BAGS.yellow.pool=[...DIRECTION_POOL].sort(()=>Math.random()-0.5);
+  BAGS.champion.used=[...CHAMPION_POOL].sort(()=>Math.random()-0.5); BAGS.champion.pool=[];
+}
+function refillBag(k) {
+  const b=BAGS[k];
+  if(k==='yellow') {
+    b.pool=(b.lastIdx!==null?DIRECTION_POOL.filter(d=>d.gridIdx!==b.lastIdx):[...DIRECTION_POOL]).sort(()=>Math.random()-0.5);
+  } else { b.pool=[...b.used].sort(()=>Math.random()-0.5); }
+  b.used=[];
+}
+function draw(k) { const b=BAGS[k]; if(!b.pool.length) refillBag(k); const x=b.pool.pop(); b.used.push(x); return x; }
+function bagLeft(k) { return BAGS[k].pool.length; }
+initBags();
+
+// ══════════════════════════════════════
+//  ROLL
+// ══════════════════════════════════════
+function roll() {
+  SIM.dice.yellow=Math.ceil(Math.random()*6);
+  SIM.dice.blue=Math.ceil(Math.random()*6);
+  SIM.dice.red=Math.ceil(Math.random()*6);
+  SIM.attackChampion=draw('champion');
+  const dirCard=draw('yellow');
+  BAGS.yellow.lastIdx=dirCard.gridIdx;
+  const cw=SIM.dice.yellow%2===0;
+  SIM.attackDir={dir:dirCard.label,fullDir:DIR_NAMES[dirCard.label],clockwise:cw,gridIdx:dirCard.gridIdx};
+  SIM.attackBlue=draw('blue');
+  const ch=SIM.attackChampion;
+  if(ch.id==='C4'){SIM.dice.yellow=6;SIM.dice.blue=6;}
+  if(ch.id==='C8'){SIM.dice.yellow=1;SIM.dice.blue=1;}
+  if(ch.id==='C10'){const t=SIM.dice.yellow;SIM.dice.yellow=SIM.dice.blue;SIM.dice.blue=t;}
+  if(ch.id==='C7'){SIM.concealed=new Set(['yellow','blue','red']);}
+  else{const mx=Math.max(SIM.dice.yellow,SIM.dice.blue,SIM.dice.red);SIM.concealed=new Set(['yellow','blue','red'].filter(c=>SIM.dice[c]===mx));}
+  SIM.rollCount++;
+}
+function getCount() { return SIM.attackBlue.calc(SIM.dice,SIM.season,SIM.rathausLevel); }
+
+// ══════════════════════════════════════
+//  LORE GENERATOR
+// ══════════════════════════════════════
+const INTROS = [
+  'Die Raben kreisen über dem Tal —',
+  'Nebel zieht durchs Bergland, und man flüstert:',
+  'Ein Bote reitet atemlos ins Tor —',
+  'Die Wächter auf dem Turm raunt einander zu:',
+  'Schlechte Nachrichten erreichen die Stadt —',
+  'Ein unheiliges Schweigen liegt über dem Tal —',
+];
+const MIDDLES = ['nähern sich dem Tal','rücken heran','bedrohen die Stadt','ziehen auf die Mauern zu','marschieren auf das Tor'];
+
+const ADJECTIVES = [
+  'beutehungrige','gierige','diebische','räuberische','hinterlistige',
+  'verschlagene','habgierige','plündernde','dreiste','lauernde',
+  'hungrige','durchtriebene','freche','unersättliche','heimtückische',
+];
+const CREATURES = [
+  'Eichhörnchen','Dachse','Füchse','Marder','Wiesel','Ratten',
+  'Krähen','Hamster','Biber','Igel','Frösche','Otter',
+  'Hasen','Mäuse','Sperlinge',
+];
+const CREATURE_SINGULAR = {
+  'Eichhörnchen':'Eichhörnchen','Dachse':'Dachs','Füchse':'Fuchs',
+  'Marder':'Marder','Wiesel':'Wiesel','Ratten':'Ratte',
+  'Krähen':'Krähe','Hamster':'Hamster','Biber':'Biber','Igel':'Igel',
+  'Frösche':'Frosch','Otter':'Otter','Hasen':'Hase','Mäuse':'Maus','Sperlinge':'Sperling',
+};
+const GROUP_NOUNS = [
+  'eine Horde','eine Bande','ein Trupp','eine Meute','ein Schwarm','eine Sippe',
+];
+
+function rnd(arr) { return arr[Math.floor(Math.random()*arr.length)]; }
+
+// Returns array of segment objects: {text, cls, wasConcealed}
+function buildSegments(concealedSet) {
+  const isY=concealedSet.has('yellow'), isB=concealedSet.has('blue'), isR=concealedSet.has('red');
+  const count=getCount(), cw=SIM.attackDir.clockwise;
+
+  const dirSeg = isY
+    ? [{text:'aus unbekannter Richtung', cls:'key-dir', wasConcealed:true}]
+    : [
+        {text:'aus dem', cls:''},
+        {text:SIM.attackDir.fullDir, cls:'key-dir', wasConcealed:false},
+        {text:cw?', mit dem Uhrzeigersinn,':' , gegen den Uhrzeigersinn,', cls:''},
+      ];
+
+  const adj      = rnd(ADJECTIVES);
+  const creature = rnd(CREATURES);
+  const group    = rnd(GROUP_NOUNS);
+
+  const attSeg = isB
+    ? [{text:'eine unbekannte Anzahl Feinde', cls:'key-count', wasConcealed:true}]
+    : count === 1
+      ? [
+          {text:'ein einziger', cls:''},
+          {text:adj.replace(/e$/,'er'), cls:'key-count', wasConcealed:false},
+          {text:CREATURE_SINGULAR[creature]||creature, cls:'key-count', wasConcealed:false},
+        ]
+      : [
+          {text:group, cls:''},
+          {text:'von', cls:''},
+          {text:String(count), cls:'key-count', wasConcealed:false},
+          {text:adj, cls:'key-count', wasConcealed:false},
+          {text:creature, cls:'key-count', wasConcealed:false},
+        ];
+
+  let champSeg;
+  if(isR) {
+    champSeg=[{text:'Der Anführer verbirgt sein Gesicht im Schatten.', cls:'key-champ', wasConcealed:true}];
+  } else if(SIM.attackChampion.id==='C6') {
+    champSeg=[{text:'Sie reiten ohne Anführer.', cls:''}];
+  } else {
+    champSeg=[
+      {text:'Ihr Anführer trägt das Zeichen:', cls:''},
+      {text:SIM.attackChampion.label+'.', cls:'key-champ', wasConcealed:false},
+      {text:SIM.attackChampion.desc(SIM.dice.red)+'.', cls:''},
+    ];
+  }
+
+  return [
+    {text:rnd(INTROS), cls:''},
+    ...dirSeg,
+    ...attSeg,
+    {text:rnd(MIDDLES)+'.', cls:''},
+    ...champSeg,
+  ];
+}
+
+function renderLore(segments) {
+  const el=document.getElementById('lore-text');
+  el.innerHTML=segments.map((s,i)=>{
+    const classes=['lw', s.cls||'', s.wasConcealed?'concealed-word':''].filter(Boolean).join(' ');
+    return `<span class="${classes}" data-i="${i}">${s.text}</span> `;
+  }).join('');
+  document.getElementById('lore-divider').classList.add('visible');
+}
+
+function revealSegments(segments) {
+  const el=document.getElementById('lore-text');
+  // Collect which indices were concealed
+  const toReveal=[...el.querySelectorAll('.lw.concealed-word')].map(s=>parseInt(s.dataset.i));
+  if(toReveal.length===0) return;
+
+  // Re-render with revealed text (concealed words may have different text now)
+  const newSegs=buildSegments(new Set());
+  el.innerHTML=newSegs.map((s,i)=>{
+    const wasCon=toReveal.includes(i);
+    const classes=['lw', s.cls||'', wasCon?'concealed-word':''].filter(Boolean).join(' ');
+    return `<span class="${classes}" data-i="${i}">${s.text}</span> `;
+  }).join('');
+
+  // Animate each formerly-hidden word in sequence
+  toReveal.forEach((idx,order)=>{
+    setTimeout(()=>{
+      const span=el.querySelector(`[data-i="${idx}"]`);
+      if(!span) return;
+      span.classList.remove('concealed-word');
+      span.classList.add('animating');
+      span.addEventListener('animationend',()=>span.classList.remove('animating'),{once:true});
+    }, 200+order*160);
+  });
+}
+
+// ══════════════════════════════════════
+//  DICE INFO CARDS
+// ══════════════════════════════════════
+function updateDieInfo(col, concealedSet) {
+  const info=document.getElementById(`info-${col}`);
+  const val=document.getElementById(`info-${col}-val`);
+  const sub=document.getElementById(`info-${col}-sub`);
+  const isConc=concealedSet.has(col);
+  info.classList.toggle('is-concealed',isConc);
+  info.classList.add('visible');
+  if(isConc){
+    val.textContent='?';
+    sub.textContent=col==='yellow'?'Richtung verborgen':col==='blue'?'Angreifer verborgen':'Champion verborgen';
+  } else {
+    if(col==='yellow'){val.textContent=SIM.attackDir.fullDir;sub.textContent=SIM.attackDir.clockwise?'↻ mit dem Uhrzeigersinn':'↺ gegen den Uhrzeigersinn';}
+    else if(col==='blue'){val.textContent=getCount()+' Angreifer';sub.textContent=SIM.attackBlue.label;}
+    else{val.textContent=SIM.attackChampion.label;sub.textContent=SIM.attackChampion.desc(SIM.dice.red);}
+  }
+}
+
+// ══════════════════════════════════════
+//  SUMMARY
+// ══════════════════════════════════════
+function updateSummary(concealedSet) {
+  document.getElementById('summary').style.display='block';
+  const isY=concealedSet.has('yellow'),isB=concealedSet.has('blue'),isR=concealedSet.has('red');
+  const c=getCount();
+  const dc=document.getElementById('sum-dir'); dc.className='sum-cell'+(isY?' dark':'');
+  document.getElementById('sum-dir-val').textContent=isY?'?':SIM.attackDir.fullDir;
+  document.getElementById('sum-dir-sub').textContent=isY?'':(SIM.attackDir.clockwise?'↻ mit dem Uhrzeigersinn':'↺ gegen den Uhrzeigersinn')+' · 🟡'+SIM.dice.yellow;
+  const ac=document.getElementById('sum-att'); ac.className='sum-cell'+(isB?' dark':'');
+  document.getElementById('sum-att-val').textContent=isB?'?':c;
+  document.getElementById('sum-att-sub').textContent=isB?'':SIM.attackBlue.label+' · 🔵'+SIM.dice.blue;
+  const cc=document.getElementById('sum-champ'); cc.className='sum-cell full'+(isR?' dark':'');
+  document.getElementById('sum-champ-val').textContent=isR?'?':SIM.attackChampion.label;
+  document.getElementById('sum-champ-sub').textContent=isR?'':SIM.attackChampion.desc(SIM.dice.red)+' · 🔴'+SIM.dice.red;
+  document.getElementById('bag-y').textContent=bagLeft('yellow')+' übrig';
+  document.getElementById('bag-b').textContent=bagLeft('blue')+' übrig';
+  document.getElementById('bag-r').textContent=bagLeft('champion')+' übrig';
+}
+
+// ══════════════════════════════════════
+//  HISTORY
+// ══════════════════════════════════════
+function addHistory() {
+  const wrap=document.getElementById('history-wrap'); wrap.style.display='block';
+  const list=document.getElementById('history-list');
+  const c=getCount();
+  const txt=`${SIM.attackDir.fullDir} ${SIM.attackDir.clockwise?'↻':'↺'} · ${c} Angreifer · ${SIM.attackChampion.label}`;
+  const e=document.createElement('div'); e.className='history-entry';
+  e.innerHTML=`<span class="h-num">#${SIM.rollCount}</span><span>${txt}</span>`;
+  list.insertBefore(e,list.firstChild);
+  while(list.children.length>6) list.removeChild(list.lastChild);
+}
+
+// ══════════════════════════════════════
+//  PARTICLES
+// ══════════════════════════════════════
+function burst(col) {
+  const cube=document.getElementById(`cube-${col}`);
+  const r=cube.getBoundingClientRect();
+  const cx=r.left+r.width/2, cy=r.top+r.height/2;
+  const clr={yellow:'#e8c030',blue:'#4a80c0',red:'#c04040'}[col];
+  for(let i=0;i<12;i++){
+    const p=document.createElement('div'); p.className='particle';
+    const a=(Math.PI*2*i/12)+Math.random()*0.4, d=25+Math.random()*55;
+    p.style.cssText=`left:${cx}px;top:${cy}px;width:${3+Math.random()*5}px;height:${3+Math.random()*5}px;background:${clr};--px:${Math.cos(a)*d}px;--py:${Math.sin(a)*d}px;animation-duration:${0.5+Math.random()*0.35}s;`;
+    document.body.appendChild(p);
+    p.addEventListener('animationend',()=>p.remove());
+  }
+}
+
+// ══════════════════════════════════════
+//  MAIN FLOW
+// ══════════════════════════════════════
+let uiPhase='idle';
+
+function handleButton() {
+  if(uiPhase==='idle'||uiPhase==='combat') doRoll();
+  else doReveal();
+}
+
+function doRoll() {
+  roll();
+  uiPhase='rumour';
+
+  // Show die values immediately
+  ['yellow','blue','red'].forEach(c=>{ document.getElementById(`face-${c}`).textContent=SIM.dice[c]; });
+
+  // Animate dice staggered
+  ['yellow','blue','red'].forEach((c,i)=>{
+    const cube=document.getElementById(`cube-${c}`);
+    setTimeout(()=>{
+      cube.classList.remove('rolling');
+      void cube.offsetWidth;
+      cube.classList.add('rolling');
+      setTimeout(()=>cube.classList.remove('rolling'),950);
+    },i*130);
+  });
+
+  // Show drawer toggle
+  document.getElementById('drawer-toggle').classList.add('visible');
+
+  // After dice settle: lore + die info cards + summary
+  setTimeout(()=>{
+    ['yellow','blue','red'].forEach(c=>updateDieInfo(c,SIM.concealed));
+    updateSummary(SIM.concealed);
+
+    // Lore — word by word entry
+    const segs=buildSegments(SIM.concealed);
+    renderLore(segs);
+    // Animate ALL words in one by one (not just concealed ones)
+    const el=document.getElementById('lore-text');
+    [...el.querySelectorAll('.lw:not(.concealed-word)')].forEach((span,i)=>{
+      span.style.opacity='0';
+      setTimeout(()=>{
+        span.style.opacity='';
+        span.classList.add('animating');
+        span.addEventListener('animationend',()=>span.classList.remove('animating'),{once:true});
+      },i*70);
+    });
+  },1050);
+
+  const btn=document.getElementById('btn-main');
+  btn.textContent='…'; btn.disabled=true;
+  setTimeout(()=>{
+    btn.textContent='👁 Aufdecken';
+    btn.disabled=false;
+    btn.className='btn-main reveal';
+  },1050);
+}
+
+function doReveal() {
+  uiPhase='combat';
+  SIM.concealed=new Set();
+  ['yellow','blue','red'].forEach((c,i)=>setTimeout(()=>burst(c),i*160));
+  ['yellow','blue','red'].forEach(c=>updateDieInfo(c,SIM.concealed));
+  updateSummary(SIM.concealed);
+  setTimeout(()=>revealSegments([]),300);
+  addHistory();
+  const btn=document.getElementById('btn-main');
+  btn.textContent='⚔ Neu würfeln'; btn.className='btn-main roll';
+}
+
+// ══════════════════════════════════════
+//  DRAWER
+// ══════════════════════════════════════
+let drawerOpen=false;
+function toggleDrawer() {
+  drawerOpen=!drawerOpen;
+  document.getElementById('drawer').classList.toggle('open',drawerOpen);
+  document.getElementById('drawer-toggle').classList.toggle('open',drawerOpen);
+}
+
+// ══════════════════════════════════════
+//  SEASON
+// ══════════════════════════════════════
+document.querySelectorAll('.season-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.season-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    SIM.season=parseInt(btn.dataset.s);
+    toast(`Jahreszeit ${SIM.season+1} gewählt`);
+  });
+});
+
+// ══════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════
+let _tt;
+function toast(msg) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(_tt); _tt=setTimeout(()=>t.classList.remove('show'),2000);
+}
+</script>
+</body>
+</html>

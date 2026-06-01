@@ -25,6 +25,11 @@
 
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 
+html {
+  /* Globale Schriftgröße leicht erhöht → alle rem-Werte skalieren mit */
+  font-size: 17px;
+}
+
 html, body {
   height: 100%;
   width: 100%;
@@ -32,13 +37,14 @@ html, body {
   font-family: 'Crimson Text', Georgia, serif;
   overflow-x: hidden;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   touch-action: pan-y;
 }
 
 #app {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  min-height: 100%;
   width: 100%;
   max-width: 640px;
   margin: 0 auto;
@@ -49,7 +55,7 @@ html, body {
     0 20px 80px rgba(18,14,10,0.1);
   position: relative;
   overflow-x: visible;
-  overflow-y: hidden;
+  overflow-y: visible;
 }
 
 /* ── HEADER ── sehr minimal ── */
@@ -75,7 +81,7 @@ header {
 }
 .logo-sub {
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 0.42rem;
+  font-size: 0.62rem;
   letter-spacing: 0.22em;
   color: rgba(255,255,255,0.65);
   font-weight: 600;
@@ -91,7 +97,7 @@ header {
 }
 #vp-display .vp-label {
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 0.58rem;
+  font-size: 0.75rem;
   letter-spacing: 0.14em;
   color: rgba(255,255,255,0.7);
   text-transform: uppercase;
@@ -124,7 +130,7 @@ header {
 }
 #phase-season-label {
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 0.52rem;
+  font-size: 0.68rem;
   letter-spacing: 0.14em;
   color: var(--ink-40);
   text-transform: uppercase;
@@ -213,7 +219,7 @@ header {
 }
 .phase-label {
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 0.5rem;
+  font-size: 0.68rem;
   letter-spacing: 0.1em;
   color: var(--ink-20);
   padding: 0 5px;
@@ -253,7 +259,7 @@ header {
   transition: opacity 0.25s;
 }
 .res-pair-arrow {
-  font-size: 0.5rem;
+  font-size: 0.68rem;
   color: var(--ink-20);
   margin: 0 1px;
   line-height: 1;
@@ -400,9 +406,7 @@ header {
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  font-size: 0.68rem;
-  color: var(--ink-40);
-  border-bottom: 1px solid var(--ink-10);
+  font-size: 0.78rem;
   min-height: 30px;
   display: flex;
   align-items: center;
@@ -437,7 +441,7 @@ header {
 }
 .cell-build-overlay span {
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 0.55rem;
+  font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.14em;
   color: white;
@@ -465,8 +469,7 @@ header {
     #f7f3ec;
   padding: 16px 12px 6px;
   overflow-x: visible;
-  overflow-y: hidden;
-  min-height: 0;
+  overflow-y: visible;
 }
 
 /* Überfall-Overlay — fade via opacity */
@@ -566,7 +569,7 @@ header {
   position: relative;
   aspect-ratio: 0.72;
   border-radius: 4px;
-  touch-action: none;
+  touch-action: manipulation;
   transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1);
 }
 
@@ -861,7 +864,7 @@ header {
   width: 18px;
   height: 72px;
   cursor: pointer;
-  touch-action: none;
+  touch-action: manipulation;
   user-select: none;
   display: flex;
   align-items: center;
@@ -893,7 +896,7 @@ header {
 
 /* Barrier-Zähler */
 #discard-hint {
-  font-size: 0.55rem;
+  font-size: 0.72rem;
   color: var(--ink-40);
   font-style: italic;
   margin-left: 8px;
@@ -1157,7 +1160,7 @@ header {
 }
 #card-preview .cp-stats {
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 0.62rem;
+  font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.1em;
   color: var(--ink-40);
@@ -1172,7 +1175,7 @@ header {
 }
 #hand-label {
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 0.55rem;
+  font-size: 0.72rem;
   letter-spacing: 0.2em;
   color: var(--ink-20);
   text-align: center;
@@ -1208,7 +1211,7 @@ header {
   top: 50%;
   transform: translateY(-50%);
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 0.58rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -1268,7 +1271,7 @@ header {
   width: 22px;
   height: 72px;
   cursor: pointer;
-  touch-action: none;
+  touch-action: manipulation;
   user-select: none;
   display: flex;
   align-items: flex-end;
@@ -1297,7 +1300,7 @@ header {
   flex-shrink: 0;
   width: 66px;
   cursor: pointer;
-  touch-action: none;
+  touch-action: manipulation;
   user-select: none;
   transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1),
               filter 0.2s, opacity 0.2s;
@@ -1728,7 +1731,7 @@ header {
 .do-coin-header { display: flex; align-items: center; gap: 8px; }
 .do-coin-label {
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 0.56rem;
+  font-size: 0.72rem;
   letter-spacing: 0.12em;
   color: var(--ink-40);
   text-transform: uppercase;
@@ -1760,7 +1763,7 @@ header {
 .do-coin-btn:hover { background: #3a3530; transform: scale(1.03); }
 .do-coin-btn:active { transform: scale(0.97); }
 .do-coin-btn:disabled { background: var(--ink-10); color: var(--ink-20); cursor: not-allowed; transform: none; }
-.do-coin-btn .cost { font-size: 0.55rem; opacity: 0.65; }
+.do-coin-btn .cost { font-size: 0.72rem; opacity: 0.65; }
 
 /* Bestätigen-Button */
 .do-confirm {
@@ -2112,7 +2115,7 @@ header.scoring-flash {
 }
 .logo-version {
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 0.5rem;
+  font-size: 0.68rem;
   letter-spacing: 0.2em;
   color: rgba(40,30,20,0.35);
   margin-left: 8px;
@@ -2285,6 +2288,113 @@ header.scoring-flash {
   line-height: 1.5;
   color: rgba(30,20,10,0.75);
 }
+/* ══════════════════════════════════════════
+   ATTACK OVERLAY — Gerüchte & Überfall
+══════════════════════════════════════════ */
+#attack-overlay {
+  display: none;
+  position: absolute;
+  inset: 0;
+  z-index: 120;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.96);
+  overflow-y: auto;
+}
+#attack-overlay.visible { display: flex; }
+
+.ao-content {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 24px 20px 28px; width: 100%; max-width: 380px;
+}
+.ao-phase-label {
+  font-family: 'Cinzel', serif; font-size: 0.6rem;
+  letter-spacing: 0.3em; text-transform: uppercase;
+  color: var(--ink-40, rgba(26,18,8,0.4)); margin-bottom: 20px;
+}
+.ao-dice-arena {
+  display: flex; gap: clamp(14px,4vw,36px);
+  align-items: flex-start; justify-content: center; margin-bottom: 24px;
+}
+.ao-die-col { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.ao-die-scene { width: clamp(72px,18vw,96px); height: clamp(72px,18vw,96px); perspective: 600px; }
+.ao-die-cube { width:100%; height:100%; position:relative; transform-style:preserve-3d; }
+.ao-die-cube.rolling { animation: ao-roll3d 0.9s cubic-bezier(0.15,0.8,0.3,1) forwards; }
+@keyframes ao-roll3d {
+  0%   { transform: rotateX(0)      rotateY(0)      rotateZ(0); }
+  20%  { transform: rotateX(200deg) rotateY(120deg) rotateZ(40deg); }
+  45%  { transform: rotateX(380deg) rotateY(300deg) rotateZ(-25deg); }
+  70%  { transform: rotateX(600deg) rotateY(500deg) rotateZ(12deg); }
+  88%  { transform: rotateX(700deg) rotateY(680deg) rotateZ(-4deg); }
+  100% { transform: rotateX(720deg) rotateY(720deg) rotateZ(0); }
+}
+.ao-die-face {
+  position:absolute; width:100%; height:100%; border-radius:13%;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Pirata One',cursive; font-size:clamp(1.6rem,4.5vw,2.2rem); color:white;
+  backface-visibility:hidden;
+  border: 2px solid rgba(255,255,255,0.15);
+  box-shadow: inset 0 2px 6px rgba(255,255,255,0.2), inset 0 -2px 6px rgba(0,0,0,0.25);
+  user-select: none;
+}
+.ao-die-face.front  { transform: translateZ(clamp(36px,9vw,48px)); }
+.ao-die-face.back   { transform: rotateY(180deg)  translateZ(clamp(36px,9vw,48px)); }
+.ao-die-face.right  { transform: rotateY(90deg)   translateZ(clamp(36px,9vw,48px)); }
+.ao-die-face.left   { transform: rotateY(-90deg)  translateZ(clamp(36px,9vw,48px)); }
+.ao-die-face.top    { transform: rotateX(90deg)   translateZ(clamp(36px,9vw,48px)); }
+.ao-die-face.bottom { transform: rotateX(-90deg)  translateZ(clamp(36px,9vw,48px)); }
+.ao-die-yellow .ao-die-face { background: linear-gradient(140deg,#e8c030,#a07008); }
+.ao-die-blue   .ao-die-face { background: linear-gradient(140deg,#5090d0,#1a4880); }
+.ao-die-red    .ao-die-face { background: linear-gradient(140deg,#c04040,#780818); }
+/* Concealed: die still shows value but info card is hidden */
+.ao-die-shadow { width:60%; height:5px; background: radial-gradient(ellipse,rgba(26,18,8,0.2) 0%,transparent 70%); border-radius:50%; }
+
+.ao-lore-wrap { width:100%; text-align:center; margin-bottom:24px; min-height:4rem; }
+.ao-lore-divider {
+  display:flex; align-items:center; gap:8px; justify-content:center;
+  margin-bottom:12px; opacity:0; transition:opacity 0.5s ease;
+}
+.ao-lore-divider.visible { opacity:1; }
+.ao-lore-line { flex:1; height:1px; background:linear-gradient(to right,transparent,rgba(26,18,8,0.15)); }
+.ao-lore-line.r { background:linear-gradient(to left,transparent,rgba(26,18,8,0.15)); }
+.ao-lore-sigil { font-size:0.65rem; color:rgba(26,18,8,0.2); letter-spacing:0.2em; }
+.ao-lore-text {
+  font-family:'Crimson Text',serif; font-style:italic;
+  font-size:clamp(0.95rem,2.6vw,1.05rem); line-height:1.7; color:rgba(26,18,8,0.85);
+}
+.ao-lore-text .lw { display:inline; }
+.ao-lore-text .lw.concealed-word {
+  color:transparent; background:rgba(26,18,8,0.1);
+  border-radius:3px; padding:0 2px;
+}
+.ao-lore-text .lw.key-dir   { color:#9a7010; font-weight:600; }
+.ao-lore-text .lw.key-count { color:#2a5890; font-weight:600; }
+.ao-lore-text .lw.key-champ { color:#8a1828; font-weight:600; }
+@keyframes ao-wordIn {
+  0%   { opacity:0; transform:translateY(5px) scale(0.9); filter:blur(5px); }
+  55%  { opacity:1; filter:blur(0); }
+  80%  { transform:translateY(-1px) scale(1.03); }
+  100% { transform:translateY(0) scale(1); }
+}
+.ao-lore-text .lw.animating { animation: ao-wordIn 0.5s cubic-bezier(0.22,1.4,0.36,1) forwards; }
+
+.ao-btn {
+  font-family:'Pirata One',cursive; font-size:clamp(0.95rem,2.8vw,1.1rem);
+  letter-spacing:0.08em; color:white; border:none; border-radius:6px;
+  padding: clamp(10px,2.5vw,13px) clamp(28px,6vw,44px);
+  cursor:pointer; position:relative; overflow:hidden;
+  transition:transform 0.1s, box-shadow 0.15s;
+}
+.ao-btn.roll    { background:linear-gradient(160deg,#9a2020,#4a0808); box-shadow:0 3px 12px rgba(100,10,10,0.35),0 1px 0 rgba(255,255,255,0.1) inset; }
+.ao-btn.close   { background:linear-gradient(160deg,#5a8030,#2a4818); box-shadow:0 3px 12px rgba(30,60,10,0.3),0 1px 0 rgba(255,255,255,0.1) inset; }
+.ao-btn.reveal  { background:linear-gradient(160deg,#3a5a8a,#0a1a3a); box-shadow:0 3px 12px rgba(10,30,80,0.35),0 1px 0 rgba(255,255,255,0.1) inset; }
+.ao-btn.start   { background:linear-gradient(160deg,#9a2020,#4a0808); box-shadow:0 3px 12px rgba(100,10,10,0.35),0 1px 0 rgba(255,255,255,0.1) inset; }
+.ao-btn::before { content:''; position:absolute; top:0; left:-100%; width:60%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.1),transparent); transition:left 0.5s; }
+.ao-btn:hover::before { left:150%; }
+.ao-btn:hover { transform:translateY(-2px); }
+.ao-btn:active { transform:translateY(1px); }
+.ao-btn:disabled { opacity:0.5; cursor:default; transform:none; }
 
 </style>
 </head>
@@ -2397,6 +2507,63 @@ header.scoring-flash {
       <div class="pt-name" id="pt-name"></div>
       <div class="pt-divider" id="pt-divider"></div>
       <div class="pt-sub" id="pt-sub"></div>
+    </div>
+  </div>
+
+  <!-- ══ ANGRIFF-OVERLAY (Gerüchte + Überfall) ══ -->
+  <div id="attack-overlay">
+    <div class="ao-content">
+      <div class="ao-phase-label" id="ao-phase-label">Gerüchte</div>
+      <div class="ao-dice-arena">
+        <div class="ao-die-col ao-die-yellow" id="ao-col-yellow">
+          <div class="ao-die-scene">
+            <div class="ao-die-cube ao-die-yellow" id="ao-cube-yellow">
+              <div class="ao-die-face front"><span id="ao-face-yellow">—</span></div>
+              <div class="ao-die-face back">⚔</div>
+              <div class="ao-die-face right">☽</div>
+              <div class="ao-die-face left">✦</div>
+              <div class="ao-die-face top">⚔</div>
+              <div class="ao-die-face bottom">☽</div>
+            </div>
+          </div>
+          <div class="ao-die-shadow"></div>
+        </div>
+        <div class="ao-die-col ao-die-blue" id="ao-col-blue">
+          <div class="ao-die-scene">
+            <div class="ao-die-cube ao-die-blue" id="ao-cube-blue">
+              <div class="ao-die-face front"><span id="ao-face-blue">—</span></div>
+              <div class="ao-die-face back">⚔</div>
+              <div class="ao-die-face right">☽</div>
+              <div class="ao-die-face left">✦</div>
+              <div class="ao-die-face top">⚔</div>
+              <div class="ao-die-face bottom">☽</div>
+            </div>
+          </div>
+          <div class="ao-die-shadow"></div>
+        </div>
+        <div class="ao-die-col ao-die-red" id="ao-col-red">
+          <div class="ao-die-scene">
+            <div class="ao-die-cube ao-die-red" id="ao-cube-red">
+              <div class="ao-die-face front"><span id="ao-face-red">—</span></div>
+              <div class="ao-die-face back">⚔</div>
+              <div class="ao-die-face right">☽</div>
+              <div class="ao-die-face left">✦</div>
+              <div class="ao-die-face top">⚔</div>
+              <div class="ao-die-face bottom">☽</div>
+            </div>
+          </div>
+          <div class="ao-die-shadow"></div>
+        </div>
+      </div>
+      <div class="ao-lore-wrap">
+        <div class="ao-lore-divider" id="ao-lore-divider">
+          <div class="ao-lore-line"></div>
+          <span class="ao-lore-sigil">⚔ ✦ ⚔</span>
+          <div class="ao-lore-line r"></div>
+        </div>
+        <p class="ao-lore-text" id="ao-lore-text"></p>
+      </div>
+      <button class="ao-btn roll" id="ao-btn" onclick="handleAttackOverlayBtn()">⚔ Würfeln</button>
     </div>
   </div>
 

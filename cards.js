@@ -778,3 +778,20 @@ function isoLog(cx, cy, u, s) {
 function isoChimney(cx, cy, tw, th, s) {
   return isoTower(cx, cy+th, tw, th, tw, s, false);
 }
+
+
+// ═══════════════════════════════════════════
+//  ÜBERFALL-KARTEN
+// ═══════════════════════════════════════════
+
+// 🟡 Gelbe Karten — Angriffsrichtung (8 Außenfelder im Uhrzeigersinn)
+const DIRECTION_POOL = [
+  { id:'Y1', label:'NW', gridIdx:0 },
+  { id:'Y2', label:'N',  gridIdx:1 },
+  { id:'Y3', label:'NO', gridIdx:2 },
+  { id:'Y4', label:'O',  gridIdx:5 },
+  { id:'Y5', label:'SO', gridIdx:8 },
+  { id:'Y6', label:'S',  gridIdx:7 },
+  { id:'Y7', label:'SW', gridIdx:6 },
+  { id:'Y8', label:'W',  gridIdx:3 },
+];
