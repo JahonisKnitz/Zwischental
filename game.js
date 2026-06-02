@@ -3441,10 +3441,10 @@ function commitPlacement() {
     SFX.coin && SFX.coin();
     showToast('Münzprägung — +2 Münzen sofort!');
   } else if (mech === 'direct_coins_seasonal') {
-    const earned = G.season + 1;
+    const earned = G.season; // Winter=0, Frühling=1, Sommer=2, Herbst=3
     G.coins = (G.coins || 0) + earned;
     SFX.coin && SFX.coin();
-    showToast(`Bankhaus — +${earned} Münzen!`);
+    showToast(earned > 0 ? `Bankhaus — +${earned} Münzen!` : 'Bankhaus — im Winter keine Münzen');
   } else if (mech === 'force_start' && G.attackDir) {
     G.attackDir = { ...G.attackDir, startCell: targetIdx, direction: GRID_DIRECTION[targetIdx] };
     showToast('🏰 Stadttor — Überfall startet hier!');
