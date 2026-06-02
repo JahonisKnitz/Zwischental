@@ -529,6 +529,7 @@ header {
 .cell-build-overlay.decoy-ol { background: rgba(170,128,20,0.82); }
 #stage {
   flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -538,10 +539,15 @@ header {
   background:
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"),
     #f7f3ec;
-  padding: 16px 12px 24px;
-  overflow: visible;
-  min-height: 0;
+  padding: 16px 12px 32px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  scrollbar-width: none;
 }
+#stage::-webkit-scrollbar { display: none; }
 
 /* Überfall-Overlay — dunkle Vignette */
 #raid-overlay {
@@ -583,9 +589,7 @@ header {
   pointer-events: auto;
   width: 100%;
   overflow: visible;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  touch-action: pan-x pan-y;
+  flex-shrink: 0;
 }
 #grid-wrap::-webkit-scrollbar { display: none; }
 #grid-wrap * { pointer-events: auto; }
