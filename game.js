@@ -9,6 +9,7 @@ const G = {
   boosted: Array(9).fill(false),
   plundered: Array(9).fill(false),  // geplündert: deaktiviert, zählt nicht bei Wertung
   entered: Array(9).fill(false),    // während aktuellem Überfall betreten (für fragile-Logik)
+  enteredProtected: new Set(),       // betreten aber durch Schutzpatronin geschützt
   barriers: new Set(),
   hand: [],
   barrierHand: 0,
@@ -460,7 +461,7 @@ function rollDice() {
 
   // Z21 (Fernkundschafter) / Z22 (Zahlmeister): liegen sie auf dem Brett,
   // wird der entsprechende verborgene Würfel sofort aufgedeckt.
-  const boardCards = G.board.filter((c, i) => c && i !== 4 && !G.plundered[i]);
+  const boardCards = G.board.filter((c, i) => c && i !== 4);
   if (boardCards.some(c => c.special_mechanic === 'reveal_yellow')) {
     G.diceConcealed.delete('yellow');
   }
@@ -507,7 +508,7 @@ const CARD_DESC_FALLBACK = {
   destroyable:        '15 Punkte — wird bei Deaktivierung zerstört.',
   pts_if_plundered:   '0 Punkte wenn aktiv · 8 Punkte wenn geplündert.',
   season_pts:         'Punkte steigen je Jahreszeit: 0 · 4 · 8 · 12.',
-  sonder_count:       'Punkte = Anzahl aktiver Sonderkarten × 2.',
+  sonder_count:       'Punkte = Anzahl Sonderkarten in der Stadt × 2 (auch geplünderte).',
   reveal_yellow:      'Angriffsrichtung ist immer sichtbar, solange die Karte liegt.',
   reveal_blue:        'Angreiferzahl ist immer sichtbar, solange die Karte liegt.',
   reveal_red:         'Champion ist immer sichtbar, solange die Karte liegt.',
@@ -1108,8 +1109,8 @@ function calcCardPts(card) {
     }
     case 'dice_sum*': // Nebelbastei: (Würfel A + Würfel B) × Faktor
       return ((dice[p.a] || 0) + (dice[p.b] || 0)) * (p.factor || 1);
-    case 'sonder_count': {                                        // Immobilienhändler: Sonderkarten × 2
-      const count = G.board.filter((c,i) => c && i!==4 && c.cat==='special' && !G.plundered[i]).length;
+    case 'sonder_count': {                                        // Immobilienhändler: alle Sonderkarten × 2 (aktiv oder nicht)
+      const count = G.board.filter((c,i) => c && i!==4 && c.cat==='special').length;
       return count * 2;
     }
     case 'sole_survivor': {                                       // Schwarze Kathedrale: 48 Pkt wenn als einzige nicht deaktiviert
@@ -1468,7 +1469,7 @@ function getCardPlayability(card) {
   // Sonderkarte: Slot-Kapazität prüfen (Rathaus Level = max. Sonderkarten auf dem Feld)
   if (card.cat === 'special') {
     const sonderCount = G.board.filter((c, i) =>
-      c && i !== 4 && c.cat === 'special' && !G.plundered[i]
+      c && i !== 4 && c.cat === 'special'
       && c.special_mechanic !== 'free_build'
     ).length;
     if (sonderCount >= G.rathausLevel) {
@@ -1966,6 +1967,8 @@ function discardSelected(idx) {
     spawnColoredFloat(4, '+1 <svg width="13" height="10" viewBox="0 0 16 12" style="vertical-align:middle"><ellipse cx="8" cy="9.5" rx="6" ry="2" fill="#8a6200" opacity="0.6"/><ellipse cx="8" cy="7.5" rx="6" ry="2.4" fill="#f0c030" stroke="#a07000" stroke-width="0.5"/><ellipse cx="7.5" cy="6.5" rx="3.5" ry="1.2" fill="#f8e060" opacity="0.7"/></svg>', '#c8900a');
     showToast(`Rathaus Level ${G.rathausLevel} · +1 Münze`);
     renderResources();
+    recomputeScoreFromBoard();
+    updateRathausScore();
     renderGrid(true); // Rathaus-Level sofort aktualisieren
 
     // Hand erst nach Animation neu rendern
@@ -2343,7 +2346,7 @@ function advancePhase() {
     }
     if (isNewSeason) {
       G.plundered = Array(9).fill(false);
-      G.entered   = Array(9).fill(false);
+      G.entered = Array(9).fill(false); G.enteredProtected = new Set();
       G.builtThisSeason = 0;
       G.bogenwacht = 0;
       G.schildwall = null;
@@ -2440,10 +2443,16 @@ function showGameEnd() {
 // (z.B. nach Decoy-Aufdeckung, um G.score sofort konsistent zu halten).
 // Zwillingsturm: prüft ob Karte an Index i einen aktiven Zwillingsturm als Nachbar hat
 function getZwillingsturmMultiplier(i) {
-  const neighbors = [i-3, i+3, i-1, i+1].filter(n => n >= 0 && n < 9 && n !== 4);
+  const row = Math.floor(i / 3);
+  const neighbors = [
+    i - 3,
+    i + 3,
+    (i - 1 >= 0 && Math.floor((i-1)/3) === row) ? i-1 : -1,
+    (i + 1 <  9 && Math.floor((i+1)/3) === row) ? i+1 : -1,
+  ].filter(n => n >= 0 && n < 9 && n !== 4);
   return neighbors.some(n => {
     const c = G.board[n];
-    return c && !G.plundered[n] && c.special_mechanic === 'zwillingsturm';
+    return c && c.special_mechanic === 'zwillingsturm';
   }) ? 2 : 1;
 }
 
@@ -2470,7 +2479,7 @@ function doScoring() {
   const fragileVictims = [];
   G.board.forEach((card, i) => {
     if (!card || i === 4) return;
-    if (card.fragile && G.entered[i] && !hasSchutzpatronin()) fragileVictims.push(i);
+    if (card.fragile && G.entered[i] && !G.enteredProtected?.has(i)) fragileVictims.push(i);
   });
 
   if (fragileVictims.length > 0) {
@@ -2546,7 +2555,8 @@ function doScoringInternal() {
     if (G.plundered[i]) {
       return card.special_mechanic === 'pts_if_plundered' ? 8 : 0;
     }
-    return calcCardPts(card);
+    const mult = (card.special_mechanic === 'zwillingsturm') ? 1 : getZwillingsturmMultiplier(i);
+    return calcCardPts(card) * mult;
   });
   const points = cardPoints.reduce((s, p) => s + p, 0);
   G.score = points;
@@ -2855,7 +2865,7 @@ function getSchildwallBonus(idx) {
   ].filter(n => n >= 0 && n < 9 && n !== 4);
   let bonus = 0;
   for (const sw of G.schildwall) {
-    if (neighbors.includes(sw) && G.board[sw] && !G.plundered[sw]) {
+    if (neighbors.includes(sw) && G.board[sw]) {
       const mech = G.board[sw].special_mechanic;
       bonus += (mech === 'neighbor_defense_2') ? 2 : 1;
     }
@@ -2865,7 +2875,7 @@ function getSchildwallBonus(idx) {
 
 // Schutzpatronin (Z7): prüft ob eine aktive Karte mit 'schutzpatronin'-Mechanik auf dem Feld liegt
 function hasSchutzpatronin() {
-  return G.board.some((c, i) => c && i !== 4 && !G.plundered[i] && c.special_mechanic === 'schutzpatronin');
+  return G.board.some((c, i) => c && i !== 4 && c.special_mechanic === 'schutzpatronin');
 }
 
 function startRaidSequence() {
@@ -2878,7 +2888,7 @@ function startRaidSequence() {
   }
 
   // Neuer Überfall: Tracking welche Felder betreten wurden zurücksetzen
-  G.entered = Array(9).fill(false);
+  G.entered = Array(9).fill(false); G.enteredProtected = new Set();
 
   const { startCell, clockwise, rawStartCell } = G.attackDir;
   let attackers = G.attackBlue.calc();
@@ -3073,7 +3083,11 @@ function startRaidSequence() {
         // Karte wurde durchbrochen — relevant für fragile-Karten.
         // Bei blocked (Turm) oder hold (Verteidigung hält): nicht setzen,
         // denn dann hat sich die fragile-Wirkung nicht "ausgelöst".
-        if (deactivate) G.entered[idx] = true;
+        if (deactivate) {
+          G.entered[idx] = true;
+          if (hasSchutzpatronin()) G.enteredProtected = G.enteredProtected || new Set();
+          if (hasSchutzpatronin()) G.enteredProtected.add(idx);
+        }
 
         // Countdown: Punkte ausgeben
         spendAttackers(totalAttackers - spentSoFar, totalAttackers - spentSoFar - spent);
@@ -3229,7 +3243,7 @@ function restartGame() {
   G.fortifiedNew  = new Set();
   G.boosted       = Array(9).fill(false);
   G.plundered     = Array(9).fill(false);
-  G.entered       = Array(9).fill(false);
+  G.entered = Array(9).fill(false); G.enteredProtected = new Set();
   G.barriers      = new Set();
   G.hand          = [];
   G.barrierHand   = 0;
@@ -3513,7 +3527,7 @@ function onCellClick(idx) {
   // Sonderkarte: Slot-Kapazität prüfen
   if (selCard.cat === 'special') {
     const sonderCount = G.board.filter((c, i) =>
-      c && i !== 4 && c.cat === 'special' && !G.plundered[i]
+      c && i !== 4 && c.cat === 'special'
       && c.special_mechanic !== 'free_build'
     ).length;
     if (sonderCount >= G.rathausLevel) {
