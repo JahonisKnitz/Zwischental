@@ -571,6 +571,7 @@ header {
   border-radius: 4px;
   touch-action: manipulation;
   transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1);
+  overflow: visible;
 }
 
 .cell.empty {
@@ -2316,18 +2317,42 @@ header.scoring-flash {
   border-bottom: 1px solid rgba(40,30,20,0.08);
 }
 .glossar-entry:last-child { border-bottom: none; }
+.glossar-section-title {
+  font-family: 'Pirata One', cursive;
+  font-size: 1.4rem;
+  letter-spacing: 0.05em;
+  color: var(--ink);
+  padding: 18px 0 10px;
+  border-bottom: 2px solid rgba(40,30,20,0.12);
+  margin-bottom: 4px;
+}
+.glossar-icon-entry {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  padding: 14px 0;
+}
+.glossar-icon-wrap {
+  flex-shrink: 0;
+  width: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 2px;
+}
+.glossar-icon-text { flex: 1; }
 .glossar-term {
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 0.72rem;
+  font-size: 0.92rem;
   font-weight: 700;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: #4585d6;
-  margin-bottom: 4px;
+  margin-bottom: 5px;
 }
 .glossar-def {
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 0.88rem;
+  font-size: 1.05rem;
   font-weight: 400;
   line-height: 1.5;
   color: rgba(30,20,10,0.75);

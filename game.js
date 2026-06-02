@@ -923,7 +923,7 @@ function calcCardPts(card) {
     case 'dice+dice': return (dice[p.a]     || 0) + (dice[p.b] || 0);
     case 'res*':      return (prod[p.res]   || 0) * (p.factor  || 1);
     case 'inno*':     return (G.rathausLevel || 1) * (p.factor || 1);
-    case 'def_sum':   return G.board.reduce((s,c,i) => c && i!==4 && !G.plundered[i] ? s + (c.def||0) + (G.boosted[i]||0) : s, 0);
+    case 'def_sum':   return G.board.reduce((s,c,i) => c && i!==4 ? s + (c.def||0) + (G.boosted[i]||0) : s, 0);
     case 'deact*':    return G.plundered.filter(Boolean).length * (p.factor || 1);
     case 'season*':   return (G.season + 1) * (p.factor || 1);  // Jahreszeit × Faktor
     case 'season_table': return (p.table || [0,0,0,0])[G.season] || 0; // feste Werte je Jahreszeit
@@ -2396,21 +2396,18 @@ function doScoring() {
 function doScoringInternal() {
   if (G.phase !== 4) return;
 
-  // Live-Berechnung aus allen Karten:
-  // - Aktive Karten: normale Punkte
-  // - Geplünderte Versicherungen: 8 Punkte (das ist ihre Mechanik)
-  // - Andere geplünderte Karten: 0 Punkte
-  const points = G.board.reduce((sum, card, i) => {
-    if (!card || i === 4) return sum;
-    if (G.plundered[i]) {
-      // Versicherung: 8 Punkte wenn geplündert
-      if (card.special_mechanic === 'pts_if_plundered') return sum + 8;
-      return sum;
-    }
-    return sum + calcCardPts(card);
-  }, 0);
+  const col = SEASON_COLORS[SEASON_KEYS[G.season]];
+  const cells = document.querySelectorAll('.cell');
 
-  // G.score synchronisieren
+  // Berechne Punkte je Karte
+  const cardPoints = G.board.map((card, i) => {
+    if (!card || i === 4) return 0;
+    if (G.plundered[i]) {
+      return card.special_mechanic === 'pts_if_plundered' ? 8 : 0;
+    }
+    return calcCardPts(card);
+  });
+  const points = cardPoints.reduce((s, p) => s + p, 0);
   G.score = points;
   updateRathausScore();
 
@@ -2419,57 +2416,96 @@ function doScoringInternal() {
     return;
   }
 
-  const col = SEASON_COLORS[SEASON_KEYS[G.season]];
+  // ── Schritt 1: Overlays je Karte gestaffelt einblenden ─────────
+  const scoringCells = [];
+  cardPoints.forEach((pts, i) => {
+    if (!G.board[i] || i === 4 || pts === 0) return;
+    scoringCells.push({ i, pts });
+  });
 
-  // Float vom Rathaus aufsteigen lassen — zentriert auf der Karte
-  const rathausCell = document.querySelector('.cell.rathaus');
-  if (rathausCell) {
-    const cr = rathausCell.getBoundingClientRect();
-    const ar = document.getElementById('app').getBoundingClientRect();
-    const fl = document.createElement('div');
-    fl.className = 'transfer-float';
-    fl.textContent = `+${points}`;
-    fl.style.color = col;
-    fl.style.left  = (cr.left - ar.left + cr.width/2 - 24) + 'px';
-    fl.style.top   = (cr.top  - ar.top  + cr.height/2 - 12) + 'px';
-    document.getElementById('app').appendChild(fl);
-    fl.addEventListener('animationend', () => fl.remove());
-  }
+  scoringCells.forEach(({ i, pts }, order) => {
+    const cell = cells[i];
+    if (!cell) return;
+    setTimeout(() => {
+      const ov = document.createElement('div');
+      ov.className = 'cell-score-overlay';
+      ov.dataset.cellIdx = i;
 
-  // Wenn Float den Header fast erreicht hat: Header aufleuchten + VP erhöhen
+      const ptsEl = document.createElement('div');
+      ptsEl.className = 'cso-pts';
+      ptsEl.style.color = col;
+      ptsEl.textContent = `+${pts}`;
+
+      const lbl = document.createElement('div');
+      lbl.className = 'cso-label';
+      lbl.textContent = G.board[i]?.name || '';
+
+      ov.appendChild(ptsEl);
+      ov.appendChild(lbl);
+      cell.appendChild(ov);
+
+      // Trigger transition
+      requestAnimationFrame(() => requestAnimationFrame(() => ov.classList.add('visible')));
+    }, order * 250);
+  });
+
+  const revealDuration = scoringCells.length * 250 + 1800;
+
+  // ── Schritt 2: Overlays wegfliegen + Transfer-Float ─────────────
   setTimeout(() => {
-    // Ganzen Header in Jahreszeit-Farbe aufblinken
-    const headerEl = document.querySelector('header');
-    if (headerEl) {
-      headerEl.style.setProperty('--flash-col', col + '33');
-      headerEl.classList.remove('scoring-flash');
-      void headerEl.offsetWidth;
-      headerEl.classList.add('scoring-flash');
-      headerEl.addEventListener('animationend',
-        () => headerEl.classList.remove('scoring-flash'), {once:true});
+    // Alle Overlays wegfliegen lassen
+    document.querySelectorAll('.cell-score-overlay').forEach((ov, k) => {
+      setTimeout(() => {
+        ov.classList.add('fly-out');
+        ov.addEventListener('animationend', () => ov.remove(), { once: true });
+      }, k * 120);
+    });
+
+    // Transfer-Float vom Rathaus
+    const rathausCell = document.querySelector('.cell.rathaus');
+    if (rathausCell) {
+      const cr = rathausCell.getBoundingClientRect();
+      const ar = document.getElementById('app').getBoundingClientRect();
+      const fl = document.createElement('div');
+      fl.className = 'transfer-float';
+      fl.textContent = `+${points}`;
+      fl.style.color = col;
+      fl.style.left  = (cr.left - ar.left + cr.width/2 - 24) + 'px';
+      fl.style.top   = (cr.top  - ar.top  + cr.height/2 - 12) + 'px';
+      document.getElementById('app').appendChild(fl);
+      fl.addEventListener('animationend', () => fl.remove());
     }
 
-    // VP-Zahl aktualisieren + federn
-    G.victoryPoints += points;
-    // Münzen → Siegpunkte nur im Herbst (letzte Jahreszeit)
-    const coinBonus = (G.season === 3) ? G.coins : 0;
-    if (coinBonus > 0) G.victoryPoints += coinBonus;
-    const vpEl = document.getElementById('vp-value');
-    if (vpEl) {
-      vpEl.textContent = G.victoryPoints;
-      vpEl.style.setProperty('--season-col', col);
-      vpEl.classList.remove('flash');
-      void vpEl.offsetWidth;
-      vpEl.classList.add('flash');
-      vpEl.addEventListener('animationend', () => vpEl.classList.remove('flash'), {once:true});
-    }
-
-    if (coinBonus > 0) {
-      SFX.scoring(); showToast(`+${points} Punkte · +${coinBonus} <svg width="11" height="9" viewBox="0 0 16 12" style="vertical-align:middle"><ellipse cx="8" cy="9.5" rx="6" ry="2" fill="#8a6200" opacity="0.6"/><ellipse cx="8" cy="7.5" rx="6" ry="2.4" fill="#f0c030" stroke="#a07000" stroke-width="0.5"/><ellipse cx="7.5" cy="6.5" rx="3.5" ry="1.2" fill="#f8e060" opacity="0.7"/></svg> = ${G.victoryPoints} gesamt`);
-    } else {
-      SFX.scoring(); showToast(`+${points} Siegpunkte gesichert`);
-    }
-  }, 1000); // Timing: wenn Float oben ankommt
+    // VP + Header-Flash nach Float-Ankunft
+    setTimeout(() => {
+      const headerEl = document.querySelector('header');
+      if (headerEl) {
+        headerEl.style.setProperty('--flash-col', col + '33');
+        headerEl.classList.remove('scoring-flash');
+        void headerEl.offsetWidth;
+        headerEl.classList.add('scoring-flash');
+        headerEl.addEventListener('animationend',
+          () => headerEl.classList.remove('scoring-flash'), { once: true });
+      }
+      G.victoryPoints += points;
+      const coinBonus = (G.season === 3) ? G.coins : 0;
+      if (coinBonus > 0) G.victoryPoints += coinBonus;
+      const vpEl = document.getElementById('vp-value');
+      if (vpEl) {
+        vpEl.textContent = G.victoryPoints;
+        vpEl.style.setProperty('--season-col', col);
+        vpEl.classList.remove('flash');
+        void vpEl.offsetWidth;
+        vpEl.classList.add('flash');
+        vpEl.addEventListener('animationend', () => vpEl.classList.remove('flash'), { once: true });
+      }
+      if (coinBonus > 0) {
+        SFX.scoring(); showToast(`+${points} Punkte · +${coinBonus} Münzen = ${G.victoryPoints} gesamt`);
+      } else {
+        SFX.scoring(); showToast(`+${points} Siegpunkte gesichert`);
+      }
+    }, 1000);
+  }, revealDuration);
 }
 
 // Demo-Überfall: 1–3 zufällige Karten werden geplündert, gestaffelt mit Animation
@@ -2589,7 +2625,14 @@ function setRaidActive(idx) {
 // Schildwall: gibt +1 (+2 bei neighbor_defense_2) pro benachbarter Schildwall-Karte
 function getSchildwallBonus(idx) {
   if (!G.schildwall || G.schildwall.size === 0) return 0;
-  const neighbors = [idx-3, idx+3, idx-1, idx+1].filter(n => n >= 0 && n < 9 && n !== 4);
+  // Nur echte Nachbarn: vertikal ±3, horizontal ±1 nur in gleicher Zeile
+  const row = Math.floor(idx / 3);
+  const neighbors = [
+    idx - 3,                                          // oben
+    idx + 3,                                          // unten
+    (idx - 1 >= 0 && Math.floor((idx-1)/3) === row) ? idx-1 : -1,  // links (gleiche Zeile)
+    (idx + 1 <  9 && Math.floor((idx+1)/3) === row) ? idx+1 : -1,  // rechts (gleiche Zeile)
+  ].filter(n => n >= 0 && n < 9 && n !== 4);
   let bonus = 0;
   for (const sw of G.schildwall) {
     if (neighbors.includes(sw) && G.board[sw] && !G.plundered[sw]) {
@@ -2916,6 +2959,9 @@ function startRaidSequence() {
     }
     document.querySelectorAll('.cell.attack-origin').forEach(c => c.classList.remove('attack-origin'));
     setTimeout(() => {
+      // Score vollständig neu berechnen — dynamische Karten wie Z5 (deact*) reagieren auf Plünderungen
+      recomputeScoreFromBoard();
+      updateRathausScore();
       stopRaidAtmosphere(stage);
       setTimeout(() => document.getElementById('raid-overlay').classList.remove('visible'), 5000);
     }, 600);
@@ -3099,9 +3145,22 @@ function showCardPreview(card) {
                  : card.res === 'nahrung' ? `<img src="res-nahrung.png" width="14" height="14" style="vertical-align:middle;object-fit:contain;"> Nahrung`
                  : card.res === 'glas'    ? `<img src="res-glas.png"    width="14" height="14" style="vertical-align:middle;object-fit:contain;"> Glas`
                  : '';
+
+  // Formel-Anzeige (z.B. "🔵×3") und aktuellen Wert berechnen
   const ptsText = card.pts !== undefined ? formatPts(card.pts) : '';
+  const currentPts = calcCardPts(card);
+
+  // Ist die Punktezahl dynamisch (nicht fix)?
+  const isFixed = typeof card.pts === 'number' ||
+                  (card.pts && card.pts.type === 'fixed');
+  const showCurrent = !isFixed && currentPts > 0 && G.diceRolled;
+
+  const ptsDisplay = ptsText
+    ? (showCurrent ? `★ ${ptsText} = <b>${currentPts}</b> Pkt` : `★ ${ptsText} Pkt`)
+    : (currentPts > 0 ? `★ ${currentPts} Pkt` : '');
+
   const stats = [
-    ptsText ? `★ ${ptsText} Pkt` : '',
+    ptsDisplay,
     card.def  ? `🛡 ${card.def} Abw` : '',
     resLabel,
     card.upgrade ? '⬆ Stapelbar' : '',
@@ -3767,44 +3826,40 @@ function renderAttackOrigin() {
 }
 
 function renderBarriers() {
-  // Alle alten Barriere-Elemente entfernen
+  // Alte Barrieren entfernen
   document.querySelectorAll('.edge-barrier').forEach(e => e.remove());
   if (!G.barriers || G.barriers.size === 0) return;
 
-  const gridEl       = document.getElementById('grid');
-  const containerEl  = document.getElementById('grid-container');
-  const cells        = gridEl.querySelectorAll('.cell');
-  // Koordinaten relativ zu grid-container (position:relative) — scrollt mit
-  const containerR   = containerEl.getBoundingClientRect();
+  const gridEl = document.getElementById('grid');
+  const cells  = gridEl.querySelectorAll('.cell');
 
   G.barriers.forEach(key => {
     const [idxStr, edge] = key.split('-');
-    const idx = Number(idxStr);
+    const idx  = Number(idxStr);
     const cell = cells[idx];
     if (!cell) return;
-    if (!CELL_OUTER_EDGES[idx] || !CELL_OUTER_EDGES[idx].includes(edge)) return;
-
-    const rC = cell.getBoundingClientRect();
-    const cx = (rC.left + rC.right)  / 2 - containerR.left;
-    const cy = (rC.top  + rC.bottom) / 2 - containerR.top;
+    if (!CELL_OUTER_EDGES[idx]?.includes(edge)) return;
 
     const isH = (edge === 'N' || edge === 'S');
 
-    let left, top;
-    switch (edge) {
-      case 'N': left = cx; top = rC.top    - containerR.top  - EDGE_OFFSET; break;
-      case 'S': left = cx; top = rC.bottom - containerR.top  + EDGE_OFFSET; break;
-      case 'W': left = rC.left  - containerR.left - EDGE_OFFSET; top = cy; break;
-      case 'O': left = rC.right - containerR.left + EDGE_OFFSET; top = cy; break;
-    }
-
+    // Positionierung relativ zur Zelle (50% = Mitte der jeweiligen Kante)
+    // Zelle hat overflow:visible, daher ragt die Barriere über den Rand hinaus
     const el = document.createElement('div');
     el.className = 'edge-barrier';
     el.dataset.edgeKey = key;
-    el.style.cssText = `position:absolute; pointer-events:none; z-index:49;
-      left:${left.toFixed(1)}px; top:${top.toFixed(1)}px; transform:translate(-50%,-50%);`;
+
+    // CSS-Positionierung: Mitte der Kante, dann mit translate zentrieren
+    let posCSS = '';
+    switch (edge) {
+      case 'N': posCSS = `left:50%; top:0;    transform:translate(-50%, calc(-50% - ${EDGE_OFFSET}px));`; break;
+      case 'S': posCSS = `left:50%; bottom:0; transform:translate(-50%, calc(50% + ${EDGE_OFFSET}px));`;  break;
+      case 'W': posCSS = `left:0;   top:50%;  transform:translate(calc(-50% - ${EDGE_OFFSET}px), -50%);`; break;
+      case 'O': posCSS = `right:0;  top:50%;  transform:translate(calc(50% + ${EDGE_OFFSET}px), -50%);`;  break;
+    }
+
+    el.style.cssText = `position:absolute; pointer-events:none; z-index:49; ${posCSS}`;
     el.innerHTML = makeBarrierSVG(isH);
-    containerEl.appendChild(el);
+    cell.appendChild(el);
   });
 }
 
@@ -3936,36 +3991,80 @@ splashStartBtn.addEventListener('touchend', (e) => { e.preventDefault(); dismiss
 
 
 // ── GLOSSAR ─────────────────────────────────────────────────────────
+const GLOSSAR_ICONS = [
+  { icon: 'res-holz.png',             term: 'Holz',                   def: 'Rohstoff. Wird in der Rüstphase 1:1 in Barrieren umgewandelt.' },
+  { icon: 'res-nahrung.png',          term: 'Nahrung',                def: 'Rohstoff. Wird in der Rüstphase 1:1 in Ritter umgewandelt.' },
+  { icon: 'res-glas.png',             term: 'Glas',                   def: 'Rohstoff. Wird in der Rüstphase 1:1 in Münzen umgewandelt.' },
+  { icon: 'def-barriere.png',         term: 'Barriere',               def: 'Holzwall an der Außenkante eines Randfeldes. Verhindert den Angriffsstart dort.' },
+  { icon: 'def-ritter.png',           term: 'Ritter',                 def: 'Verteidiger auf einem Gebäude. Erhöht die Verteidigung um +1, solange die Karte liegt.' },
+  { icon: 'res-muenze.png',           term: 'Münze',                  def: 'Währung für Türme (2 Münzen) und Sonderkarten-Bau (1 Münze pro fehlendem Rathaus-Level).' },
+  { icon: 'def-turm.png',             term: 'Turm',                   def: 'Permanente Befestigung (2 Münzen). Ein Feld mit Turm kann nie geplündert werden.' },
+  { icon: 'icon-defense.png',         term: 'Verteidigung',           def: 'Gibt an wie viele Angreifer ein Gebäude aufhalten kann, bevor es geplündert wird.' },
+  { icon: 'icon-vp.png',              term: 'Siegpunkte',             def: 'Werden am Ende jeder Jahreszeit aus allen aktiven Gebäuden addiert. 4 Jahreszeiten ergeben den Gesamtscore.' },
+  { icon: 'icon-def-sum.png',         term: 'Summe der Verteidigung', def: 'Gesamte Verteidigung aller Gebäude in der Stadt — inklusive geplünderter Karten.' },
+  { icon: 'icon-special.png',         term: 'Sondergebäude',          def: 'Karten mit einzigartigen Fähigkeiten. Kosten beim Bau Münzen je nach fehlendem Rathaus-Level.' },
+  { icon: 'icon-fragile.png',         term: 'Fragil',                 def: 'Einmal-Effekt. Fragile Karten werden nach dem Überfall automatisch entfernt.' },
+  { icon: 'icon-rathaus-level.png',   term: 'Rathaus-Level',          def: 'Stufe 1–6. Karten mit ⚡ skalieren ihre Punkte mit dem Level. Aufwertung durch Karte unters Rathaus schieben.' },
+  { icon: 'icon-free-build.png',      term: 'Kostenlos baubar',       def: 'Diese Karte verbraucht keinen der 5 Bauplätze der Jahreszeit.' },
+  { icon: 'icon-neighbor.png',        term: 'Nachbargebäude',         def: 'Direkt angrenzende Felder — horizontal und vertikal. Diagonal zählt nicht.' },
+  { icon: 'icon-plundered.png',       term: 'Geplündertes Gebäude',   def: 'Wurde überrannt. Zählt nicht zur Wertung, bleibt aber auf dem Feld bis zum nächsten Bauen.' },
+  { icon: 'icon-raid-start.png',      term: 'Start der Plünderung',   def: 'Das Außenfeld von dem der Überfall startet — bestimmt durch den gelben Würfel.' },
+  { icon: 'icon-raid-dir.png',        term: 'Laufrichtung',           def: 'Die Richtung in der der Überfall durch die Stadt zieht — mit oder gegen den Uhrzeigersinn.' },
+  { icon: 'icon-season-winter.png',   term: 'Winter',                 def: 'Jahreszeit 1. Kurze Runde: nur Bauen, Rüsten und Wertung — kein Überfall.' },
+  { icon: 'icon-season-frühling.png', term: 'Frühling',               def: 'Jahreszeit 2. Erste vollständige Runde mit Gerüchten und Überfall.' },
+  { icon: 'icon-season-sommer.png',   term: 'Sommer',                 def: 'Jahreszeit 3. Angriffe werden intensiver.' },
+  { icon: 'icon-season-herbst.png',   term: 'Herbst',                 def: 'Jahreszeit 4. Letzte Runde. Münzen werden am Ende in Siegpunkte umgewandelt.' },
+];
+
 const GLOSSAR_ENTRIES = [
-  { term: 'Barriere',       def: 'Holzwall an der Außenkante eines Randfeldes. Sind ALLE Außenkanten eines Feldes barrikadiert (Kantenfelder: 1 Barriere, Eckfelder: 2 Barrieren), kann dort kein Angriff starten. Der Angriff weicht in Laufrichtung zum nächsten ungeschützten Feld aus. Barrieren bleiben permanent — sie werden nicht verbraucht.' },
-  { term: 'Ritter',         def: 'Verteidiger auf einem Gebäude. Erhöht die Verteidigung um +1 und bleibt so lange wie die Karte liegt — egal wie viele Überfälle kommen. Wird die Karte geplündert oder abgerissen, verschwindet auch der Ritter.' },
-  { term: 'Münze',          def: 'Währung. Dient zum Kauf von Türmen (2 Münzen) und zum Ausgleich fehlender Rathaus-Level beim Bau von Sonderkarten (1 Münze pro fehlendem Level). Münzen bleiben über Jahreszeiten erhalten.' },
-  { term: 'Turm',           def: 'Permanente Befestigung auf einem Gebäude (2 Münzen). Ein Turm macht ein Feld uneinnehmbar — egal wie stark der Angriff.' },
-  { term: 'Rathaus',        def: 'Das feste Gebäude in der Mitte (Feld 5). Kann nicht platziert oder ersetzt werden. Schiebe eine Karte darunter um es aufzuwerten (max. Level 6) — du erhältst sofort eine Münze.' },
-  { term: 'Rathaus-Level',  def: 'Stufe 1–6. Karten mit ⚡ skalieren ihre Punkte mit dem Level. Je höher das Level, desto wertvoller diese Karten.' },
-  { term: 'Rohstoffe',      def: 'Holz 🪵, Nahrung 🌾 und Glas 🫙. Werden in der Bauphase produziert und in der Rüstphase zu Barrieren, Rittern und Münzen umgewandelt.' },
-  { term: 'Fragile',        def: 'Gelb markierte Karten mit Einmal-Effekten. Sie werden nach dem Überfall automatisch entfernt, zählen also nicht zur nächsten Jahreszeit.' },
-  { term: 'Decoy',          def: 'Sondertyp der Fragile-Karten. Zieht Angreifer auf sich — der restliche Pfad bleibt verschont. Wird danach entfernt.' },
-  { term: 'Plündern',       def: 'Ein Gebäude das überrannt wurde gilt als geplündert. Es zählt in der Wertung nicht und bleibt markiert bis zum nächsten Bauen.' },
-  { term: 'Siegpunkte',     def: 'Werden am Ende jeder Jahreszeit aus allen aktiven (nicht geplünderten) Gebäuden addiert. Nach 4 Jahreszeiten ist der Gesamtscore dein Ergebnis.' },
-  { term: 'Champion',       def: 'Der rote Würfel bestimmt eine Sonderfähigkeit der angreifenden Horde — z.B. Durchbruch, Berserker oder Flankierung. Immer eine Überraschung.' },
-  { term: 'Angriffsrichtung', def: 'Der gelbe Würfel. Bestimmt von welcher Seite die Horde einmarschiert (NW, N, NO, SO, S). Beeinflusst welche Felder zuerst getroffen werden.' },
-  { term: 'Upgrade',        def: 'Lege weitere Karten gleichen Rohstoffs auf ein bestehendes Gebäude (max. 6). Erhöht Rohstoffproduktion und oft auch Verteidigung.' },
-  { term: 'Innovation (⚡)', def: 'Karten mit ⚡ skalieren ihre Siegpunkte mit dem Rathaus-Level. Bei Level 6 können sie sehr hohe Punktzahlen erreichen.' },
-  { term: 'Stärkende Säulen', def: 'Solange diese Karte aktiv ist, erhalten alle fragilen Gebäude in der Stadt def 2 und werden nach einem Überfall nicht zerstört.' },
+  { term: 'Barriere',         def: 'Holzwall an der Außenkante eines Randfeldes. Sind ALLE Außenkanten barrikadiert, kann dort kein Angriff starten. Der Angriff weicht in Laufrichtung aus. Barrieren bleiben permanent.' },
+  { term: 'Ritter',           def: 'Verteidiger auf einem Gebäude. Erhöht die Verteidigung um +1. Bleibt solange die Karte liegt — wird die Karte geplündert, verschwindet auch der Ritter.' },
+  { term: 'Münze',            def: 'Währung. Für Türme (2 Münzen) und Sonderkarten (1 Münze pro fehlendem Rathaus-Level). Münzen bleiben über Jahreszeiten erhalten.' },
+  { term: 'Turm',             def: 'Permanente Befestigung (2 Münzen). Ein Feld mit Turm ist uneinnehmbar — egal wie stark der Angriff.' },
+  { term: 'Rathaus',          def: 'Das feste Gebäude in der Mitte. Kann nicht ersetzt werden. Schiebe eine Karte darunter um es aufzuwerten (max. Level 6) — du erhältst sofort eine Münze.' },
+  { term: 'Rathaus-Level',    def: 'Stufe 1–6. Karten mit ⚡ skalieren ihre Punkte mit dem Level. Je höher, desto wertvoller.' },
+  { term: 'Rohstoffe',        def: 'Holz, Nahrung und Glas. Werden in der Bauphase produziert und in der Rüstphase zu Barrieren, Rittern und Münzen umgewandelt.' },
+  { term: 'Fragile',          def: 'Einmal-Effekt. Fragile Karten werden nach dem Überfall automatisch entfernt.' },
+  { term: 'Decoy',            def: 'Sondertyp der Fragile-Karten. Zieht Angreifer auf sich — der restliche Pfad bleibt verschont. Wird danach entfernt.' },
+  { term: 'Plündern',         def: 'Ein Gebäude das überrannt wurde gilt als geplündert. Es zählt in der Wertung nicht und bleibt markiert bis zum nächsten Bauen.' },
+  { term: 'Siegpunkte',       def: 'Werden am Ende jeder Jahreszeit aus allen aktiven Gebäuden addiert. Nach 4 Jahreszeiten ist der Gesamtscore dein Ergebnis.' },
+  { term: 'Champion',         def: 'Der rote Würfel bestimmt eine Sonderfähigkeit der angreifenden Horde — immer eine Überraschung.' },
+  { term: 'Angriffsrichtung', def: 'Der gelbe Würfel. Bestimmt von welcher Seite die Horde einmarschiert. Beeinflusst welche Felder zuerst getroffen werden.' },
+  { term: 'Upgrade',          def: 'Lege weitere Karten gleichen Rohstoffs auf ein bestehendes Gebäude (max. 6). Erhöht Rohstoffproduktion und oft auch Verteidigung.' },
+  { term: 'Innovation (⚡)',   def: 'Karten mit ⚡ skalieren ihre Siegpunkte mit dem Rathaus-Level. Bei Level 6 können sie sehr hohe Punktzahlen erreichen.' },
+  { term: 'Stärkende Säulen', def: 'Solange aktiv erhalten alle fragilen Gebäude def 2 und werden nach einem Überfall nicht zerstört.' },
 ];
 
 function openGlossar() {
   const screen = document.getElementById('glossar-screen');
   const body   = document.getElementById('glossar-body');
-  body.innerHTML = GLOSSAR_ENTRIES.map(e => `
-    <div class="glossar-entry">
-      <div class="glossar-term">${e.term}</div>
-      <div class="glossar-def">${e.def}</div>
-    </div>
-  `).join('');
+
+  const iconSection = `
+    <div class="glossar-section-title">Symbole &amp; Icons</div>
+    ${GLOSSAR_ICONS.map(e => `
+      <div class="glossar-entry glossar-icon-entry">
+        <div class="glossar-icon-wrap">
+          <img src="${e.icon}" width="48" height="48" style="object-fit:contain;display:block;" onerror="this.style.opacity='0.15'">
+        </div>
+        <div class="glossar-icon-text">
+          <div class="glossar-term">${e.term}</div>
+          <div class="glossar-def">${e.def}</div>
+        </div>
+      </div>
+    `).join('')}
+    <div class="glossar-section-title" style="margin-top:20px;">Begriffe</div>
+    ${GLOSSAR_ENTRIES.map(e => `
+      <div class="glossar-entry">
+        <div class="glossar-term">${e.term}</div>
+        <div class="glossar-def">${e.def}</div>
+      </div>
+    `).join('')}
+  `;
+
+  body.innerHTML = iconSection;
   screen.classList.add('active');
 }
+
 
 document.getElementById('glossar-close').addEventListener('click', () => {
   document.getElementById('glossar-screen').classList.remove('active');
