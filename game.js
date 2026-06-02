@@ -234,7 +234,7 @@ const DICE_COLORS = ['yellow', 'blue', 'red'];
 
 // ── Tauschverhältnis — fest 2:1 ──
 const RATIO = 2;
-const VERSION = '0.9.61';
+const VERSION = '0.9.62';
 
 // ── Außenkanten-System für Barrieren ──────────────────────────────
 // 12 Außenkanten am 3×3-Grid: jedes Randfeld hat 1 (Kante) oder 2 (Ecke) Außenkanten.
@@ -481,6 +481,179 @@ function revealDice() {
   G.diceConcealed = new Set();
   renderDice(false);
   renderAttackOrigin();
+}
+
+// ══════════════════════════════════════════════════════
+//  KARTEN-BESCHREIBUNGEN (müssen vor makeCardBack stehen)
+// ══════════════════════════════════════════════════════
+const CARD_DESC_FALLBACK = {
+  decoy:              'Zieht Angreifer auf sich — schützt alle anderen Gebäude.',
+  force_start:        'Überfall startet immer an dieser Position.',
+  force_dir_cw:       'Überfall läuft immer mit dem Uhrzeigersinn.',
+  force_dir_ccw:      'Überfall läuft immer gegen den Uhrzeigersinn.',
+  dual_res_nahrung:   'Produziert Holz und Nahrung.',
+  dual_res_holz:      'Produziert Nahrung und Holz.',
+  dual_res_glas:      'Produziert 2× Glas.',
+  schutzpatronin:     'Solange aktiv haben alle fragilen Gebäude Verteidigung 2 und werden nicht zerstört.',
+  direct_knight:      'Gibt sofort +2 Ritter beim Bau.',
+  direct_barrier:     'Gibt sofort +2 Barrieren beim Bau.',
+  direct_coins:       'Gibt sofort +2 Münzen beim Bau.',
+  direct_coins_seasonal: 'Gibt Münzen je nach Jahreszeit beim Bau.',
+  minus2_attackers:   '−2 Angreifer vor dem Überfall.',
+  neighbor_defense:   'Nachbarn erhalten +1 Verteidigung.',
+  neighbor_defense_2: 'Nachbarn erhalten +2 Verteidigung.',
+  zwillingsturm:      'Verdoppelt die Siegpunkte aller direkt angrenzenden Gebäude.',
+  indestructible:     'Kann nie geplündert werden.',
+  destroyable:        '15 Punkte — wird bei Deaktivierung zerstört.',
+  pts_if_plundered:   '0 Punkte wenn aktiv · 8 Punkte wenn geplündert.',
+  season_pts:         'Punkte steigen je Jahreszeit: 0 · 4 · 8 · 12.',
+  sonder_count:       'Punkte = Anzahl aktiver Sonderkarten × 2.',
+  reveal_yellow:      'Angriffsrichtung ist immer sichtbar, solange die Karte liegt.',
+  reveal_blue:        'Angreiferzahl ist immer sichtbar, solange die Karte liegt.',
+  reveal_red:         'Champion ist immer sichtbar, solange die Karte liegt.',
+  free_build:         'Kostenlos bauen — zählt nicht zum Baulimit.',
+};
+const CARD_DESC_BY_ID = {
+  Z1:  'Punkte = roter Würfel × 3.',
+  Z3:  'Punkte = Rathaus-Level × 2.',
+  Z4:  'Punkte = Summe aller Verteidigungswerte in der Stadt.',
+  Z5:  'Punkte = Anzahl geplünderter Gebäude × 3.',
+  Z9:  'Punkte = Glas-Produktion × 3.',
+  Z13: 'Punkte = roter Würfel + 7.',
+  Z14: 'Punkte = (blauer + gelber Würfel) × 2.',
+  Z26: 'Punkte = Anzahl aktiver Rohstoffgebäude × 2.',
+  Z33: '48 Punkte — aber nur wenn als einziges Gebäude nicht geplündert.',
+};
+
+// ══════════════════════════════════════════════════════
+//  KARTEN-RÜCKSEITE
+// ══════════════════════════════════════════════════════
+function getCardTypeColor(card) {
+  if (card.cat === 'special') return '#8a3a9a';
+  if (card.fragile)           return '#b07810';
+  if (card.res)               return '#5a8a3a';
+  return '#3a6a9a';
+}
+
+function makeCardBack(card) {
+  const col = getCardTypeColor(card);
+  const isSpecial = card.cat === 'special';
+
+  // Pts formula in words
+  const p = card.pts;
+  let formula = '';
+  if (p && typeof p === 'object') {
+    const diceNames = {yellow:'gelber Würfel',blue:'blauer Würfel',red:'roter Würfel'};
+    const resNames  = {holz:'Holz',nahrung:'Nahrung',glas:'Glas'};
+    switch(p.type) {
+      case 'dice+':      formula = `${p.bonus||0} + ${diceNames[p.color]||p.color} Punkte`; break;
+      case 'dice*':      formula = `${p.factor} Punkte pro ${diceNames[p.color]||p.color}`; break;
+      case 'res*':       formula = `${p.factor} Punkte pro ${resNames[p.res]||p.res}`; break;
+      case 'dice_sum*':  formula = `${p.factor} Punkte pro (blauer + gelber Würfel)`; break;
+      case 'deact*':     formula = `${p.factor} Punkte pro geplündertem Gebäude`; break;
+      case 'def_sum':    formula = 'Punkte = Summe aller Verteidigungswerte'; break;
+      case 'inno*':      formula = `${p.factor} Punkte pro Rathaus-Level`; break;
+      case 'sonder_count': formula = `${p.factor} Punkte pro Sonderkarte`; break;
+      case 'sole_survivor': formula = `${p.value} Punkte — nur wenn als einziges nicht geplündert`; break;
+      case 'season_table': formula = 'Punkte je Jahreszeit: ' + (p.table||[]).join(' / '); break;
+    }
+  }
+
+  const desc = (card.special_mechanic
+    ? CARD_DESC_FALLBACK[card.special_mechanic]
+    : CARD_DESC_BY_ID[card.id]) || '';
+
+  // Tags
+  const tags = [];
+  if (card.res)         tags.push(`<span class="cfb-tag cfb-tag-${card.res}">${card.res}</span>`);
+  if (card.fragile)     tags.push(`<span class="cfb-tag cfb-tag-fragile">Einmalig</span>`);
+  if (card.upgrade)     tags.push(`<span class="cfb-tag cfb-tag-upgrade">Stapelbar</span>`);
+  if (isSpecial)        tags.push(`<span class="cfb-tag cfb-tag-special">Sonder</span>`);
+
+  const ptsStr = typeof card.pts === 'number' ? card.pts : (card.pts?.type ? '~' : '?');
+
+  const shieldSVG = `<svg width="11" height="13" viewBox="0 0 14 16"><path d="M7 1 L13 3.5 L13 8 Q13 13 7 15 Q1 13 1 8 L1 3.5 Z" fill="#6a4a2a" opacity="0.75"/></svg>`;
+  const starSVG   = `<svg width="12" height="12" viewBox="0 0 16 16"><polygon points="8,1 10.2,5.8 15.5,6.2 11.5,9.8 12.8,15 8,12.2 3.2,15 4.5,9.8 0.5,6.2 5.8,5.8" fill="${col}" opacity="0.85"/></svg>`;
+
+  let resStat = '';
+  if (card.res) {
+    const resIcons = {holz:'res-holz.png',nahrung:'res-nahrung.png',glas:'res-glas.png'};
+    const resEmoji = {holz:'🪵',nahrung:'🌾',glas:'🫙'};
+    resStat = `<div class="cfb-stat">
+      <div class="cfb-stat-icon"><img src="${resIcons[card.res]}" onerror="this.style.display='none'" style="max-height:12px;object-fit:contain;"></div>
+      <div class="cfb-stat-val" style="font-size:0.7rem;color:#5a8a3a">×1</div>
+    </div>`;
+  }
+
+  return `<div class="cfb-wrap${isSpecial ? ' is-special' : ''}" style="--card-type-col:${col}">
+    <div class="cfb-header">
+      <div class="cfb-name">${card.name}</div>
+      <div class="cfb-id">${card.id}</div>
+    </div>
+    <div class="cfb-stats">
+      <div class="cfb-stat">
+        <div class="cfb-stat-icon">${starSVG}</div>
+        <div class="cfb-stat-val" style="color:${col}">${ptsStr}</div>
+      </div>
+      <div class="cfb-stat">
+        <div class="cfb-stat-icon">${shieldSVG}</div>
+        <div class="cfb-stat-val">${card.def}</div>
+      </div>
+      ${resStat}
+    </div>
+    <div class="cfb-body">
+      ${formula ? `<div class="cfb-formula">${formula}</div>` : ''}
+      ${desc    ? `<div class="cfb-desc">${desc}</div>` : ''}
+      ${tags.length ? `<div class="cfb-tags">${tags.join('')}</div>` : ''}
+    </div>
+  </div>`;
+}
+
+// Wrap a card element in a flip container
+function wrapWithFlip(frontHTML, card) {
+  return `<div class="card-flip" data-card-id="${card.id}">
+    <div class="card-flip-front">${frontHTML}</div>
+    <div class="card-flip-back">${makeCardBack(card)}</div>
+  </div>`;
+}
+
+// Check if element should use display-swap (grid or hand — both have broken preserve-3d)
+function isInGrid(el) { return !!el.closest('#grid') || !!el.closest('#hand-cards'); }
+
+// Flip forward (show back side)
+function flipCard(flipEl) {
+  if (!flipEl || flipEl.dataset.flipped === '1') return;
+  flipEl.classList.remove('animating-flip', 'animating-unflip');
+  void flipEl.offsetWidth;
+  flipEl.classList.add('animating-flip');
+  // Swap at halfway point (225ms = half of 450ms)
+  setTimeout(() => { flipEl.dataset.flipped = '1'; }, 225);
+  setTimeout(() => { flipEl.classList.remove('animating-flip'); }, 450);
+}
+
+// Flip back (show front side)
+function unflipCard(flipEl) {
+  if (!flipEl || flipEl.dataset.flipped !== '1') return;
+  flipEl.classList.remove('animating-flip', 'animating-unflip');
+  void flipEl.offsetWidth;
+  flipEl.classList.add('animating-unflip');
+  setTimeout(() => { flipEl.dataset.flipped = '0'; }, 225);
+  setTimeout(() => { flipEl.classList.remove('animating-unflip'); }, 450);
+}
+
+// Toggle
+function toggleCardFlip(flipEl) {
+  if (!flipEl) return;
+  if (flipEl.dataset.flipped === '1') unflipCard(flipEl);
+  else flipCard(flipEl);
+}
+
+// Reset all flipped cards in a container
+function resetFlips(container) {
+  container?.querySelectorAll('.card-flip[data-flipped="1"]').forEach(el => {
+    if (el._autoFlipTimer) { clearTimeout(el._autoFlipTimer); el._autoFlipTimer = null; }
+    unflipCard(el);
+  });
 }
 
 // ══════════════════════════════════════════════════════
@@ -1172,7 +1345,7 @@ function closeDefenseOverlay() {
   document.querySelectorAll('.edge-barrier').forEach(e => e.style.visibility = '');
   renderHand();
   renderGrid();
-  setHint('Platziere Barrieren, Türme und Ritter', true);
+  setHint('Barrieren, Türme und Ritter setzen', true);
 }
 
 function doResourceConversion() {
@@ -1184,74 +1357,31 @@ const SEASON_KEYS  = ['winter', 'spring', 'summer', 'autumn'];
 
 function renderPhaseBar() {
   const seasonLabel = document.getElementById('phase-season-label');
-  const dotsEl = document.getElementById('phase-dots');
+  const dotsEl      = document.getElementById('phase-dots');
   if (!seasonLabel || !dotsEl) return;
 
-  const col = SEASON_COLORS[SEASON_KEYS[G.season]] || '#7a7060';
+  const col         = SEASON_COLORS[SEASON_KEYS[G.season]] || '#7a7060';
   const seasonRoman = ['I', 'II', 'III', 'IV'][G.season];
 
-  seasonLabel.textContent = `J${seasonRoman} · ${SEASON_NAMES[G.season].toUpperCase()}`;
+  seasonLabel.textContent = `${SEASON_NAMES[G.season]}`;
   seasonLabel.style.color = col;
 
   const winterPhases = [
-    { name: 'Bauen',   idx: 1 },
-    { name: 'Rüsten',  idx: 2 },
-    { name: 'Wertung', idx: 4 },
+    { name: 'Bauen',    idx: 1 },
+    { name: 'Rüsten',   idx: 2 },
+    { name: 'Wertung',  idx: 4 },
   ];
-  const allPhases = PHASES.map((name, idx) => ({ name, idx }));
+  const allPhases    = PHASES.map((name, idx) => ({ name, idx }));
   const visiblePhases = G.season === 0 ? winterPhases : allPhases;
+  const currentPos   = visiblePhases.findIndex(p => p.idx === G.phase);
+  const total        = visiblePhases.length;
+  const phaseName    = visiblePhases[currentPos]?.name || PHASES[G.phase];
 
-  dotsEl.innerHTML = '';
-
-  visiblePhases.forEach(({ name, idx }, pos) => {
-    const isActive = idx === G.phase;
-    const isRaid   = idx === 3; // Überfall
-
-    if (pos > 0) {
-      const conn = document.createElement('div');
-      conn.className = 'phase-connector';
-      dotsEl.appendChild(conn);
-    }
-
-    const item = document.createElement('div');
-    item.className = 'phase-item';
-
-    if (isActive) {
-      // Aktive Phase: farbiger Punkt + Name
-      const dot = document.createElement('div');
-      dot.className = 'phase-dot active';
-      dot.style.background = col;
-
-      const label = document.createElement('div');
-      label.className = 'phase-label active';
-      label.textContent = name.toUpperCase();
-      label.style.color = col;
-      label.style.fontWeight = '700';
-
-      item.appendChild(dot);
-      item.appendChild(label);
-    } else if (isRaid) {
-      // Überfall: gekreuzte Schwerter als Symbol
-      const sym = document.createElement('div');
-      sym.className = 'phase-dot phase-dot-raid';
-      sym.innerHTML = `<svg width="9" height="9" viewBox="0 0 9 9">
-        <line x1="1" y1="1" x2="8" y2="8" stroke="rgba(18,14,10,0.28)" stroke-width="1.2" stroke-linecap="round"/>
-        <line x1="8" y1="1" x2="1" y2="8" stroke="rgba(18,14,10,0.28)" stroke-width="1.2" stroke-linecap="round"/>
-      </svg>`;
-      sym.style.background = 'transparent';
-      sym.style.width = '9px';
-      sym.style.height = '9px';
-      item.appendChild(sym);
-    } else {
-      // Inaktive Phase: kleiner grauer Punkt, kein Label
-      const dot = document.createElement('div');
-      dot.className = 'phase-dot';
-      dot.style.background = 'rgba(18,14,10,0.12)';
-      item.appendChild(dot);
-    }
-
-    dotsEl.appendChild(item);
-  });
+  // Kompakt: Phasenname fett + Fortschritt daneben
+  dotsEl.innerHTML = `
+    <span class="phase-label active" style="color:${col};font-weight:700;">${phaseName.toUpperCase()}</span>
+    <span class="phase-progress" style="color:rgba(18,14,10,0.3);font-size:0.62rem;letter-spacing:0.08em;margin-left:5px;">${currentPos + 1}/${total}</span>
+  `;
 }
 
 // Fächerrichtung je Grid-Position: -1=links, +1=rechts
@@ -1337,7 +1467,10 @@ function getCardPlayability(card) {
 
   // Sonderkarte: Slot-Kapazität prüfen (Rathaus Level = max. Sonderkarten auf dem Feld)
   if (card.cat === 'special') {
-    const sonderCount = G.board.filter((c, i) => c && i !== 4 && c.cat === 'special' && !G.plundered[i]).length;
+    const sonderCount = G.board.filter((c, i) =>
+      c && i !== 4 && c.cat === 'special' && !G.plundered[i]
+      && c.special_mechanic !== 'free_build'
+    ).length;
     if (sonderCount >= G.rathausLevel) {
       return {
         playable: false,
@@ -1542,17 +1675,17 @@ function renderGrid(skipGlows) {
         ? { ...G.board[i], def: (G.board[i].def || 0) + swBonus }
         : G.board[i];
       const renderBoosted = G.boosted[i] || (swBonus > 0 ? swBonus : false);
-      topDiv.innerHTML = makeCard(renderCard, 130, 182, false, undefined, G.fortified[i], renderBoosted, G.plundered[i], !G.plundered[i]);
+      const frontHTML = makeCard(renderCard, 130, 182, false, undefined, G.fortified[i], renderBoosted, G.plundered[i], !G.plundered[i]);
+      topDiv.innerHTML = wrapWithFlip(frontHTML, G.board[i]);
       // Sonderkarten: Premium-Shimmer
       if (G.board[i].cat === 'special' && !G.plundered[i]) {
         topDiv.className = 'cell-card special-card';
-        topDiv.style.cssText = 'position:absolute; inset:0; z-index:10; border-radius:6px; overflow:hidden;';
+        topDiv.style.cssText = 'position:absolute; inset:0; z-index:10; border-radius:6px; overflow:visible;';
       }
       cell.appendChild(topDiv);
 
-      // Click-Handler immer registrieren (für Preview + Karte platzieren)
-      cell.addEventListener('click', () => onCellClick(i));
-      cell.addEventListener('touchend', (e) => { e.preventDefault(); onCellClick(i); }, { passive: false });
+      // Click-Handler immer registrieren (für Flip + Karte platzieren)
+      cell.addEventListener('pointerup', (e) => { e.preventDefault(); onCellClick(i); });
 
       // Karten-Modus: belegte Felder als Upgrade/Replace-Target anzeigen
       if (G.mode === 'card' && G.selectedHandIdx >= 0 && i !== 4) {
@@ -1743,15 +1876,17 @@ function renderHand() {
       slot.classList.remove('coin-bypass');
       slot.style.transform = '';
     }
-    slot.innerHTML = makeCard(card, 66, 92, false);
+    slot.innerHTML = wrapWithFlip(makeCard(card, 66, 92, false), card);
     if (card.cat === 'special') {
       slot.style.borderRadius = '6px';
       slot.style.overflow = 'hidden';
       slot.classList.add('cell-card', 'special-card');
     }
     if (!cardLocked) {
-      slot.addEventListener('click', () => onHandClick(idx));
-      slot.addEventListener('touchend', (e) => { e.preventDefault(); onHandClick(idx); }, { passive: false });
+      slot.addEventListener('pointerup', (e) => {
+        e.preventDefault();
+        onHandClick(idx);
+      });
     }
     wrap.appendChild(slot);
 
@@ -1838,7 +1973,7 @@ function discardSelected(idx) {
       if (G.builtThisSeason >= 5) {
         DRAFT.active = false;
         G.hand = [];
-        setHint('5 Aktionen — Bauphase beendet · › für Rüsten', true);
+        setHint('5 Aktionen verbraucht · › weiter', true);
         renderHand();
       } else if (DRAFT.active) {
         G.hand = G.hand.filter(c => c !== null);
@@ -1868,7 +2003,7 @@ function discardSelected(idx) {
   if (G.builtThisSeason >= 5) {
     DRAFT.active = false;
     G.hand = [];
-    setHint('5 Aktionen — Bauphase beendet · › für Rüsten', true);
+    setHint('5 Aktionen verbraucht · › weiter', true);
   } else if (DRAFT.active) {
     G.hand = G.hand.filter(c => c !== null);
     advanceDraft();
@@ -2063,12 +2198,12 @@ function updateRathausScore() {
   if (cell) cell.innerHTML = makeCard(RATHAUS, 130, 182, true, G.score);
 }
 
-const PHASE_DESCRIPTIONS = [
-  'Lausche den Gerüchten aus dem Tal…',
-  'Baue deine Stadt aus',
-  'Rüste deine Verteidigung · Barrieren, Ritter und Türme setzen',
-  'Der Überfall beginnt!',
-  'Zähle deine Siegpunkte',
+const PHASE_HINTS = [
+  'Würfle um den Überfall zu erkunden',
+  'Karte wählen, dann Feld antippen',
+  'Barrieren, Ritter und Türme setzen',
+  'Überfall läuft…',
+  '',
 ];
 
 const PHASE_ALLOWED = {
@@ -2085,11 +2220,26 @@ function isPhaseAllowed(action) {
 
 function renderPlaceRow() {
   const btnNext = document.getElementById('btn-next-phase');
+  const btnWrap = document.getElementById('btn-next-wrap');
   const col = SEASON_COLORS[SEASON_KEYS[G.season]];
   btnNext.style.setProperty('--phase-col', col);
   const hasSelection = G.selectedHandIdx >= 0 || G.selectedBarrier ||
                        G.selectedTower || G.selectedKnight || G.selectedCellIdx >= 0;
-  btnNext.classList.toggle('ready', !hasSelection);
+  const isReady = !hasSelection;
+  btnNext.classList.toggle('ready', isReady);
+  if (btnWrap) btnWrap.classList.toggle('ready', isReady);
+
+  // Show next phase name when ready
+  const labelEl = document.getElementById('btn-next-label');
+  if (labelEl) {
+    const winterPhases = [null,1,2,null,4];
+    const allPhases = [0,1,2,3,4];
+    const phaseNames = ['Gerüchte','Bauen','Rüsten','Überfall','Wertung'];
+    let nextPhase = G.phase + 1;
+    if (G.season === 0 && nextPhase === 3) nextPhase = 4;
+    if (nextPhase > 4) nextPhase = 0;
+    labelEl.textContent = isReady ? (phaseNames[nextPhase] || '›') : '›';
+  }
 }
 
 // Phasenwechsel mit Animation — vollständiger Jahreszeiten-Durchlauf
@@ -2170,7 +2320,7 @@ function advancePhase() {
     dividerEl.style.background = 'transparent';
     shimmerEl.style.background = 'transparent';
     nameEl.textContent  = PHASES[nextPhase].toUpperCase();
-    subEl.textContent   = PHASE_DESCRIPTIONS[nextPhase];
+    subEl.textContent   = '';
     nameEl.style.color  = col;
   }
 
@@ -2223,19 +2373,10 @@ function advancePhase() {
     renderGrid();
 
     // Dot-Wellen-Animation
-    setTimeout(() => {
-      const visibleIdx = getVisiblePhaseIndex(nextPhase, nextSeason);
-      const dots = document.querySelectorAll('#phase-dots .phase-dot');
-      if (dots[visibleIdx]) {
-        dots[visibleIdx].classList.add('arriving');
-        dots[visibleIdx].addEventListener('animationend',
-          () => dots[visibleIdx].classList.remove('arriving'), {once:true});
-      }
-    }, 50);
-
+    const phaseHint = PHASE_HINTS[nextPhase];
     setHint(isNewSeason
-      ? `${SEASON_NAMES[nextSeason]} beginnt — ${PHASE_DESCRIPTIONS[nextPhase]}`
-      : PHASE_DESCRIPTIONS[nextPhase], false);
+      ? (phaseHint ? `${SEASON_NAMES[nextSeason]} — ${phaseHint}` : SEASON_NAMES[nextSeason])
+      : (phaseHint || ''), false);
 
     // Gerüchte-Phase: Overlay öffnen — Spieler würfelt selbst
     if (nextPhase === 0) {
@@ -2513,67 +2654,146 @@ function doRaidDemo() { startRaidSequence(); }
 
 function spawnRaidAtmosphere(stage) {
   const overlay = document.getElementById('raid-overlay');
-  const positions = [
-    { cls:'left',  left:'4%',  top:'30%', w:80,  h:120, colors:['rgba(220,80,20,0.5)','rgba(240,140,20,0.4)'] },
-    { cls:'left',  left:'2%',  top:'60%', w:60,  h:90,  colors:['rgba(200,50,10,0.4)','rgba(220,100,20,0.35)'] },
-    { cls:'right', left:'88%', top:'25%', w:90,  h:130, colors:['rgba(210,70,15,0.45)','rgba(240,130,20,0.4)'] },
-    { cls:'right', left:'90%', top:'65%', w:55,  h:85,  colors:['rgba(200,40,10,0.35)','rgba(220,110,20,0.3)'] },
-  ];
-  positions.forEach((p, i) => {
-    const fl = document.createElement('div');
-    fl.className = `raid-flicker ${p.cls}`;
-    fl.style.cssText = `left:${p.left};top:${p.top};width:${p.w}px;height:${p.h}px;
-      background:radial-gradient(ellipse at center,${p.colors[0]} 0%,${p.colors[1]} 40%,transparent 75%);
-      animation-delay:${i*0.3}s;`;
-    overlay.appendChild(fl);
-    setTimeout(() => fl.classList.add('visible'), 50);
-  });
 
-  let emberInterval = setInterval(() => {
-    if (!document.getElementById('raid-overlay').classList.contains('visible')) { clearInterval(emberInterval); return; }
-    // Mehrere Partikel gleichzeitig für mehr Dichte
-    const count = 2 + Math.floor(Math.random() * 3);
-    for (let i = 0; i < count; i++) spawnEmber(overlay);
-  }, 180);
-  stage._emberInterval = emberInterval;
+  // Canvas für Risse — über dem Grid, pointer-events: none
+  const canvas = document.createElement('canvas');
+  canvas.id = 'raid-crack-canvas';
+  canvas.style.cssText = `
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    pointer-events: none; z-index: 50;
+    opacity: 0; transition: opacity 0.8s ease;
+  `;
+  stage.appendChild(canvas);
+  setTimeout(() => { canvas.style.opacity = '1'; }, 50);
+
+  const W = stage.offsetWidth  || 400;
+  const H = stage.offsetHeight || 500;
+  canvas.width  = W;
+  canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  const cracks = [];
+  const waves  = [];
+  stage._raidCracks = cracks;
+  stage._raidWaves  = waves;
+
+  let animFrame;
+  function drawFrame() {
+    ctx.clearRect(0, 0, W, H);
+
+    // Schockwellen
+    waves.forEach((w, wi) => {
+      const p   = w.age / w.maxAge;
+      const op  = Math.max(0, (1 - p) * 0.55);
+      const r   = w.maxR * p;
+      ctx.beginPath();
+      ctx.arc(w.x, w.y, r, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(255,210,160,${op})`;
+      ctx.lineWidth   = 2.5 * (1 - p) + 0.3;
+      ctx.stroke();
+      w.age++;
+      if (w.age >= w.maxAge) waves.splice(wi, 1);
+    });
+
+    // Risse
+    cracks.forEach((ck, ci) => {
+      const prog   = Math.min(1, ck.age / 45);
+      const fadeStart = ck.maxAge - 50;
+      const fade   = ck.age > fadeStart ? Math.max(0, 1 - (ck.age - fadeStart) / 50) : 1;
+      const visible = Math.max(2, Math.floor(prog * ck.pts.length));
+      ctx.beginPath();
+      ctx.moveTo(ck.pts[0].x, ck.pts[0].y);
+      for (let i = 1; i < visible; i++) ctx.lineTo(ck.pts[i].x, ck.pts[i].y);
+      ctx.strokeStyle = `rgba(255,240,200,${0.55 * fade})`;
+      ctx.lineWidth = 1.2; ctx.stroke();
+      ctx.strokeStyle = `rgba(20,10,4,${0.5 * fade})`;
+      ctx.lineWidth = 0.4; ctx.stroke();
+      ck.age++;
+      if (ck.age >= ck.maxAge) cracks.splice(ci, 1);
+    });
+
+    animFrame = requestAnimationFrame(drawFrame);
+  }
+  drawFrame();
+  stage._raidAnimFrame = animFrame;
+  stage._raidCanvas    = canvas;
+  stage._raidCtx       = ctx;
+  stage._raidW         = W;
+  stage._raidH         = H;
 }
 
-function spawnEmber(container) {
-  const ember = document.createElement('div');
-  ember.className = 'ember';
-  const isStreak = Math.random() > 0.6; // 40% Streifen statt Punkt
-  const size   = isStreak ? (1 + Math.random() * 2) : (3 + Math.random() * 5);
-  const height = isStreak ? (size * (4 + Math.random() * 6)) : size;
-  const startX = 5 + Math.random() * 90;
-  const drift  = (Math.random() - 0.5) * 60 + 'px';
-  const dur    = 1.2 + Math.random() * 1.8;
-  const delay  = Math.random() * 0.2;
-  const bright = 0.7 + Math.random() * 0.3;
-  const color  = Math.random() > 0.45
-    ? `rgba(255,${120 + Math.random()*100|0},10,${bright})`
-    : `rgba(220,${50  + Math.random()*80|0},5,${bright})`;
-  ember.style.cssText = `
-    width:${size}px; height:${height}px;
-    border-radius:${isStreak ? '40%' : '50%'};
-    left:${startX}%; bottom:${5 + Math.random()*35}%;
-    background:${color};
-    box-shadow: 0 0 ${size*2+2}px ${size}px ${color};
-    --drift:${drift};
-    animation: emberRise ${dur}s ${delay}s ease-out forwards;
-  `;
-  container.appendChild(ember);
-  ember.addEventListener('animationend', () => ember.remove());
+// Riss von einem Kartenmittelpunkt aus spawnen
+function spawnRaidCrack(stage, cellIdx) {
+  const cracks = stage._raidCracks;
+  const waves  = stage._raidWaves;
+  if (!cracks) return;
+
+  // Mittelpunkt der Zelle berechnen
+  const grid = document.getElementById('grid');
+  const cells = grid?.querySelectorAll('.cell');
+  const cell  = cells?.[cellIdx];
+  if (!cell) return;
+  const stageR = stage.getBoundingClientRect();
+  const cellR  = cell.getBoundingClientRect();
+  const ox = cellR.left - stageR.left + cellR.width  / 2;
+  const oy = cellR.top  - stageR.top  + cellR.height / 2;
+
+  // Schockwelle
+  waves.push({ x: ox, y: oy, r: 0, maxR: Math.max(cellR.width, 80), age: 0, maxAge: 40 });
+
+  // 3–5 Rissäste
+  const numArms = 3 + Math.floor(Math.random() * 3);
+  for (let a = 0; a < numArms; a++) {
+    const angle   = (a / numArms) * Math.PI * 2 + Math.random() * 0.6;
+    const segs    = 3 + Math.floor(Math.random() * 4);
+    let x = ox, y = oy;
+    const pts = [{ x, y }];
+    let dir = angle;
+    for (let s = 0; s < segs; s++) {
+      dir += (Math.random() - 0.5) * 0.7;
+      const len = 18 + Math.random() * 28;
+      x += Math.cos(dir) * len;
+      y += Math.sin(dir) * len;
+      pts.push({ x, y });
+      // Nebenast
+      if (Math.random() > 0.55) {
+        const branchDir = dir + (Math.random() - 0.5) * 1.4;
+        const bLen = 10 + Math.random() * 18;
+        cracks.push({
+          pts: [
+            { x, y },
+            { x: x + Math.cos(branchDir) * bLen, y: y + Math.sin(branchDir) * bLen },
+          ],
+          age: 0, maxAge: 120 + Math.floor(Math.random() * 60),
+        });
+      }
+    }
+    cracks.push({ pts, age: 0, maxAge: 160 + Math.floor(Math.random() * 80) });
+  }
 }
 
 function stopRaidAtmosphere(stage) {
-  clearInterval(stage._emberInterval);
+  // Animation stoppen
+  if (stage._raidAnimFrame) cancelAnimationFrame(stage._raidAnimFrame);
+
+  // Canvas ausblenden + entfernen
+  const canvas = stage._raidCanvas;
+  if (canvas) {
+    canvas.style.opacity = '0';
+    canvas.style.transition = 'opacity 1.2s ease';
+    setTimeout(() => canvas.remove(), 1300);
+  }
+
+  // Overlay-Reste (alte Flicker falls vorhanden)
   const overlay = document.getElementById('raid-overlay');
-  overlay.querySelectorAll('.raid-flicker').forEach(e => {
-    e.classList.remove('visible');
-    e.classList.add('fading');
-    setTimeout(() => e.remove(), 900);
-  });
-  overlay.querySelectorAll('.ember').forEach(e => e.remove());
+  overlay.querySelectorAll('.raid-flicker, .ember').forEach(e => e.remove());
+
+  // Refs aufräumen
+  delete stage._raidCracks;
+  delete stage._raidWaves;
+  delete stage._raidCanvas;
+  delete stage._raidAnimFrame;
 }
 
 function initAttackerBar(count) {
@@ -2874,25 +3094,28 @@ function startRaidSequence() {
             && G.stacks[idx] && G.stacks[idx].length > 1;
 
           if (isDecoyWithUnderlying) {
-            // Decoy mit Karte darunter: NICHT plündern.
-            // Karte bleibt aktiv (sichtbar), wird in der Wertung via fragile-Mechanik
-            // aufgedeckt und die darunter liegende Karte wird dann gewertet.
-            // G.entered[idx] ist bereits true → fragile-Logik greift später.
             G.boosted[idx] = 0;
             spawnColoredFloat(idx, '🎭 Abgelenkt!', '#c8940a');
             renderGrid();
           } else {
             G.plundered[idx] = true;
             G.boosted[idx] = 0;
-            // Kristallpalast: wird zerstört (verschwindet komplett)
+
+            // Flip via animated display-swap
+            const flipEl = document.querySelectorAll('.cell')[idx]?.querySelector('.card-flip');
+            if (flipEl) flipCard(flipEl);
+
+            // Riss + Schockwelle von dieser Karte aus
+            const stageEl = document.getElementById('stage');
+            if (stageEl) spawnRaidCrack(stageEl, idx);
+
+            // Kristallpalast: zerstört
             if (hitCard && hitCard.special_mechanic === 'destroyable') {
               G.board[idx] = null;
               G.stacks[idx] = null;
               spawnColoredFloat(idx, '💎 Zerstört!', '#c8a010');
             }
-            // Score-Update beim Plündern:
-            // - Versicherung: gibt jetzt 8 Punkte (war vorher 0) → +8
-            // - Andere Karten: verlieren ihre Punkte → −pts
+            // Score update
             if (hitCard && hitCard.special_mechanic === 'pts_if_plundered') {
               G.score = G.score + 8;
               spawnColoredFloat(idx, '+8 💰 Versicherung!', '#3a8a3a');
@@ -2900,8 +3123,12 @@ function startRaidSequence() {
               G.score = Math.max(0, G.score - calcCardPts(G.board[idx] || {pts:0}));
               spawnColoredFloat(idx, `−${def}🛡`, '#c04040');
             }
-            renderGrid();
-            updateRathausScore();
+
+            // Re-render after flip animation completes (450ms)
+            setTimeout(() => {
+              renderGrid();
+              updateRathausScore();
+            }, 500);
           }
         } else if (blocked) {
           // Turm hat gehalten — Ritter bleibt auf dem Feld
@@ -2936,12 +3163,18 @@ function startRaidSequence() {
           setTimeout(() => {
             G.plundered[victim] = true;
             G.score = Math.max(0, G.score - calcCardPts(G.board[victim]));
-            renderGrid();
-            updateRathausScore();
-            const cells = document.querySelectorAll('.cell');
-            if (cells[victim]) {
-              cells[victim].classList.add('plundering');
-              cells[victim].addEventListener('animationend', () => cells[victim].classList.remove('plundering'), {once:true});
+            // Flip victim card before renderGrid
+            const victimCells = document.querySelectorAll('.cell');
+            const victimFlip = victimCells[victim]?.querySelector('.card-flip');
+            if (victimFlip && victimFlip.dataset.flipped !== '1') {
+              victimFlip.dataset.flipped = '1';
+              victimFlip.classList.add('flipped');
+              victimFlip.addEventListener('animationend', () => victimFlip.classList.remove('flipped'), { once: true });
+            }
+            setTimeout(() => { renderGrid(); updateRathausScore(); }, 350);
+            if (victimCells[victim]) {
+              victimCells[victim].classList.add('plundering');
+              victimCells[victim].addEventListener('animationend', () => victimCells[victim].classList.remove('plundering'), {once:true});
             }
             spawnColoredFloat(victim, `👑 Volksaufstand!`, '#c04040');
             showToast('Volksaufstand — du warst führend!');
@@ -3039,7 +3272,7 @@ function restartGame() {
   renderPlaceRow();
   renderVP();
   renderProductionPanel();
-  setHint(PHASE_DESCRIPTIONS[G.phase], false);
+  setHint(PHASE_HINTS[G.phase], false);
   showToast('Neues Spiel gestartet');
   startSeasonParticles(G.season);
 }
@@ -3054,6 +3287,8 @@ function clearSelection() {
   G.selectedCellIdx    = -1;
   G.selectedBarrierKey = null;
   G.mode = 'card';
+  // Reset city card flips only (hand DOM is rebuilt by renderHand anyway)
+  resetFlips(document.getElementById('grid'));
   hideCardPreview();
   renderEdgeZones(false);
   renderPlaceRow();
@@ -3078,7 +3313,7 @@ const SPECIAL_MECHANIC_DESC = {
   dual_res_nahrung:  'Produziert Holz UND Nahrung',
   dual_res_holz:     'Produziert Nahrung UND Holz',
   schutzpatronin:    'Alle fragilen Gebäude erhalten def 2 und werden nicht zerstört',
-  dual_res_glas:     'Produziert Holz UND Glas',
+  dual_res_glas:     'Produziert 2× Glas',
   destroyable:       '15 Punkte — wird bei Deaktivierung zerstört',
   pts_if_plundered:  '0 Punkte wenn aktiv · 8 Punkte wenn deaktiviert',
   season_pts:        'Punkte = Jahreszeit × 2 (max 8 in Herbst)',
@@ -3087,47 +3322,6 @@ const SPECIAL_MECHANIC_DESC = {
 
 // CARD_INFO: name kommt direkt aus card.name (seit ID-Umbenennung in cards.js)
 // desc bleibt hier als Fallback für Karten ohne eigene Beschreibung
-const CARD_DESC_FALLBACK = {
-  decoy:              'Zieht Angreifer auf sich — schützt alle anderen Gebäude.',
-  force_start:        'Überfall startet immer an dieser Position.',
-  force_dir_cw:       'Überfall läuft immer mit dem Uhrzeigersinn.',
-  force_dir_ccw:      'Überfall läuft immer gegen den Uhrzeigersinn.',
-  dual_res_nahrung:   'Produziert Holz und Nahrung.',
-  dual_res_holz:      'Produziert Nahrung und Holz.',
-  dual_res_glas:      'Produziert Holz und Glas.',
-  schutzpatronin:     'Solange aktiv haben alle fragilen Gebäude Verteidigung 2 und werden nicht zerstört.',
-  direct_knight:      'Gibt sofort +2 Ritter beim Bau.',
-  direct_barrier:     'Gibt sofort +2 Barrieren beim Bau.',
-  direct_coins:       'Gibt sofort +2 Münzen beim Bau.',
-  direct_coins_seasonal: 'Gibt Münzen je nach Jahreszeit beim Bau.',
-  minus2_attackers:   '−2 Angreifer vor dem Überfall.',
-  neighbor_defense:   'Nachbarn erhalten +1 Verteidigung.',
-  neighbor_defense_2: 'Nachbarn erhalten +2 Verteidigung.',
-  zwillingsturm:      'Verdoppelt die Siegpunkte aller direkt angrenzenden Gebäude.',
-  indestructible:     'Kann nie geplündert werden.',
-  destroyable:        '15 Punkte — wird bei Deaktivierung zerstört.',
-  pts_if_plundered:   '0 Punkte wenn aktiv · 8 Punkte wenn geplündert.',
-  season_pts:         'Punkte steigen je Jahreszeit: 0 · 4 · 8 · 12.',
-  sonder_count:       'Punkte = Anzahl aktiver Sonderkarten × 2.',
-  reveal_yellow:      'Angriffsrichtung ist immer sichtbar, solange die Karte liegt.',
-  reveal_blue:        'Angreiferzahl ist immer sichtbar, solange die Karte liegt.',
-  reveal_red:         'Champion ist immer sichtbar, solange die Karte liegt.',
-  free_build:         'Kostenlos bauen — zählt nicht zum Baulimit.',
-};
-
-// Erklärtexte für Karten ohne special_mechanic — per Karten-ID
-const CARD_DESC_BY_ID = {
-  Z1:  'Punkte = roter Würfel × 3.',
-  Z3:  'Punkte = Rathaus-Level × 2.',
-  Z4:  'Punkte = Summe aller Verteidigungswerte in der Stadt.',
-  Z5:  'Punkte = Anzahl geplünderter Gebäude × 3.',
-  Z9:  'Punkte = Glas-Produktion × 3.',
-  Z13: 'Punkte = roter Würfel + 7.',
-  Z14: 'Punkte = (blauer + gelber Würfel) × 2.',
-  Z26: 'Punkte = Anzahl aktiver Rohstoffgebäude × 2.',
-  Z33: '48 Punkte — aber nur wenn als einziges Gebäude nicht geplündert.',
-};
-
 function getCardInfo(card) {
   if (!card) return null;
   const name = card.name || card.id;
@@ -3161,7 +3355,7 @@ function showCardPreview(card) {
 
   const stats = [
     ptsDisplay,
-    card.def  ? `🛡 ${card.def} Abw` : '',
+    card.def !== undefined ? `<img src="def-barriere.png" width="12" height="14" style="vertical-align:middle;object-fit:contain;"> ${card.def} Abw` : '',
     resLabel,
     card.upgrade ? '⬆ Stapelbar' : '',
     card.fragile ? '⚡ Einmalig' : '',
@@ -3191,28 +3385,38 @@ function onHandClick(idx) {
   if (G.selectedBarrier) { clearSelection(); }
   if (G.selectedHandIdx === idx) {
     clearSelection();
-    setHint('Wähle eine Karte aus deiner Hand');
+    setHint('Karte wählen');
   } else {
     clearSelection();
     G.selectedHandIdx = idx;
     G.mode = 'card';
     const card = G.hand[idx];
-    // Unspielbare Karte: Grund als Hint anzeigen
-    // (Auswahl bleibt erlaubt, damit der Spieler abwerfen oder draften kann)
     const playability = getCardPlayability(card);
     if (!playability.playable) {
       setHint(`⊘ ${playability.reason}`, true);
     } else if (playability.coinBypass) {
       setHint(`🪙 ${playability.reason} — Tippe ein Feld zum Bauen`, true);
     } else if (card && card.cat === 'special' && card.special_mechanic && SPECIAL_MECHANIC_DESC[card.special_mechanic]) {
-      // Sonderkarte: Mechanik als Hint anzeigen
       setHint(`✦ ${SPECIAL_MECHANIC_DESC[card.special_mechanic]}`, true);
     } else {
-      setHint('Tippe ein Feld zum Bauen', true);
+      setHint('Feld antippen', true);
     }
-    showCardPreview(card);
   }
   renderHand(); renderGrid(true);
+
+  // After renderHand rebuilds DOM, flip the selected card
+  if (G.selectedHandIdx === idx) {
+    setTimeout(() => {
+      const activeIdxs = G.hand.map((c, i) => c ? i : null).filter(i => i !== null);
+      const pos = activeIdxs.indexOf(idx);
+      const slots = document.querySelectorAll('#hand-cards .hand-card');
+      const targetSlot = slots[pos];
+      if (targetSlot) {
+        const flipEl = targetSlot.querySelector('.card-flip');
+        if (flipEl) flipCard(flipEl);
+      }
+    }, 50);
+  }
 }
 
 function onBarrierHandClick() {
@@ -3220,14 +3424,14 @@ function onBarrierHandClick() {
   if (G.barrierHand <= 0) return;
   if (G.selectedBarrier) {
     clearSelection();
-    setHint('Wähle eine Karte aus deiner Hand');
+    setHint('Karte wählen');
     renderHand(); renderGrid(true);
     return;
   }
   clearSelection();
   G.selectedBarrier = true;
   G.mode = 'barrier';
-  setHint('Tippe auf einen Spalt zwischen zwei Feldern', true);
+  setHint('Spalt zwischen zwei Karten antippen', true);
   renderHand();
   renderGrid(true);
   setTimeout(() => renderEdgeZones(true), 50);
@@ -3236,7 +3440,7 @@ function onBarrierHandClick() {
 function onTowerHandClick() {
   if (!isPhaseAllowed('tower')) { showToast('Türme nur in der Verteidigungs-Phase'); return; }
   if (G.coins < RATIO) { showToast(`Nicht genug Münzen (${RATIO} benötigt)`); return; }
-  if (G.selectedTower) { clearSelection(); setHint('Wähle eine Karte aus deiner Hand'); renderHand(); renderGrid(); return; }
+  if (G.selectedTower) { clearSelection(); setHint('Karte wählen'); renderHand(); renderGrid(); return; }
   clearSelection();
   G.selectedTower = true;
   G.mode = 'tower';
@@ -3270,12 +3474,28 @@ function onCellClick(idx) {
 
   // ── Karte muss ausgewählt sein ────────────────────────────────
   if (G.selectedHandIdx < 0) {
-    // Kein Modus aktiv — Tap auf Feld zeigt Karten-Preview
-    if (idx === 4) { hideCardPreview(); return; } // Rathaus: keine Preview
+    if (idx === 4) return;
     if (G.board[idx] && !G.plundered[idx]) {
-      showCardPreview(G.board[idx]);
-    } else {
-      hideCardPreview();
+      const cells = document.getElementById('grid').querySelectorAll('.cell');
+      const flipEl = cells[idx]?.querySelector('.card-flip');
+      if (flipEl) {
+        // Clear any existing auto-flip timer first
+        if (flipEl._autoFlipTimer) {
+          clearTimeout(flipEl._autoFlipTimer);
+          flipEl._autoFlipTimer = null;
+        }
+        if (flipEl.dataset.flipped === '1') {
+          // Already flipped — unflip immediately
+          unflipCard(flipEl);
+        } else {
+          // Flip forward, then auto-unflip after 2s
+          flipCard(flipEl);
+          flipEl._autoFlipTimer = setTimeout(() => {
+            unflipCard(flipEl);
+            flipEl._autoFlipTimer = null;
+          }, 3000);
+        }
+      }
     }
     return;
   }
@@ -3292,7 +3512,10 @@ function onCellClick(idx) {
   // ── Validierung vor dem Overlay ───────────────────────────────
   // Sonderkarte: Slot-Kapazität prüfen
   if (selCard.cat === 'special') {
-    const sonderCount = G.board.filter((c, i) => c && i !== 4 && c.cat === 'special' && !G.plundered[i]).length;
+    const sonderCount = G.board.filter((c, i) =>
+      c && i !== 4 && c.cat === 'special' && !G.plundered[i]
+      && c.special_mechanic !== 'free_build'
+    ).length;
     if (sonderCount >= G.rathausLevel) {
       showToast(`Rathaus Level ${G.rathausLevel} — nur ${G.rathausLevel} Sonderkarte${G.rathausLevel > 1 ? 'n' : ''} erlaubt. Rathaus upgraden!`);
       return;
@@ -3494,7 +3717,7 @@ function commitPlacement() {
     DRAFT.active = false;
     G.hand = [];
     renderHand();
-    setHint('5 Gebäude errichtet — Bauphase beendet · › für Rüsten', true);
+    setHint('5 Gebäude errichtet · › weiter', true);
   } else if (DRAFT.active) {
     advanceDraft();
   }
@@ -3554,7 +3777,7 @@ function placeKnight(idx) {
   flashChip('knights');
   const cells = document.querySelectorAll('.cell');
   if (cells[idx]) spawnColorBurst(cells[idx], '#44ee44'); SFX.knight();
-  setHint('Wähle eine Karte aus deiner Hand');
+  setHint('Karte wählen');
   showToast('Verteidigung erhöht');
 }
 
@@ -3578,7 +3801,7 @@ function placeBarrier(key, cellIdx, edge) {
   }, 30);
 
   const barricaded = isBarricaded(cellIdx);
-  setHint('Wähle eine Karte aus deiner Hand');
+  setHint('Karte wählen');
   if (barricaded) {
     showToast(`🛡 Feld ${cellIdx} vollständig barrikadiert!`);
   } else {
@@ -3916,7 +4139,7 @@ function dealHand() {
 buildSeasonPools();
 initDrawBags();
 dealHand(); renderGrid(); renderHand(); addDemoControls(); renderPhaseBar(); renderVP(); renderPlaceRow(); renderProductionPanel();
-setHint(PHASE_DESCRIPTIONS[G.phase], false);
+setHint(PHASE_HINTS[G.phase], false);
 
 // Version anzeigen
 const splashVersion = document.getElementById('splash-version');
