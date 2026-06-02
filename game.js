@@ -3604,16 +3604,13 @@ function commitPlacement() {
   if (!existing) {
     G.board[targetIdx]  = { ...newCard };
     G.stacks[targetIdx] = [{ ...newCard }];
-    G.score += calcCardPts(newCard);
     SFX.build();
 
   } else if (newCard.special_mechanic === 'decoy') {
-    const oldPts = calcCardPts(G.board[targetIdx]);
     G.stacks[targetIdx] = [...(G.stacks[targetIdx] || [existing]), { ...newCard }];
     G.board[targetIdx]  = { ...newCard };
     G.fortified[targetIdx] = false;
     G.boosted[targetIdx]   = false;
-    G.score = G.score - oldPts + calcCardPts(newCard);
     SFX.build();
     showToast('🎭 Ablenkungsmanöver — schützt die Karte darunter');
 
@@ -3622,7 +3619,6 @@ function commitPlacement() {
     const oldPts = calcCardPts(G.board[targetIdx]);
     G.stacks[targetIdx] = [...(G.stacks[targetIdx] || [existing]), { ...newCard }];
     G.board[targetIdx]  = { ...newCard };
-    G.score = G.score - oldPts + calcCardPts(newCard);
     const diff = calcCardPts(newCard) - oldPts;
     if (diff !== 0) spawnColoredFloat(targetIdx, `${diff >= 0 ? '+' : ''}${diff}`, diff >= 0 ? 'var(--ink)' : '#c04040');
     SFX.upgrade();
@@ -3630,15 +3626,16 @@ function commitPlacement() {
 
   } else {
     placeType = 'replace';
-    const oldPts = calcCardPts(G.board[targetIdx]);
     G.board[targetIdx]  = { ...newCard };
     G.stacks[targetIdx] = [{ ...newCard }];
     G.fortified[targetIdx] = false;
     G.boosted[targetIdx]   = false;
-    G.score = G.score - oldPts + calcCardPts(newCard);
     SFX.discard();
     showToast('Gebäude abgerissen und neu gebaut');
   }
+
+  // Score vollständig neu berechnen (erfasst alle abhängigen Karten: def_sum, sonder_count, res*, blue*, sole_survivor, inno*)
+  recomputeScoreFromBoard();
 
   // ── Sonder-Mechaniken (State only, kein Render hier) ──────────
   G.builtThisSeason++;
