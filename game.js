@@ -24,7 +24,7 @@ const G = {
   victoryPoints: 0,
   builtThisSeason: 0,  // max 5 pro Jahreszeit
   attackerOverride: null, // gesetzt wenn Champion Angreifer direkt überschreibt
-  schildwall: null,    // Set von Schildwall-Zell-Indizes
+  schildwall: null,    // Set von Schildtor-Zell-Indizes
   coins: 0,
   knights: 0,
   rathausLevel: 1,     // startet bei 1, max 6 — steigt wenn Karte unters Rathaus geschoben wird
@@ -380,10 +380,10 @@ const CHAMPION_POOL = [
   { id:'C4',  label: '🟡🔵 auf 6',            desc: ()  => `Gelb und Blau werden auf 6 gesetzt` },
   { id:'C5',  label: 'Barrieren ignorieren',  desc: ()  => `Barrikaden wirkungslos — Start am gewürfelten Feld` },
   { id:'C6',  label: 'Ohne Anführer',         desc: ()  => `Kein Anführer` },
-  { id:'C7',  label: 'Alle verborgen',        desc: ()  => `Alle Überfallkarten bleiben verborgen` },
+  { id:'C7',  label: '+🔴 Angreifer',        desc: (v) => `+${v} zusätzliche Angreifer` },
   { id:'C8',  label: '🟡🔵 auf 1',            desc: ()  => `Gelb und Blau werden auf 1 gesetzt` },
   { id:'C9',  label: 'Brandstifter',          desc: ()  => `Mindestens 1 Karte wird immer deaktiviert` },
-  { id:'C10', label: 'Wechselhafter Anführer',desc: ()  => `Gelb und Blau tauschen die Rollen` },
+  { id:'C10', label: 'Wechselhafter Anführer',desc: ()  => `Blau und Gelb tauschen den Würfelwert` },
   { id:'C11', label: 'Urlauber',              desc: ()  => `Sommer: −3 · Frühling/Herbst: +6` },
   { id:'C12', label: 'Volksaufstand',         desc: ()  => `Führender Spieler: +1 Gebäude deaktiviert` },
 ];
@@ -516,7 +516,7 @@ const CARD_DESC_FALLBACK = {
 };
 const CARD_DESC_BY_ID = {
   Z1:  'Punkte = roter Würfel × 3.',
-  Z3:  'Punkte = Rathaus-Level × 2.',
+  Z3:  'Punkte = Rathaus-Level × 3.',
   Z4:  'Punkte = Summe aller Verteidigungswerte in der Stadt.',
   Z5:  'Punkte = Anzahl geplünderter Gebäude × 3.',
   Z9:  'Punkte = Glas-Produktion × 3.',
@@ -1668,10 +1668,10 @@ function renderGrid(skipGlows) {
         cell.classList.add('plundered-cell');
       }
 
-      // Oberste Karte — Schildwall-Bonus in der Anzeige berücksichtigen
+      // Oberste Karte — Schildtor-Bonus in der Anzeige berücksichtigen
       const topDiv = document.createElement('div');
       topDiv.style.cssText = 'position:absolute; inset:0; z-index:10;';
-      const swBonus = !G.plundered[i] ? getSchildwallBonus(i) : 0;
+      const swBonus = !G.plundered[i] ? getSchildtorBonus(i) : 0;
       const renderCard = swBonus > 0
         ? { ...G.board[i], def: (G.board[i].def || 0) + swBonus }
         : G.board[i];
@@ -2235,13 +2235,15 @@ function renderPlaceRow() {
   // Show next phase name when ready
   const labelEl = document.getElementById('btn-next-label');
   if (labelEl) {
-    const winterPhases = [null,1,2,null,4];
-    const allPhases = [0,1,2,3,4];
     const phaseNames = ['Gerüchte','Bauen','Rüsten','Überfall','Wertung'];
     let nextPhase = G.phase + 1;
     if (G.season === 0 && nextPhase === 3) nextPhase = 4;
-    if (nextPhase > 4) nextPhase = 0;
-    labelEl.textContent = isReady ? (phaseNames[nextPhase] || '›') : '›';
+    const isLastPhase = G.season === 3 && G.phase === 4;
+    let label = '›';
+    if (isReady) {
+      label = isLastPhase ? 'Spielende' : (phaseNames[nextPhase > 4 ? 0 : nextPhase] || '›');
+    }
+    labelEl.textContent = label;
   }
 }
 
@@ -2852,8 +2854,8 @@ function setRaidActive(idx) {
   }
 }
 
-// Schildwall: gibt +1 (+2 bei neighbor_defense_2) pro benachbarter Schildwall-Karte
-function getSchildwallBonus(idx) {
+// Schildtor: gibt +1 (+2 bei neighbor_defense_2) pro benachbarter Schildtor-Karte
+function getSchildtorBonus(idx) {
   if (!G.schildwall || G.schildwall.size === 0) return 0;
   // Nur echte Nachbarn: vertikal ±3, horizontal ±1 nur in gleicher Zeile
   const row = Math.floor(idx / 3);
@@ -2893,12 +2895,6 @@ function startRaidSequence() {
   const { startCell, clockwise, rawStartCell } = G.attackDir;
   let attackers = G.attackBlue.calc();
 
-  // Bogenwacht: −2 Angreifer pro platzierter Bogenwacht-Karte
-  if (G.bogenwacht && G.bogenwacht > 0) {
-    attackers = Math.max(0, attackers - (G.bogenwacht * 2));
-    setHint(`Bogenwacht −${G.bogenwacht * 2} Angreifer`, true);
-  }
-
   // Champion-Effekte anwenden
   let effectiveStart    = startCell;
   let effectiveClockwise = clockwise;
@@ -2909,6 +2905,7 @@ function startRaidSequence() {
     const rv = G.dice.red;
     switch (ch.id) {
       case 'C1':
+      case 'C7':
         attackers += rv;
         break;
       case 'C2': {
@@ -2975,7 +2972,6 @@ function startRaidSequence() {
         else if (G.season === 1 || G.season === 3) attackers += 3;        // Frühling/Herbst
         break;
       case 'C6':
-      case 'C7':
       default:
         break;
     }
@@ -3011,6 +3007,13 @@ function startRaidSequence() {
   }
 
   // Route berechnen mit effektiven Werten
+  // Bogenwacht: −2 Angreifer pro Bogenwacht-Karte auf dem Board (zählt aktive UND geplünderte)
+  const bogenwachtCount = G.board.filter((c, i) => c && i !== 4 && c.special_mechanic === 'minus2_attackers').length;
+  if (bogenwachtCount > 0) {
+    const reduction = bogenwachtCount * 2;
+    attackers = Math.max(0, attackers - reduction);
+    showToast(`Bogenwacht — ${reduction} Angreifer weniger`);
+  }
   const startIdx = CLOCKWISE_ORDER.indexOf(effectiveStart);
   const route = [];
   for (let i = 0; i < 8; i++) {
@@ -3045,7 +3048,7 @@ function startRaidSequence() {
     const card = G.board[idx];
     if (!card) continue; // sollte durch raidRoute-Filter nicht vorkommen, aber sicher ist sicher
 
-    const schildwallBonus = getSchildwallBonus(idx);
+    const schildwallBonus = getSchildtorBonus(idx);
     const schutzBonus = (card.fragile && hasSchutzpatronin()) ? Math.max(0, 2 - card.def) : 0;
     const def  = (card.def || 0) + (G.boosted[idx] || 0) + schildwallBonus + schutzBonus;
     const hasTower = G.fortified[idx];
@@ -3649,11 +3652,11 @@ function commitPlacement() {
   } else if (mech === 'neighbor_defense') {
     G.schildwall = G.schildwall || new Set();
     G.schildwall.add(targetIdx);
-    showToast('Schildwall — Nachbarn erhalten +1 Verteidigung');
+    showToast('Schildtor — Nachbarn erhalten +1 Verteidigung');
   } else if (mech === 'neighbor_defense_2') {
     G.schildwall = G.schildwall || new Set();
     G.schildwall.add(targetIdx);
-    showToast('Schildwall — Nachbarn erhalten +2 Verteidigung');
+    showToast('Schildtor — Nachbarn erhalten +2 Verteidigung');
   } else if (mech === 'indestructible') {
     G.fortified[targetIdx] = true;
     showToast('Ewige Bastion — kann nie deaktiviert werden!');
@@ -3780,7 +3783,7 @@ function placeTower(idx) {
 
 function placeKnight(idx) {
   if (G.knights <= 0 || !G.board[idx]) return;
-  G.boosted[idx] = (G.boosted[idx] || 0) + 1;
+  G.boosted[idx] = (G.boosted[idx] || 0) + 2;
   G.knights--;
   clearSelection();
   renderHand();
@@ -3789,7 +3792,7 @@ function placeKnight(idx) {
   const cells = document.querySelectorAll('.cell');
   if (cells[idx]) spawnColorBurst(cells[idx], '#44ee44'); SFX.knight();
   setHint('Karte wählen');
-  showToast('Verteidigung erhöht');
+  showToast('Verteidigung +2');
 }
 
 function placeBarrier(key, cellIdx, edge) {
@@ -4230,7 +4233,7 @@ const GLOSSAR_ICONS = [
   { icon: 'res-nahrung.png',          term: 'Nahrung',                def: 'Rohstoff. Wird in der Rüstphase 1:1 in Ritter umgewandelt.' },
   { icon: 'res-glas.png',             term: 'Glas',                   def: 'Rohstoff. Wird in der Rüstphase 1:1 in Münzen umgewandelt.' },
   { icon: 'def-barriere.png',         term: 'Barriere',               def: 'Holzwall an der Außenkante eines Randfeldes. Verhindert den Angriffsstart dort.' },
-  { icon: 'def-ritter.png',           term: 'Ritter',                 def: 'Verteidiger auf einem Gebäude. Erhöht die Verteidigung um +1, solange die Karte liegt.' },
+  { icon: 'def-ritter.png',           term: 'Ritter',                 def: 'Verteidiger auf einem Gebäude. Erhöht die Verteidigung um +2, solange die Karte liegt.' },
   { icon: 'res-muenze.png',           term: 'Münze',                  def: 'Währung für Türme (2 Münzen) und Sonderkarten-Bau (1 Münze pro fehlendem Rathaus-Level).' },
   { icon: 'def-turm.png',             term: 'Turm',                   def: 'Permanente Befestigung (2 Münzen). Ein Feld mit Turm kann nie geplündert werden.' },
   { icon: 'icon-defense.png',         term: 'Verteidigung',           def: 'Gibt an wie viele Angreifer ein Gebäude aufhalten kann, bevor es geplündert wird.' },
@@ -4252,7 +4255,7 @@ const GLOSSAR_ICONS = [
 
 const GLOSSAR_ENTRIES = [
   { term: 'Barriere',         def: 'Holzwall an der Außenkante eines Randfeldes. Sind ALLE Außenkanten barrikadiert, kann dort kein Angriff starten. Der Angriff weicht in Laufrichtung aus. Barrieren bleiben permanent.' },
-  { term: 'Ritter',           def: 'Verteidiger auf einem Gebäude. Erhöht die Verteidigung um +1. Bleibt solange die Karte liegt — wird die Karte geplündert, verschwindet auch der Ritter.' },
+  { term: 'Ritter',           def: 'Verteidiger auf einem Gebäude. Erhöht die Verteidigung um +2. Bleibt solange die Karte liegt — wird die Karte geplündert, verschwindet auch der Ritter.' },
   { term: 'Münze',            def: 'Währung. Für Türme (2 Münzen) und Sonderkarten (1 Münze pro fehlendem Rathaus-Level). Münzen bleiben über Jahreszeiten erhalten.' },
   { term: 'Turm',             def: 'Permanente Befestigung (2 Münzen). Ein Feld mit Turm ist uneinnehmbar — egal wie stark der Angriff.' },
   { term: 'Rathaus',          def: 'Das feste Gebäude in der Mitte. Kann nicht ersetzt werden. Schiebe eine Karte darunter um es aufzuwerten (max. Level 6) — du erhältst sofort eine Münze.' },

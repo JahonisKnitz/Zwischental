@@ -114,7 +114,7 @@ const RATHAUS = { id:'rathaus', cat:null, pts:0, def:0, res:null, inno:0, upgrad
 const SPECIAL_BUILDINGS = [
   {id:'Z1',  name:'Champion-Arena',         cat:'special', pts:{type:'dice*',color:'red',   factor:3}, def:2, res:null,      inno:0, upgrade:false, diceColor:'red'},
   {id:'Z2',  name:'Spiegelturm',     cat:'special', pts:3,                                     def:2, res:null,      inno:0, upgrade:false, diceColor:'yellow', special_mechanic:'zwillingsturm'},
-  {id:'Z3',  name:'Elfenbeinturm',          cat:'special', pts:{type:'inno*',factor:2},               def:2, res:null,      inno:2, upgrade:false, diceColor:'blue'},
+  {id:'Z3',  name:'Elfenbeinturm',          cat:'special', pts:{type:'inno*',factor:3},               def:2, res:null,      inno:3, upgrade:false, diceColor:'blue'},
   {id:'Z4',  name:'Brückenhinterhalt',cat:'special', pts:{type:'def_sum'},                      def:0, res:null,      inno:0, upgrade:false, diceColor:'yellow', fragile:true},
   {id:'Z5',  name:'Treppe zum Himmel',      cat:'special', pts:{type:'deact*',factor:3},              def:1, res:null,      inno:0, upgrade:false, diceColor:'red'},
   {id:'Z6',  name:'Ritterburg',        cat:'special', pts:6,                                     def:2, res:null,      inno:0, upgrade:false, diceColor:'red',    special_mechanic:'direct_knight'},
@@ -125,12 +125,12 @@ const SPECIAL_BUILDINGS = [
   {id:'Z10', name:'Kristallpalast',    cat:'special', pts:15,                                    def:0, res:null,      inno:0, upgrade:false, diceColor:'yellow', special_mechanic:'destroyable', fragile:true},
   {id:'Z11', name:'Versicherung',      cat:'special', pts:0,                                     def:2, res:null,      inno:0, upgrade:false, diceColor:'blue',   special_mechanic:'pts_if_plundered'},
   {id:'Z12', name:'Versicherung',      cat:'special', pts:0,                                     def:2, res:null,      inno:0, upgrade:false, diceColor:'blue',   special_mechanic:'pts_if_plundered'},
-  {id:'Z13', name:'Schild des Rates',  cat:'special', pts:{type:'dice+',color:'red',bonus:7},    def:4, res:null,      inno:0, upgrade:false, diceColor:'red'},
+  {id:'Z13', name:'Rote Residenz',  cat:'special', pts:{type:'dice+',color:'red',bonus:7},    def:3, res:null,      inno:0, upgrade:false, diceColor:'red'},
   {id:'Z14', name:'Zitadelle',            cat:'special', pts:{type:'dice_sum*',a:'blue',b:'yellow',factor:2}, def:0, res:null, inno:0, upgrade:false, diceColor:'blue'},
   {id:'Z15', name:'Immobilienhändler', cat:'special', pts:{type:'sonder_count',factor:2},          def:1, res:null,      inno:0, upgrade:false, diceColor:'blue',   special_mechanic:'sonder_count'},
   {id:'Z16', name:'Außenposten',       cat:'special', pts:7,                                     def:2, res:null,      inno:0, upgrade:false, diceColor:'spring', special_mechanic:'free_build'},
-  {id:'Z17', name:'Bogenwacht',        cat:'special', pts:3,                                     def:1, res:null,      inno:0, upgrade:false, diceColor:'red',    special_mechanic:'minus2_attackers'},
-  {id:'Z18', name:'Schildwall',        cat:'special', pts:2,                                     def:1, res:null,      inno:0, upgrade:false, diceColor:'yellow', special_mechanic:'neighbor_defense'},
+  {id:'Z17', name:'Bogenwacht',        cat:'special', pts:4,                                     def:2, res:null,      inno:0, upgrade:false, diceColor:'red',    special_mechanic:'minus2_attackers'},
+  {id:'Z18', name:'Schildtor',        cat:'special', pts:3,                                     def:2, res:null,      inno:0, upgrade:false, diceColor:'yellow', special_mechanic:'neighbor_defense_2'},
   {id:'Z19', name:'Luftschloss',     cat:'special', pts:7,                                     def:2, res:null,      inno:0, upgrade:false, diceColor:'blue',   special_mechanic:'indestructible'},
   {id:'Z20', name:'Luftschloss',     cat:'special', pts:7,                                     def:2, res:null,      inno:0, upgrade:false, diceColor:'blue',   special_mechanic:'indestructible'},
   {id:'Z21', name:'Fernkundschafter',  cat:'special', pts:{type:'dice*',color:'yellow',factor:1}, def:1, res:null,     inno:0, upgrade:false, diceColor:'yellow', special_mechanic:'reveal_yellow', fragile:true},
@@ -139,10 +139,10 @@ const SPECIAL_BUILDINGS = [
   {id:'Z24', name:'Münzprägung',       cat:'special', pts:4,                                     def:1, res:null,      inno:0, upgrade:false, diceColor:'yellow', special_mechanic:'direct_coins'},
   {id:'Z25', name:'Bankhaus',          cat:'special', pts:5,                                     def:1, res:null,      inno:0, upgrade:false, diceColor:'blue',   special_mechanic:'direct_coins_seasonal'},
   {id:'Z26', name:'Handelszentrum',    cat:'special', pts:{type:'blue*',factor:3},               def:1, res:null,      inno:0, upgrade:false, diceColor:'blue'},
-  {id:'Z27', name:'Bogenwacht',        cat:'special', pts:3,                                     def:1, res:null,      inno:0, upgrade:false, diceColor:'red',    special_mechanic:'minus2_attackers'},
-  {id:'Z28', name:'Bogenwacht',        cat:'special', pts:3,                                     def:1, res:null,      inno:0, upgrade:false, diceColor:'red',    special_mechanic:'minus2_attackers'},
-  {id:'Z29', name:'Schildwall',        cat:'special', pts:2,                                     def:1, res:null,      inno:0, upgrade:false, diceColor:'yellow', special_mechanic:'neighbor_defense_2'},
-  {id:'Z30', name:'Schildwall',        cat:'special', pts:2,                                     def:1, res:null,      inno:0, upgrade:false, diceColor:'yellow', special_mechanic:'neighbor_defense_2'},
+  {id:'Z27', name:'Bogenwacht',        cat:'special', pts:4,                                     def:2, res:null,      inno:0, upgrade:false, diceColor:'red',    special_mechanic:'minus2_attackers'},
+  {id:'Z28', name:'Bogenwacht',        cat:'special', pts:4,                                     def:2, res:null,      inno:0, upgrade:false, diceColor:'red',    special_mechanic:'minus2_attackers'},
+  {id:'Z29', name:'Schildtor',        cat:'special', pts:3,                                     def:2, res:null,      inno:0, upgrade:false, diceColor:'yellow', special_mechanic:'neighbor_defense_2'},
+  {id:'Z30', name:'Schildtor',        cat:'special', pts:3,                                     def:2, res:null,      inno:0, upgrade:false, diceColor:'yellow', special_mechanic:'neighbor_defense_2'},
   {id:'Z31', name:'Holzfestung',       cat:'special', pts:6,                                     def:1, res:null,      inno:0, upgrade:false, diceColor:'yellow', special_mechanic:'direct_barrier'},
   {id:'Z32', name:'Holzfestung',       cat:'special', pts:6,                                     def:1, res:null,      inno:0, upgrade:false, diceColor:'yellow', special_mechanic:'direct_barrier'},
   {id:'Z33', name:'Schwarze Kathedrale', cat:'special', pts:{type:'sole_survivor',value:48},     def:0, res:null,      inno:0, upgrade:false, diceColor:'red'},
@@ -500,7 +500,7 @@ function drawIsoBuilding(id, w, h, stroke, isSpecial, animated) {
     Z9: FORGE,                                 // Alchemistenlabor
     Z10: () => TOWER(2.0, 4.5),               // Kristallpalast
     Z11: () => TOWER(1.6, 3.2), Z12: () => TOWER(1.6, 3.2), // Versicherung
-    Z13: () => TOWER(2.0, 3.0),               // Schild des Rates
+    Z13: () => TOWER(2.0, 3.0),               // Rote Residenz
     Z14: MANOR,                                // Nebelbastei
     Z15: () => HOUSE(2.8, 2.0, 2.8, 1.4),     // Immobilienhändler
     Z16: () => HOUSE(1.6, 1.2, 1.6, 0.8),     // Außenposten
@@ -513,7 +513,7 @@ function drawIsoBuilding(id, w, h, stroke, isSpecial, animated) {
     Z26: () => HOUSE(2.8, 2.2, 2.8, 1.6),     // Handelszentrum
     Z27: () => TOWER(1.4, 3.0),               // Bogenwacht (weitere)
     Z28: () => TOWER(1.4, 3.0),
-    Z29: () => HOUSE(2.8, 1.6, 2.8, 0.8),     // Schildwall (weitere)
+    Z29: () => HOUSE(2.8, 1.6, 2.8, 0.8),     // Schildtor (weitere)
     Z30: () => HOUSE(2.8, 1.6, 2.8, 0.8),
   };
 
