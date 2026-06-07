@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>26 Jahre Talwacht — Kampagne</title>
+<link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Cinzel:wght@400;700&family=Barlow+Condensed:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1a1208;--gold:#c8920a;--dark:#2a1a0e;
+  --paper:#f5ede0;--off:#ede4d4;
+  --c-easy:#5a8a3a;--c-medium:#c8920a;--c-hard:#b03018;--c-epic:#7a1a9a;
+}
+html,body{min-height:100vh;background:var(--dark);font-family:'Crimson Text',serif;color:var(--ink)}
+header{
+  padding:32px 20px 20px;text-align:center;
+  background:linear-gradient(180deg,#1a0e06 0%,var(--dark) 100%);
+  border-bottom:1px solid rgba(200,146,10,0.2);
+}
+.logo{font-family:'Pirata One',cursive;font-size:2.2rem;color:var(--gold);line-height:1}
+.logo-sub{font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.3em;color:rgba(200,146,10,0.5);text-transform:uppercase;margin-top:4px}
+.intro{max-width:500px;margin:16px auto 0;font-style:italic;font-size:0.95rem;color:rgba(245,237,224,0.6);line-height:1.5}
+
+.drafting-panel {
+  max-width: 600px; margin: 0 auto;
+  padding: 18px 20px 20px;
+  border-bottom: 1px solid rgba(200,146,10,0.15);
+  background: #1a1208;
+}
+.drafting-title {
+  font-family: 'Cinzel', serif; font-size: 0.65rem;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 12px;
+}
+.drafting-steps { display: flex; flex-direction: column; gap: 10px; }
+.drafting-step { display: flex; gap: 12px; align-items: flex-start; }
+.drafting-num {
+  font-family: 'Pirata One', cursive; font-size: 1rem;
+  color: var(--gold); flex-shrink: 0; width: 20px; line-height: 1.3;
+}
+.drafting-step div:last-child {
+  font-family: 'Crimson Text', serif; font-size: 1rem;
+  color: rgba(245,237,224,1); line-height: 1.6;
+}
+.drafting-step strong { color: var(--gold); font-weight: 700; }
+.progress-bar-wrap{padding:16px 20px;background:#1a1208;border-bottom:1px solid rgba(200,146,10,0.15)}
+.progress-bar-track{height:4px;background:rgba(200,146,10,0.15);border-radius:2px;overflow:hidden}
+.progress-bar-fill{height:100%;background:var(--gold);border-radius:2px;transition:width 0.5s ease}
+.progress-label{font-family:'Cinzel',serif;font-size:0.55rem;letter-spacing:0.2em;color:rgba(200,146,10,0.5);text-transform:uppercase;margin-top:6px;text-align:center}
+
+.chapters{max-width:600px;margin:0 auto;padding:20px 16px 60px}
+
+.difficulty-group{margin-bottom:8px}
+.difficulty-label{
+  font-family:'Cinzel',serif;font-size:0.55rem;letter-spacing:0.25em;
+  text-transform:uppercase;padding:12px 4px 6px;
+  display:flex;align-items:center;gap:10px;
+}
+.difficulty-label::after{content:'';flex:1;height:1px;background:currentColor;opacity:0.2}
+
+.chapter{
+  background:var(--paper);border-radius:10px;margin-bottom:8px;
+  display:flex;align-items:flex-start;gap:0;
+  border:1px solid rgba(26,18,8,0.1);
+  transition:box-shadow 0.2s,opacity 0.2s;
+  cursor:pointer;overflow:hidden;
+  position:relative;
+}
+.chapter.done{opacity:0.55}
+.chapter.done .ch-name{text-decoration:line-through;opacity:0.6}
+
+.ch-num{
+  font-family:'Pirata One',cursive;font-size:1.4rem;line-height:1;
+  color:white;min-width:52px;padding:12px 10px;text-align:center;
+  align-self:stretch;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.ch-body{padding:11px 12px 10px;flex:1}
+.ch-name{
+  font-family:'Cinzel',serif;font-size:0.78rem;font-weight:700;
+  letter-spacing:0.06em;color:var(--ink);margin-bottom:3px;
+}
+.ch-story{
+  font-style:italic;font-size:0.82rem;color:rgba(26,18,8,0.6);
+  line-height:1.4;margin-bottom:5px;
+}
+.ch-tags{display:flex;flex-wrap:wrap;gap:4px}
+.ch-tag{
+  font-family:'Barlow Condensed',sans-serif;font-size:0.55rem;
+  font-weight:700;letter-spacing:0.08em;text-transform:uppercase;
+  padding:2px 7px;border-radius:10px;color:white;
+}
+.tag-ziel{background:#3a6a9a}
+.tag-mod{background:#6a3a1a}
+.tag-hard{background:#8a1a1a}
+
+.ch-check{
+  width:26px;height:26px;border-radius:50%;
+  border:1.5px solid rgba(26,18,8,0.2);
+  margin:10px 12px 10px 0;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  transition:background 0.2s,border-color 0.2s;
+  font-size:0.8rem;color:transparent;align-self:center;
+}
+.chapter.done .ch-check{background:var(--gold);border-color:var(--gold);color:white}
+
+/* difficulty colors */
+.diff-1 .ch-num{background:var(--c-easy)}
+.diff-2 .ch-num{background:var(--c-medium)}
+.diff-3 .ch-num{background:var(--c-hard)}
+.diff-4 .ch-num{background:var(--c-epic)}
+.diff-1 .difficulty-label{color:var(--c-easy)}
+.diff-2 .difficulty-label{color:var(--c-medium)}
+.diff-3 .difficulty-label{color:var(--c-hard)}
+.diff-4 .difficulty-label{color:var(--c-epic)}
+
+.reward-panel {
+  background: linear-gradient(135deg, #2a1a08, #1a1008);
+  border: 1px solid rgba(200,146,10,0.4);
+  border-radius: 10px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+.reward-header {
+  background: linear-gradient(135deg, rgba(200,146,10,0.2), rgba(200,146,10,0.05));
+  padding: 10px 14px;
+  display: flex; align-items: center; gap: 10px;
+  border-bottom: 1px solid rgba(200,146,10,0.2);
+}
+.reward-icon { font-size: 1.4rem; }
+.reward-title {
+  font-family: 'Pirata One', cursive;
+  font-size: 1rem; color: var(--gold); line-height: 1.1;
+}
+.reward-rathaus {
+  font-family: 'Cinzel', serif; font-size: 0.55rem;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: rgba(200,146,10,0.6); margin-top: 2px;
+}
+.reward-body { padding: 10px 14px 12px; display: flex; gap: 14px; align-items: flex-start; }
+.reward-card-mini {
+  flex-shrink: 0; width: 80px;
+  background: rgba(245,237,224,0.06);
+  border: 1px solid rgba(200,146,10,0.25);
+  border-radius: 6px; padding: 8px 7px;
+  display: flex; flex-direction: column; gap: 3px;
+}
+.rcm-id { font-family:'Cinzel',serif; font-size:0.38rem; color:rgba(200,146,10,0.4); letter-spacing:0.1em; }
+.rcm-name { font-family:'Pirata One',cursive; font-size:0.72rem; color:rgba(245,237,224,0.85); line-height:1.1; }
+.rcm-pts { font-family:'Barlow Condensed',sans-serif; font-size:0.58rem; font-weight:700;
+  color:var(--gold); text-transform:uppercase; margin-top:2px; }
+.rcm-def { font-family:'Barlow Condensed',sans-serif; font-size:0.55rem; color:rgba(245,237,224,0.4); }
+.rcm-flavor { font-family:'Crimson Text',serif; font-style:italic; font-size:0.62rem;
+  color:rgba(245,237,224,0.35); line-height:1.3; margin-top:4px; border-top:1px solid rgba(200,146,10,0.1); padding-top:4px; }
+.reward-text {
+  flex: 1; font-family:'Crimson Text',serif; font-style:italic;
+  font-size:0.82rem; color:rgba(245,237,224,0.55); line-height:1.5;
+}
+.reward-locked {
+  padding: 12px 14px;
+  font-family:'Cinzel',serif; font-size:0.55rem;
+  letter-spacing:0.15em; text-transform:uppercase;
+  color:rgba(200,146,10,0.2); text-align:center;
+}
+
+.group-header {
+  font-family: 'Cinzel', serif;
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  padding: 18px 4px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border-bottom: 1px solid rgba(200,146,10,0.2);
+  margin-bottom: 10px;
+}
+.group-header.locked { color: rgba(200,146,10,0.3); }
+.group-name { }
+.group-hint {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.6rem;
+  font-style: italic;
+  color: rgba(200,146,10,0.4);
+  letter-spacing: 0.05em;
+  text-transform: none;
+}
+.locked-card {
+  cursor: default !important;
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.back-btn{  position:fixed;bottom:24px;right:20px;
+  font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.15em;
+  text-transform:uppercase;color:var(--gold);
+  background:rgba(26,18,8,0.85);border:1px solid rgba(200,146,10,0.3);
+  padding:8px 16px;border-radius:20px;text-decoration:none;
+  backdrop-filter:blur(4px);transition:border-color 0.2s;
+}
+.back-btn:hover{border-color:var(--gold)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">26 Jahre Talwacht</div>
+  <div class="logo-sub">Die Solo-Kampagne</div>
+  <div class="intro">Das Tal hat eine Geschichte. Du schreibst sie — Jahreszeit für Jahreszeit, Sieg für Sieg.</div>
+</header>
+
+<div class="drafting-panel">
+  <div class="drafting-title">⚔ Solo-Drafting</div>
+  <div class="drafting-steps">
+    <div class="drafting-step">
+      <div class="drafting-num">1</div>
+      <div>Bereite die Karten für die Jahreszeit vor, wie bei einem Spiel zu viert: Mische die Karten der Jahreszeit und teile sie auf <strong>4 gleiche Stapel</strong> auf. Ergänze jeden Stapel mit zufälligen Sonderkarten (ohne diese anzuschauen), bis jeder Stapel <strong>6 Karten</strong> hat. Anschließend lege die 4 Stapel übereinander zu einem großen Stapel.</div>
+    </div>
+    <div class="drafting-step">
+      <div class="drafting-num">2</div>
+      <div>Ziehe <strong>4 Karten</strong> von diesem Stapel und wähle <strong>eine</strong> zum Bauen.</div>
+    </div>
+    <div class="drafting-step">
+      <div class="drafting-num">3</div>
+      <div>Die anderen 3 Karten werden <strong>abgeworfen</strong> — sie sind für diese Jahreszeit nicht mehr verfügbar.</div>
+    </div>
+    <div class="drafting-step">
+      <div class="drafting-num">4</div>
+      <div>Wiederhole mit dem nächsten Stapel. Nach 5 Drafts hast du <strong>5 Karten</strong> für die Bauphase.</div>
+    </div>
+  </div>
+</div>
+
+<div class="progress-bar-wrap">
+  <div class="progress-bar-track"><div class="progress-bar-fill" id="progress-fill" style="width:0%"></div></div>
+  <div class="progress-label" id="progress-label">0 von 26 Kapiteln abgeschlossen</div>
+</div>
+
+<div class="chapters" id="chapters"></div>
+
+<a href="index.html" class="back-btn">← Zum Spiel</a>
+
+<script>
+const CHAPTERS = [
+  // ── EINSTEIGER (1–6) ──────────────────────────────────────────────
+  {
+    num:1, name:'Die ersten Steine',
+    story:'Der Bürgermeister legt den Grundstein. Noch nichts brennt.',
+    ziel:'Erreiche 40 Siegpunkte',
+    mod:null, diff:1,
+  },
+  {
+    num:2, name:'Der müde Händler',
+    story:'Ein reisender Händler bietet ungewöhnliche Waren an. Du weißt nicht genau, was er damit meint.',
+    ziel:'Baue mindestens 3 Rohstoffkarten',
+    mod:'Starte jede Jahreszeit mit 2 Glas als Bonus', diff:1,
+  },
+  {
+    num:3, name:'Friedliche Jahre',
+    story:'Die Horde bleibt aus. Zeit zum Bauen — wenn man das Glück hat.',
+    ziel:'Erreiche 50 Siegpunkte',
+    mod:'Nur eine Jahreszeit spielen (Frühling)', diff:1,
+  },
+  {
+    num:4, name:'Das Stadttor',
+    story:'Alle reden davon, das Tor zu befestigen. Aber wer zahlt dafür?',
+    ziel:'Baue in jeder Jahreszeit mindestens einen Turm',
+    mod:null, diff:1,
+  },
+  {
+    num:5, name:'Kein Anführer',
+    story:'Die Horde zieht wild und führerlos durch das Tal. Vielleicht sogar gefährlicher.',
+    ziel:'Erreiche 45 Siegpunkte',
+    mod:'Jeden Überfall mit Champion C6 (Kein Anführer)', diff:1,
+  },
+  {
+    num:6, name:'Der Schreiber',
+    story:'Der Stadtschreiber fordert seinen Anteil. Was bleibt, ist weniger.',
+    ziel:'Erreiche 40 Siegpunkte und endet mit mindestens 8 Münzen',
+    mod:'Steuern: 2 Glas pro Jahreszeit gelten als Abgabe und können nicht genutzt werden', diff:1,
+  },
+
+  // ── FORTGESCHRITTEN (7–14) ─────────────────────────────────────────
+  {
+    num:7, name:'Immer von Süden',
+    story:'Sie kommen immer aus derselben Richtung. Der Süden schläft nicht.',
+    ziel:'Überlebst du alle 4 Jahreszeiten ohne eine Karte zu verlieren?',
+    mod:'Jeder Angriff startet aus S (gelber Würfel = 5)', diff:2,
+  },
+  {
+    num:8, name:'Der Immobilienhändler kommt',
+    story:'Ein seltsamer Mann kauft alle Sondergebäude auf — und verkauft sie dann weiter.',
+    ziel:'Werte mindestens 4 Sonderkarten in der Herbst-Wertung',
+    mod:null, diff:2,
+  },
+  {
+    num:9, name:'Stadtmauer',
+    story:'Der alte Bürgermeister bestand auf einer vollständigen Stadtmauer. Du erbst sein Projekt.',
+    ziel:'Erreiche 50 Siegpunkte',
+    mod:'Barrikadiere alle 8 Außenkanten der Stadt bis Ende Frühling', diff:2,
+  },
+  {
+    num:10, name:'Am Ufer',
+    story:'Das Tal liegt am Fluss. Die unteren Felder stehen unter Wasser.',
+    ziel:'Erreiche 55 Siegpunkte',
+    mod:'Felder S, SO und SW (Unterkante) dürfen nicht bebaut werden', diff:2,
+  },
+  {
+    num:11, name:'Winterangriff',
+    story:'Sie kamen im Winter. Niemand hat damit gerechnet. Niemand war bereit.',
+    ziel:'Überstehe alle 4 Jahreszeiten inkl. Winterüberfall',
+    mod:'Auch im Winter findet ein Überfall statt', diff:2,
+  },
+  {
+    num:12, name:'Der unerbittliche Berserker',
+    story:'Dreimal hintereinander derselbe Anführer. Die Horde lernt dazu.',
+    ziel:'Erreiche 50 Siegpunkte',
+    mod:'Champion C9 (Brandstifter) tritt dreimal in Folge auf', diff:2,
+  },
+  {
+    num:13, name:'Das Elfenbeinjahr',
+    story:'Ein gelehrter Mönch behauptet, das Rathaus sei der Schlüssel zu allem.',
+    ziel:'Baue den Elfenbeinturm und erreiche Level 5 mit dem Rathaus',
+    mod:null, diff:2,
+  },
+  {
+    num:14, name:'Der Spiegel',
+    story:'Was links steht, spiegelt sich rechts. Eine seltsame Magie durchzieht das Tal.',
+    ziel:'Werte den Spiegelturm mit mindestens 4 Nachbarn aktiv',
+    mod:'Der Spiegelturm muss in der Mitte einer Reihe oder Spalte stehen', diff:2,
+  },
+
+  // ── SCHWER (15–21) ─────────────────────────────────────────────────
+  {
+    num:15, name:'Die schwarze Kathedrale',
+    story:'Sie sagen, die Kathedrale gibt mehr als sie nimmt. Aber der Preis ist hoch.',
+    ziel:'Die Schwarze Kathedrale muss in der Herbst-Wertung aktiv sein',
+    mod:'Keine Türme verfügbar', diff:3,
+  },
+  {
+    num:16, name:'Das fragile Rathaus',
+    story:'Das Rathaus bröckelt. Es ist das neunte Gebäude — und das gefährdetste.',
+    ziel:'Beende das Spiel mit aktivem Rathaus',
+    mod:'Das Rathaus gilt als fragil — wird es betreten, ist das Spiel sofort verloren', diff:3,
+  },
+  {
+    num:17, name:'Hände weg vom Brunnen',
+    story:'Der Brunnen auf Feld 1 versorgt das Tal. Wer ihn verliert, verliert alles.',
+    ziel:'Karte auf Feld oben-links darf nie deaktiviert werden',
+    mod:'Keine Türme verfügbar — nur Barrieren und Ritter', diff:3,
+  },
+  {
+    num:18, name:'Sechs Sonderkarten im Herbst',
+    story:'Der Händler war fleißig. Die Stadt ist voller Wunder — und voller Risiken.',
+    ziel:'Werte mindestens 6 aktive Sonderkarten in der Herbst-Wertung',
+    mod:null, diff:3,
+  },
+  {
+    num:19, name:'Alles wechselt',
+    story:'Die Würfel lügen. Was du siehst, stimmt nicht mit dem überein, was kommt.',
+    ziel:'Erreiche 60 Siegpunkte',
+    mod:'Jeder Überfall mit Champion C10 (Blau/Gelb tauschen)', diff:3,
+  },
+  {
+    num:20, name:'Reichtum und Ruhm',
+    story:'Das Tal will Punkte und Münzen. Beides zur gleichen Zeit.',
+    ziel:'Endet mit mindestens 60 Siegpunkten UND 12 Münzen',
+    mod:null, diff:3,
+  },
+  {
+    num:21, name:'Die große Welle',
+    story:'Sechser auf allen Würfeln. Immer und immer wieder.',
+    ziel:'Überstehe alle 4 Jahreszeiten',
+    mod:'Jeder Überfall mit Champion C4 (Blau+Gelb auf 6)', diff:3,
+  },
+
+  // ── LEGENDÄR (22–26) ──────────────────────────────────────────────
+  {
+    num:22, name:'Das Tribunal',
+    story:'Die Stadtältesten verlangen Rechenschaft. Sie wollen alles — auf einmal.',
+    ziel:'Erreiche 80 Siegpunkte',
+    mod:'Felder SO und SW nicht bebaubar · Jeder Überfall startet aus S', diff:4,
+  },
+  {
+    num:23, name:'Die Versicherungspolice',
+    story:'Manche Gebäude sind mehr wert im Ruin als im Aufbau. Nutze das.',
+    ziel:'Werte 3 aktive Versicherungskarten gleichzeitig',
+    mod:'Alle drei müssen im gleichen Spielzug geplündert sein', diff:4,
+  },
+  {
+    num:24, name:'Der ewige Winter',
+    story:'Vier Jahreszeiten Winter. Die Kälte macht keine Pause mehr.',
+    ziel:'Erreiche 70 Siegpunkte',
+    mod:'Jede Jahreszeit gilt als Winter (kein Überfall) — aber nur Winterkarten im Pool', diff:4,
+  },
+  {
+    num:25, name:'Ohne Schutz',
+    story:'Türme gibt es nicht. Barrieren gibt es nicht. Nur Mut und gute Planung.',
+    ziel:'Erreiche 65 Siegpunkte',
+    mod:'Keine Türme, keine Barrieren · Nur Ritter zur Verteidigung', diff:4,
+  },
+  {
+    num:26, name:'26 Jahre Talwacht',
+    story:'Du hast alles gesehen. Die Horde kennt deine Strategien. Jetzt zeigst du, was du wirklich kannst.',
+    ziel:'Erreiche mehr als 120 Siegpunkte',
+    mod:'Alle Überfälle mit Champion C9 · Felder S/SO/SW nicht bebaubar · Keine Türme', diff:4,
+  },
+];
+
+const DIFF_LABELS = {1:'Einsteiger',2:'Fortgeschritten',3:'Schwer',4:'Legendär'};
+
+const GROUPS = [
+  {
+    name:'Kapitel I · Die Anfänge', nums:[1,2,3,4,5],
+    reward: {
+      icon:'🏛', title:'Rathaus Level 2',
+      desc:'Ab sofort startest du jedes Spiel mit Rathaus Level 2 statt Level 1.',
+      card: { name:'Champion-Arena', id:'Z1', pts:'Roter Würfel ×3', def:2,
+        flavor:'Die Arena fordert den Champion heraus — und nutzt seine Stärke.' }
+    }
+  },
+  {
+    name:'Kapitel II · Das Erwachen', nums:[6,7,8,9,10],
+    reward: {
+      icon:'🏛', title:'Rathaus Level 3',
+      desc:'Ab sofort startest du jedes Spiel mit Rathaus Level 3.',
+      card: { name:'Schwarze Kathedrale', id:'Z33', pts:'48★ (Allein-Survivor)', def:0,
+        flavor:'Wer allein steht, gewinnt alles — oder verliert alles.' }
+    }
+  },
+  {
+    name:'Kapitel III · Der Riss', nums:[11,12,13,14,15],
+    reward: {
+      icon:'🏛', title:'Rathaus Level 4',
+      desc:'Ab sofort startest du jedes Spiel mit Rathaus Level 4.',
+      card: { name:'Spiegelturm', id:'Z2', pts:'3 + verdoppelt Nachbarn', def:2,
+        flavor:'Was er reflektiert, wächst. Was ihn umgibt, gedeiht.' }
+    }
+  },
+  {
+    name:'Kapitel IV · Die Prüfung', nums:[16,17,18,19,20],
+    reward: {
+      icon:'🏛', title:'Rathaus Level 5',
+      desc:'Ab sofort startest du jedes Spiel mit Rathaus Level 5. Mit dem Elfenbeinturm: sofort 15 Punkte.',
+      card: { name:'Elfenbeinturm', id:'Z3', pts:'Rathaus-Level ×3', def:2,
+        flavor:'Der Turm wächst mit dem Rathaus. Level 5 = 15 Punkte.' }
+    }
+  },
+  {
+    name:'Kapitel V · Der Abgrund', nums:[21,22,23,24,25],
+    reward: null // Finale freigeschaltet
+  },
+  {
+    name:'⚔ Finale · 26 Jahre Talwacht', nums:[26],
+    reward: {
+      icon:'🏆', title:'Goldene Rathausfestung',
+      desc:'Das Rathaus startet permanent auf Level 6. Du hast die Kampagne abgeschlossen.',
+      card: { name:'Goldener Turm', id:'GT', pts:'Verdoppelt Punkte der Karte', def:'∞',
+        flavor:'Kostet 4 Münzen. Verdoppelt die Siegpunkte des geschützten Gebäudes. Unzerstörbar.' }
+    }
+  },
+];
+
+const KEY = 'talwacht_kampagne_v2';
+let done = JSON.parse(localStorage.getItem(KEY) || '{}');
+
+function save(){ localStorage.setItem(KEY, JSON.stringify(done)); }
+
+function isGroupUnlocked(groupIdx) {
+  if (groupIdx === 0) return true; // Kapitel I immer offen
+  if (groupIdx === 5) {
+    // Finale: alle 5 Kapitel müssen je 4/5 haben
+    return [0,1,2,3,4].every(gi => groupDone(gi) >= 4);
+  }
+  // Kapitel N: vorheriges Kapitel muss 4/5 haben
+  return groupDone(groupIdx - 1) >= 4;
+}
+
+function groupDone(groupIdx) {
+  return GROUPS[groupIdx].nums.filter(n => done[n]).length;
+}
+
+function updateProgress(){
+  const n = Object.values(done).filter(Boolean).length;
+  const pct = Math.round(n / 26 * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = `${n} von 26 Kapiteln abgeschlossen`;
+}
+
+function render(){
+  const cont = document.getElementById('chapters');
+  cont.innerHTML = '';
+
+  GROUPS.forEach((group, gi) => {
+    const unlocked = isGroupUnlocked(gi);
+    const doneCount = groupDone(gi);
+    const total = group.nums.length;
+    const isFinale = gi === 5;
+    const rewardUnlocked = gi < 5 ? isGroupUnlocked(gi + 1) : !!done[26];
+
+    // Gruppenheader
+    const header = document.createElement('div');
+    header.className = `group-header${unlocked ? '' : ' locked'}`;
+    const lockIcon = unlocked ? '' : '🔒 ';
+    const progress = isFinale ? (done[26] ? ' · ✓' : ' · 0/1') : ` · ${doneCount}/${total}`;
+    const unlockHint = !unlocked && gi < 5
+      ? ` — noch ${4 - groupDone(gi-1)} in Kapitel ${['I','II','III','IV','V'][gi-1]}`
+      : !unlocked && gi === 5
+      ? ' — schließe alle Kapitel (je 4/5) ab'
+      : '';
+    header.innerHTML = `<span class="group-name">${lockIcon}${group.name}${progress}</span>${unlockHint ? `<span class="group-hint">${unlockHint}</span>` : ''}`;
+    cont.appendChild(header);
+
+    // Kapitel-Karten
+    group.nums.forEach(num => {
+      const ch = CHAPTERS.find(c => c.num === num);
+      if (!ch) return;
+      const el = document.createElement('div');
+      const isDone = !!done[ch.num];
+      el.className = `chapter diff-${ch.diff}${isDone ? ' done' : ''}${!unlocked ? ' locked-card' : ''}`;
+      if (!unlocked) {
+        el.innerHTML = `<div class="ch-num" style="background:#3a3028">?</div><div class="ch-body"><div class="ch-name" style="color:rgba(26,18,8,0.3)">Gesperrt</div><div class="ch-story" style="color:rgba(26,18,8,0.2)">Schließe das vorherige Kapitel ab.</div></div>`;
+      } else {
+        el.innerHTML = `
+          <div class="ch-num">${ch.num}</div>
+          <div class="ch-body">
+            <div class="ch-name">${ch.name}</div>
+            <div class="ch-story">${ch.story}</div>
+            <div class="ch-tags">
+              <span class="ch-tag tag-ziel">★ ${ch.ziel}</span>
+              ${ch.mod ? `<span class="ch-tag tag-mod">⚙ ${ch.mod}</span>` : ''}
+            </div>
+          </div>
+          <div class="ch-check">✓</div>`;
+        el.addEventListener('click', () => {
+          done[ch.num] = !done[ch.num];
+          save(); render(); updateProgress();
+        });
+      }
+      cont.appendChild(el);
+    });
+
+    // Belohnungs-Panel
+    if (group.reward && unlocked) {
+      const rp = document.createElement('div');
+      rp.className = 'reward-panel';
+      if (rewardUnlocked) {
+        const r = group.reward;
+        const c = r.card;
+        rp.innerHTML = `
+          <div class="reward-header">
+            <div class="reward-icon">${r.icon}</div>
+            <div>
+              <div class="reward-title">${r.title}</div>
+              <div class="reward-rathaus">Belohnung freigeschaltet ✓</div>
+            </div>
+          </div>
+          <div class="reward-body">
+            <div class="reward-card-mini">
+              <div class="rcm-id">${c.id}</div>
+              <div class="rcm-name">${c.name}</div>
+              <div class="rcm-pts">★ ${c.pts}</div>
+              <div class="rcm-def">🛡 ${c.def}</div>
+              <div class="rcm-flavor">${c.flavor}</div>
+            </div>
+            <div class="reward-text">${r.desc}</div>
+          </div>`;
+      } else {
+        rp.innerHTML = `<div class="reward-locked">🔒 Belohnung — schließe ${gi < 5 ? '4 von 5 Kapiteln' : 'das Finale'} ab</div>`;
+      }
+      cont.appendChild(rp);
+    }
+  });
+
+  updateProgress();
+}
+
+render();
+</script>
+</body>
+</html>

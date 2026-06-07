@@ -2273,17 +2273,19 @@ header.scoring-flash {
 #splash-screen .splash-start:active { transform: scale(0.97); }
 .splash-demo-link {
   display: block;
-  margin-top: 12px;
-  font-family: 'Cinzel', serif;
-  font-size: 0.6rem;
-  letter-spacing: 0.18em;
+  margin-top: 10px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.45);
+  color: #f5d860;
   text-decoration: none;
   text-align: center;
   transition: color 0.2s;
+  padding: 4px 0;
 }
-.splash-demo-link:hover { color: rgba(255,255,255,0.75); }
+.splash-demo-link:hover { color: #ffe980; }
 #splash-screen.fade-out {
   animation: splashFadeOut 0.5s ease-in forwards;
 }
@@ -2678,6 +2680,7 @@ header.scoring-flash {
         <div class="splash-title">Talwacht</div>
         <div class="splash-subtitle">Bauen. Plündern. Bauen.</div>
         <button class="splash-start" id="splash-start">Spiel starten</button>
+        <a href="kampagne.html" class="splash-demo-link">📜 Solo-Kampagne</a>
         <a href="angriff-simulation.html" class="splash-demo-link">⚔ Angriff-Demo</a>
       </div>
       <div class="splash-version" id="splash-version"></div>
