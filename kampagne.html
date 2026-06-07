@@ -22,8 +22,55 @@ header{
 .logo-sub{font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.3em;color:rgba(200,146,10,0.5);text-transform:uppercase;margin-top:4px}
 .intro{max-width:500px;margin:16px auto 0;font-style:italic;font-size:0.95rem;color:rgba(245,237,224,0.6);line-height:1.5}
 
-.drafting-panel {
+.campaign-desc {
   max-width: 600px; margin: 0 auto;
+  padding: 20px 20px 22px;
+  border-bottom: 1px solid rgba(200,146,10,0.15);
+  background: #1a1208;
+}
+.cd-lead {
+  font-family: 'Pirata One', cursive;
+  font-size: 1.1rem; color: var(--gold);
+  line-height: 1.3; margin-bottom: 10px;
+}
+.campaign-desc p {
+  font-family: 'Crimson Text', serif;
+  font-size: 0.95rem; color: rgba(245,237,224,0.75);
+  line-height: 1.55; margin-bottom: 12px;
+}
+.cd-rules { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+.cd-rule {
+  font-family: 'Crimson Text', serif;
+  font-size: 0.9rem; color: rgba(245,237,224,0.7);
+  line-height: 1.5; padding-left: 14px;
+  position: relative;
+}
+.cd-rule::before {
+  content: '›'; position: absolute; left: 0;
+  color: var(--gold); font-family: 'Pirata One', cursive;
+  font-size: 1rem;
+}
+.cd-rule strong { color: rgba(245,237,224,0.95); }
+.cd-material {
+  border: 1px solid rgba(200,146,10,0.25);
+  border-radius: 6px; padding: 10px 14px;
+  background: rgba(200,146,10,0.06);
+}
+.cd-material-title {
+  font-family: 'Cinzel', serif; font-size: 0.55rem;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 6px;
+}
+.cd-material-items {
+  display: flex; flex-direction: column; gap: 3px;
+}
+.cd-material-items span {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.75rem; color: rgba(245,237,224,0.65);
+}
+.cd-material-items span::before { content: '· '; color: var(--gold); }
+
+.drafting-panel {  max-width: 600px; margin: 0 auto;
   padding: 18px 20px 20px;
   border-bottom: 1px solid rgba(200,146,10,0.15);
   background: #1a1208;
@@ -211,6 +258,25 @@ header{
   <div class="intro">Das Tal hat eine Geschichte. Du schreibst sie — Jahreszeit für Jahreszeit, Sieg für Sieg.</div>
 </header>
 
+<div class="campaign-desc">
+  <p class="cd-lead">Werde zur Legende der Talwacht und spiele ein Vierteljahrhundert um das Schicksal des Zwischentals!</p>
+  <p>Stell dich in 5 Kapiteln mit je 5 Spielen den Abenteuern und Rückschlägen von 25 Jahren Talwacht und baue deine Siedlung mit permanenten Upgrades immer weiter aus bis zum großen Finale: Der Aufstieg zur goldenen Festung in Spiel 26.</p>
+  <div class="cd-rules">
+    <div class="cd-rule">Überstehe wenigstens <strong>4 von 5 Level</strong> in jedem Kapitel, um das nächste Kapitel freizuschalten.</div>
+    <div class="cd-rule">Für jedes freigeschaltete Kapitel startet dein <strong>Rathaus auf einem höheren Level</strong> für alle folgenden Spiele. Außerdem gewinnst du <strong>4 epische Sonderkarten</strong>, die dir von nun an im Hauptspiel zur Verfügung stehen.</div>
+    <div class="cd-rule">Bestehe alle 25 Level und stell dich dem Finale: <strong>Die großen Belagerung in Level 26.</strong></div>
+    <div class="cd-rule">Schaffst du auch das — was noch keiner vor dir geschafft hat — erhältst du das <strong>goldene Rathaus</strong> und den <strong>goldenen Turm</strong> (Kosten: 4 Münzen — verdoppelt die Punkte der geschützten Karte).</div>
+  </div>
+  <div class="cd-material">
+    <div class="cd-material-title">Zusätzliches Spielmaterial</div>
+    <div class="cd-material-items">
+      <span>4 Sonderkarten Z1, Z2, Z3, Z33</span>
+      <span>1 alternative Rathauskarte in Gold</span>
+      <span>1 Turm-Token in Goldfarbe</span>
+    </div>
+  </div>
+</div>
+
 <div class="drafting-panel">
   <div class="drafting-title">⚔ Solo-Drafting</div>
   <div class="drafting-steps">
@@ -228,7 +294,7 @@ header{
     </div>
     <div class="drafting-step">
       <div class="drafting-num">4</div>
-      <div>Wiederhole mit dem nächsten Stapel. Nach 5 Drafts hast du <strong>5 Karten</strong> für die Bauphase.</div>
+      <div>Nach <strong>5 Drafts</strong> hast du <strong>5 Karten</strong> für die Bauphase.</div>
     </div>
   </div>
 </div>
@@ -247,89 +313,89 @@ const CHAPTERS = [
   // ── EINSTEIGER (1–6) ──────────────────────────────────────────────
   {
     num:1, name:'Die ersten Steine',
-    story:'Der Bürgermeister legt den Grundstein. Noch nichts brennt.',
+    story:'Als neuer Teil der Talwacht legst du den Grundstein für deine Siedlung. Noch brennt nichts.',
     ziel:'Erreiche 40 Siegpunkte',
     mod:null, diff:1,
   },
   {
-    num:2, name:'Der müde Händler',
-    story:'Ein reisender Händler bietet ungewöhnliche Waren an. Du weißt nicht genau, was er damit meint.',
-    ziel:'Baue mindestens 3 Rohstoffkarten',
+    num:2, name:'Die Handelsstraße',
+    story:'Werde zum wichtigen Teil der Handelsstraße.',
+    ziel:'Baue mindestens 5 Rohstoffkarten und erreiche 60 Siegpunkte',
     mod:'Starte jede Jahreszeit mit 2 Glas als Bonus', diff:1,
   },
   {
-    num:3, name:'Friedliche Jahre',
-    story:'Die Horde bleibt aus. Zeit zum Bauen — wenn man das Glück hat.',
-    ziel:'Erreiche 50 Siegpunkte',
-    mod:'Nur eine Jahreszeit spielen (Frühling)', diff:1,
+    num:3, name:'Friedliche Zeiten',
+    story:'Die Horde bleibt aus. Zeit zum Bauen.',
+    ziel:'Erreiche 45 Siegpunkte',
+    mod:'Spiele nur Winter und Frühling — kein Überfall', diff:1,
   },
   {
-    num:4, name:'Das Stadttor',
+    num:4, name:'Von Türmen und Toren',
     story:'Alle reden davon, das Tor zu befestigen. Aber wer zahlt dafür?',
-    ziel:'Baue in jeder Jahreszeit mindestens einen Turm',
+    ziel:'Baue 2 Stadttore mit Turm darauf und erreiche 50 Siegpunkte',
     mod:null, diff:1,
   },
   {
     num:5, name:'Kein Anführer',
-    story:'Die Horde zieht wild und führerlos durch das Tal. Vielleicht sogar gefährlicher.',
-    ziel:'Erreiche 45 Siegpunkte',
+    story:'Die Horde zieht wild und führerlos durch das Tal. Sind sie so vielleicht sogar gefährlicher?',
+    ziel:'Erreiche 75 Siegpunkte',
     mod:'Jeden Überfall mit Champion C6 (Kein Anführer)', diff:1,
   },
   {
     num:6, name:'Der Schreiber',
-    story:'Der Stadtschreiber fordert seinen Anteil. Was bleibt, ist weniger.',
-    ziel:'Erreiche 40 Siegpunkte und endet mit mindestens 8 Münzen',
+    story:'Der Stadtschreiber fordert seinen Anteil um eure Legende zu schreiben.',
+    ziel:'Erreiche 40 Siegpunkte und ende mit mindestens 8 Münzen',
     mod:'Steuern: 2 Glas pro Jahreszeit gelten als Abgabe und können nicht genutzt werden', diff:1,
   },
 
   // ── FORTGESCHRITTEN (7–14) ─────────────────────────────────────────
   {
-    num:7, name:'Immer von Süden',
+    num:7, name:'Aufruhr im Süden',
     story:'Sie kommen immer aus derselben Richtung. Der Süden schläft nicht.',
-    ziel:'Überlebst du alle 4 Jahreszeiten ohne eine Karte zu verlieren?',
+    ziel:'Überlebst du alle 4 Jahreszeiten mit maximal 3 deaktivierten Karten pro Jahreszeit ',
     mod:'Jeder Angriff startet aus S (gelber Würfel = 5)', diff:2,
   },
   {
-    num:8, name:'Der Immobilienhändler kommt',
-    story:'Ein seltsamer Mann kauft alle Sondergebäude auf — und verkauft sie dann weiter.',
-    ziel:'Werte mindestens 4 Sonderkarten in der Herbst-Wertung',
+    num:8, name:'Die reichen Händler',
+    story:'Die reichen Handelsfamilien deiner Siedlung wollen exklusive Immobilien.',
+    ziel:'Werte mindestens 5 aktive Sonderkarten in der Herbst-Wertung',
     mod:null, diff:2,
   },
   {
     num:9, name:'Stadtmauer',
     story:'Der alte Bürgermeister bestand auf einer vollständigen Stadtmauer. Du erbst sein Projekt.',
     ziel:'Erreiche 50 Siegpunkte',
-    mod:'Barrikadiere alle 8 Außenkanten der Stadt bis Ende Frühling', diff:2,
+    mod:'Barrikadiere alle 12 Außenkanten der Stadt', diff:2,
   },
   {
-    num:10, name:'Am Ufer',
-    story:'Das Tal liegt am Fluss. Die unteren Felder stehen unter Wasser.',
+    num:10, name:'Das Jahr der Flut',
+    story:'Das Tal wird überschwämmt. Die unteren Felder stehen unter Wasser.',
     ziel:'Erreiche 55 Siegpunkte',
     mod:'Felder S, SO und SW (Unterkante) dürfen nicht bebaut werden', diff:2,
   },
   {
     num:11, name:'Winterangriff',
     story:'Sie kamen im Winter. Niemand hat damit gerechnet. Niemand war bereit.',
-    ziel:'Überstehe alle 4 Jahreszeiten inkl. Winterüberfall',
+    ziel:'Überstehe alle 4 Jahreszeiten inkl. Winterüberfall und erreiche 80 Siegpunkte',
     mod:'Auch im Winter findet ein Überfall statt', diff:2,
   },
   {
     num:12, name:'Der unerbittliche Berserker',
     story:'Dreimal hintereinander derselbe Anführer. Die Horde lernt dazu.',
-    ziel:'Erreiche 50 Siegpunkte',
-    mod:'Champion C9 (Brandstifter) tritt dreimal in Folge auf', diff:2,
+    ziel:'Erreiche 80 Siegpunkte',
+    mod:'Anführer C9 (Brandstifter) tritt in allen Jahrezeiten auf', diff:2,
   },
   {
     num:13, name:'Das Elfenbeinjahr',
-    story:'Ein gelehrter Mönch behauptet, das Rathaus sei der Schlüssel zu allem.',
-    ziel:'Baue den Elfenbeinturm und erreiche Level 5 mit dem Rathaus',
+    story:'Die gelehrten der Stadt behaupten, das Rathaus sei der Schlüssel zum Fortschritt.',
+    ziel:'Baue den Elfenbeinturm und erreiche Level 6 mit dem Rathaus',
     mod:null, diff:2,
   },
   {
     num:14, name:'Der Spiegel',
     story:'Was links steht, spiegelt sich rechts. Eine seltsame Magie durchzieht das Tal.',
-    ziel:'Werte den Spiegelturm mit mindestens 4 Nachbarn aktiv',
-    mod:'Der Spiegelturm muss in der Mitte einer Reihe oder Spalte stehen', diff:2,
+    ziel:'Werte den Spiegelturm mit beiden Nachbarn aktiv und erreiche 85 Siegpunkte ',
+    mod:'Der Spiegelturm muss in der Mitte einer Reihe oder Spalte stehen und immer gewertet werden', diff:2,
   },
 
   // ── SCHWER (15–21) ─────────────────────────────────────────────────
@@ -343,69 +409,69 @@ const CHAPTERS = [
     num:16, name:'Das fragile Rathaus',
     story:'Das Rathaus bröckelt. Es ist das neunte Gebäude — und das gefährdetste.',
     ziel:'Beende das Spiel mit aktivem Rathaus',
-    mod:'Das Rathaus gilt als fragil — wird es betreten, ist das Spiel sofort verloren', diff:3,
+    mod:'Sind bei einem Überfall alle Gebäude deaktiviert, wird das Rathaus betreten. Das Rathaus gilt als fragil — wird es betreten, ist das Spiel sofort verloren', diff:3,
   },
   {
     num:17, name:'Hände weg vom Brunnen',
     story:'Der Brunnen auf Feld 1 versorgt das Tal. Wer ihn verliert, verliert alles.',
-    ziel:'Karte auf Feld oben-links darf nie deaktiviert werden',
+    ziel:'Karte "Der Brunnen" auf Feld SW darf nie deaktiviert werden',
     mod:'Keine Türme verfügbar — nur Barrieren und Ritter', diff:3,
   },
   {
-    num:18, name:'Sechs Sonderkarten im Herbst',
-    story:'Der Händler war fleißig. Die Stadt ist voller Wunder — und voller Risiken.',
+    num:18, name:'Glänzende Metropole',
+    story:'Die Händler waren fleißig. Die Stadt ist voller Wunder — und voller Risiken.',
     ziel:'Werte mindestens 6 aktive Sonderkarten in der Herbst-Wertung',
     mod:null, diff:3,
   },
   {
-    num:19, name:'Alles wechselt',
+    num:19, name:'Ein wechselvolles Jahr',
     story:'Die Würfel lügen. Was du siehst, stimmt nicht mit dem überein, was kommt.',
-    ziel:'Erreiche 60 Siegpunkte',
+    ziel:'Erreiche 85 Siegpunkte',
     mod:'Jeder Überfall mit Champion C10 (Blau/Gelb tauschen)', diff:3,
   },
   {
-    num:20, name:'Reichtum und Ruhm',
+    num:20, name:'Von Reichtum und Ruhm',
     story:'Das Tal will Punkte und Münzen. Beides zur gleichen Zeit.',
-    ziel:'Endet mit mindestens 60 Siegpunkten UND 12 Münzen',
+    ziel:'Endet mit mindestens 95 Siegpunkten UND 12 Münzen',
     mod:null, diff:3,
   },
   {
     num:21, name:'Die große Welle',
     story:'Sechser auf allen Würfeln. Immer und immer wieder.',
-    ziel:'Überstehe alle 4 Jahreszeiten',
+    ziel:'Überstehe alle 4 Jahreszeiten und erreiche 99 Siegpunkt',
     mod:'Jeder Überfall mit Champion C4 (Blau+Gelb auf 6)', diff:3,
   },
 
   // ── LEGENDÄR (22–26) ──────────────────────────────────────────────
   {
-    num:22, name:'Das Tribunal',
-    story:'Die Stadtältesten verlangen Rechenschaft. Sie wollen alles — auf einmal.',
+    num:22, name:'Der Volksaufstand',
+    story:'Ein Teil der Siedlung rebelliert - und öffnet den Plünderern die Tore. Sie wollen dich stürzen.',
     ziel:'Erreiche 80 Siegpunkte',
     mod:'Felder SO und SW nicht bebaubar · Jeder Überfall startet aus S', diff:4,
   },
   {
     num:23, name:'Die Versicherungspolice',
     story:'Manche Gebäude sind mehr wert im Ruin als im Aufbau. Nutze das.',
-    ziel:'Werte 3 aktive Versicherungskarten gleichzeitig',
-    mod:'Alle drei müssen im gleichen Spielzug geplündert sein', diff:4,
+    ziel:'Werte die Versicherung mindestens 3 Mal im Spiel',
+    mod:'Du hast 1 Versicherung von Anfang an auf der Hand', diff:4,
   },
   {
     num:24, name:'Der ewige Winter',
     story:'Vier Jahreszeiten Winter. Die Kälte macht keine Pause mehr.',
     ziel:'Erreiche 70 Siegpunkte',
-    mod:'Jede Jahreszeit gilt als Winter (kein Überfall) — aber nur Winterkarten im Pool', diff:4,
+    mod:'Jede Jahreszeit gilt als Winter (kein Überfall) — aber nur Winter und Frühlingskarten im Pool', diff:4,
   },
   {
-    num:25, name:'Ohne Schutz',
+    num:25, name:'Die Ritter der Talrunde',
     story:'Türme gibt es nicht. Barrieren gibt es nicht. Nur Mut und gute Planung.',
-    ziel:'Erreiche 65 Siegpunkte',
+    ziel:'Erreiche 77 Siegpunkte',
     mod:'Keine Türme, keine Barrieren · Nur Ritter zur Verteidigung', diff:4,
   },
   {
-    num:26, name:'26 Jahre Talwacht',
-    story:'Du hast alles gesehen. Die Horde kennt deine Strategien. Jetzt zeigst du, was du wirklich kannst.',
+    num:26, name:'Die große Belagerung',
+    story:'Die Balergerung vor den Toren, ein Spion in der Siedlung. Die Horde kennt deine Strategien. Jetzt zeigst du, was du wirklich kannst.',
     ziel:'Erreiche mehr als 120 Siegpunkte',
-    mod:'Alle Überfälle mit Champion C9 · Felder S/SO/SW nicht bebaubar · Keine Türme', diff:4,
+    mod:'Alle Überfälle mit Champion C9 · Keine Gerüchte · Keine Türme', diff:4,
   },
 ];
 
@@ -453,7 +519,7 @@ const GROUPS = [
     reward: null // Finale freigeschaltet
   },
   {
-    name:'⚔ Finale · 26 Jahre Talwacht', nums:[26],
+    name:'⚔ Finale · Die große Belagerung', nums:[26],
     reward: {
       icon:'🏆', title:'Goldene Rathausfestung',
       desc:'Das Rathaus startet permanent auf Level 6. Du hast die Kampagne abgeschlossen.',
