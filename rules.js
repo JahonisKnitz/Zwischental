@@ -42,7 +42,7 @@ const RULES_PAGES = [
       },
       {
         heading: 'Der Überfall',
-        text: 'Angreifer ziehen Feld für Feld durch die Stadt. Jedes Gebäude wehrt sich mit seiner Verteidigung. Wird ein Feld dennoch überrannt, ist das Gebäude geplündert — es zählt bei der Wertung nicht. Befestigte Gebäude (Turm) überleben alles.'
+        text: 'Angreifer ziehen Feld für Feld durch die Stadt. Jedes Gebäude wehrt sich mit seiner Verteidigung. Wird ein Feld dennoch überrannt, ist das Gebäude geplündert — es zählt bei der aktuellen Wertung nicht. Befestigte Gebäude (Turm) überleben alles.'
       },
     ]
   },
@@ -56,11 +56,11 @@ const RULES_PAGES = [
       },
       {
         heading: 'Rathaus',
-        text: 'Das Rathaus steht fest in der Mitte. Schiebe eine Karte darunter um es aufzuwerten (max. Level 6) — du erhältst sofort eine Münze und Karten mit ⚡ skalieren besser. Eine gute Investition.'
+        text: 'Das Rathaus steht fest in der Mitte. Schiebe eine Karte darunter um es aufzuwerten (max. Level 6) — du erhältst sofort eine Münze. Eine gute Investition.'
       },
       {
         heading: 'Tipp',
-        text: 'Der verborgene Würfel ist dein größter Feind. Baue so, dass du auch den schlimmsten Fall überlebst — nicht nur den wahrscheinlichsten. Viel Glück, Bürgermeister.'
+        text: 'Der verborgene Würfel ist dein größter Feind. Baue so, dass du auch den schlimmsten Fall überlebst — nicht nur den wahrscheinlichsten. Viel Glück bei der Talwacht!'
       },
     ]
   }

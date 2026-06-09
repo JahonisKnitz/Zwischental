@@ -118,7 +118,13 @@ header {
   text-align: right;
   transition: color 0.4s;
 }
-#vp-display .vp-star {
+#vp-display .vp-lost {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: rgba(255,180,160,0.7);
+  letter-spacing: 0.04em;
+}
   font-size: 0.85rem;
   color: rgba(255,255,255,0.7);
 }
@@ -1949,6 +1955,12 @@ header {
   border-radius: 1px;
 }
 #gameover-overlay.show .go-divider { width: 64px; }
+.go-lost-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.72rem; letter-spacing: 0.05em;
+  color: rgba(245,237,224,0.6);
+}
+.go-lost-num { font-family: 'Pirata One', cursive; font-size: 1rem; color: #e05040; }
 .go-sub {
   font-family: 'Crimson Text', serif;
   font-style: italic;
@@ -2718,6 +2730,7 @@ header.scoring-flash {
       <span class="vp-star">★</span>
       <span class="vp-label">Siegpunkte</span>
       <span class="vp-value" id="vp-value">0</span>
+      <span class="vp-lost" id="vp-lost" style="display:none"></span>
     </div>
   </header>
 
@@ -2852,6 +2865,11 @@ header.scoring-flash {
       <div class="go-title">Talwacht · Endwertung</div>
       <div class="go-score-display" id="go-score-num">0</div>
       <div class="go-score-label">Siegpunkte</div>
+      <div class="go-lost-wrap" id="go-lost-wrap" style="display:none;margin-top:6px;opacity:0.7">
+        <span class="go-lost-label">davon geplündert: </span>
+        <span class="go-lost-num" id="go-lost-num" style="color:#c04040;font-weight:700">0</span>
+        <span class="go-lost-label"> Punkte</span>
+      </div>
       <div class="go-divider"></div>
       <div class="go-sub" id="go-sub-text">Das Tal dankt seinem Bürgermeister</div>
       <div class="go-sub" style="margin-top:8px; font-size:0.75em; opacity:0.6;">Eine Spielidee von Johannes Zirm</div>

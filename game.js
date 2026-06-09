@@ -236,7 +236,7 @@ const DICE_COLORS = ['yellow', 'blue', 'red'];
 
 // ── Tauschverhältnis — fest 2:1 ──
 const RATIO = 2;
-const VERSION = '0.9.63';
+const VERSION = '1.0.0';
 
 // ── Außenkanten-System für Barrieren ──────────────────────────────
 // 12 Außenkanten am 3×3-Grid: jedes Randfeld hat 1 (Kante) oder 2 (Ecke) Außenkanten.
@@ -375,18 +375,15 @@ function applyFragileDefenses({ startCell, clockwise }) {
 
 // ── Champions (roter Würfel) ─────────────────────────────────────
 const CHAMPION_POOL = [
-  { id:'C1',  label: '+🔴 Angreifer',        desc: (v) => `+${v} zusätzliche Angreifer` },
-  { id:'C2',  label: 'Gegenrichtung',         desc: ()  => `Angriff startet gegenüber` },
-  { id:'C3',  label: 'Richtung umkehren',     desc: ()  => `↻ wird ↺ und umgekehrt` },
-  { id:'C4',  label: '🟡🔵 auf 6',            desc: ()  => `Gelb und Blau werden auf 6 gesetzt` },
-  { id:'C5',  label: 'Barrieren ignorieren',  desc: ()  => `Barrikaden wirkungslos — Start am gewürfelten Feld` },
-  { id:'C6',  label: 'Ohne Anführer',         desc: ()  => `Kein Anführer` },
-  { id:'C7',  label: '+🔴 Angreifer',        desc: (v) => `+${v} zusätzliche Angreifer` },
-  { id:'C8',  label: '🟡🔵 auf 1',            desc: ()  => `Gelb und Blau werden auf 1 gesetzt` },
-  { id:'C9',  label: 'Brandstifter',          desc: ()  => `Mindestens 1 Karte wird immer deaktiviert` },
-  { id:'C10', label: 'Wechselhafter Anführer',desc: ()  => `Blau und Gelb tauschen den Würfelwert` },
-  { id:'C11', label: 'Urlauber',              desc: ()  => `Sommer: −3 · Frühling/Herbst: +6` },
-  { id:'C12', label: 'Volksaufstand',         desc: ()  => `Führender Spieler: +1 Gebäude deaktiviert` },
+  { id:'C1',  label: 'Vollstrecker',      desc: (v) => `+${v} zusätzliche Angreifer` },
+  { id:'C2',  label: 'Nordische Ninja',   desc: ()  => `Überfall startet gegenüber` },
+  { id:'C3',  label: 'Wechselwütige',     desc: ()  => `↻ wird ↺ und umgekehrt` },
+  { id:'C4',  label: 'Berserker',         desc: ()  => `Gelb und Blau werden auf 6 gesetzt` },
+  { id:'C5',  label: 'Ole Ochsenberg',    desc: ()  => `Barrikaden wirkungslos — Start am gewürfelten Feld` },
+  { id:'C6',  label: 'Ohne Anführer',     desc: ()  => `Kein Anführer` },
+  { id:'C7',  label: 'Konan der Barbär',  desc: ()  => `Blau und Gelb tauschen den Würfelwert` },
+  { id:'C8',  label: 'Zugvogel',          desc: ()  => `Sommer: −3 · Frühling/Herbst: +6` },
+  { id:'C9',  label: 'Brandstifter',      desc: ()  => `Mindestens 1 Karte wird immer geplündert` },
 ];
 
 G.attackDir      = null;
@@ -1611,6 +1608,15 @@ function renderGroundGlows() {
 function renderVP() {
   const el = document.getElementById('vp-value');
   if (el) el.textContent = G.victoryPoints || 0;
+  const lostEl = document.getElementById('vp-lost');
+  if (lostEl) {
+    if (G.lostPoints > 0) {
+      lostEl.textContent = `(−${G.lostPoints})`;
+      lostEl.style.display = 'inline';
+    } else {
+      lostEl.style.display = 'none';
+    }
+  }
 }
 
 // ═══════════════════════════════════════════
@@ -2915,61 +2921,48 @@ function startRaidSequence() {
     const rv = G.dice.red;
     switch (ch.id) {
       case 'C1':
-      case 'C7':
+        // Vollstrecker: +roter Würfelwert Angreifer
         attackers += rv;
         break;
       case 'C2': {
-        // Gegenüberliegende Position in CLOCKWISE_ORDER (relativ zur ROHEN Startposition)
+        // Nordische Ninja: Überfall startet gegenüber
         const baseCell = rawStartCell != null ? rawStartCell : startCell;
         const ci = CLOCKWISE_ORDER.indexOf(baseCell);
         const oppositeRaw = CLOCKWISE_ORDER[(ci + 4) % 8];
-        // Auf Barrikaden anwenden (außer ignore_barriers — wird unten ohnehin separat behandelt)
         effectiveStart = resolveStartCell(oppositeRaw, effectiveClockwise, false);
         break;
       }
       case 'C3':
+        // Wechselwütige: Richtung umkehren
         effectiveClockwise = !clockwise;
-        // Bei umgekehrter Laufrichtung muss Startfeld neu resolved werden (vom rohen Würfelfeld)
         if (rawStartCell != null) {
           effectiveStart = resolveStartCell(rawStartCell, effectiveClockwise, false);
         }
         break;
       case 'C4':
+        // Berserker: Gelb + Blau auf 6
         G.dice.yellow = 6;
         G.dice.blue   = 6;
         attackers = G.attackBlue.calc();
         G.attackerOverride = attackers;
-        effectiveClockwise = true; // 6 gerade → ↻
+        effectiveClockwise = true;
         G.attackDir = { ...G.attackDir, clockwise: true };
         renderDice(false);
         break;
-      case 'C8':
-        G.dice.yellow = 1;
-        G.dice.blue   = 1;
-        attackers = G.attackBlue.calc();
-        G.attackerOverride = attackers;
-        effectiveClockwise = false; // 1 ungerade → ↺
-        G.attackDir = { ...G.attackDir, clockwise: false };
-        renderDice(false);
-        break;
       case 'C5':
-        // Champion durchbricht die Front: Angriff startet am gewürfelten Feld,
-        // egal ob barrikadiert (Barrieren bleiben physisch bestehen, sind aber wirkungslos)
+        // Ole Ochsenberg: Barrieren ignorieren
         ignoreBarriers = true;
         if (rawStartCell != null) {
           effectiveStart = rawStartCell;
         }
         break;
-      case 'C9':
-        // Mindestens 1 Karte wird deaktiviert — wird bei der Sequenz erzwungen
-        break;
-      case 'C10':
+      case 'C7':
+        // Konan der Barbär: Blau und Gelb tauschen
         { const tmp = G.dice.yellow;
           G.dice.yellow = G.dice.blue;
           G.dice.blue   = tmp;
           attackers = G.attackBlue.calc();
           effectiveClockwise = (G.dice.yellow % 2 === 0);
-          // Neue gelb-Anzeige bedeutet auch neuen rohen Startpunkt: yellow-1 ist Index in CLOCKWISE_ORDER
           const newRawStart = CLOCKWISE_ORDER[(G.dice.yellow - 1) % 8];
           effectiveStart = resolveStartCell(newRawStart, effectiveClockwise, false);
           G.attackDir = { ...G.attackDir, clockwise: effectiveClockwise, rawStartCell: newRawStart };
@@ -2977,9 +2970,13 @@ function startRaidSequence() {
           renderDice(false);
         }
         break;
-      case 'C11':
-        if (G.season === 2)      attackers = Math.max(0, attackers - 3); // Sommer
-        else if (G.season === 1 || G.season === 3) attackers += 3;        // Frühling/Herbst
+      case 'C8':
+        // Zugvogel: Sommer −3 · Frühling/Herbst +6
+        if (G.season === 2)      attackers = Math.max(0, attackers - 3);
+        else if (G.season === 1 || G.season === 3) attackers += 6;
+        break;
+      case 'C9':
+        // Brandstifter: mindestens 1 Karte immer geplündert
         break;
       case 'C6':
       default:
@@ -4287,7 +4284,6 @@ const GLOSSAR_ENTRIES = [
   { term: 'Champion',         def: 'Der rote Würfel bestimmt eine Sonderfähigkeit der angreifenden Horde — immer eine Überraschung.' },
   { term: 'Angriffsrichtung', def: 'Der gelbe Würfel. Bestimmt von welcher Seite die Horde einmarschiert. Beeinflusst welche Felder zuerst getroffen werden.' },
   { term: 'Upgrade',          def: 'Lege weitere Karten gleichen Rohstoffs auf ein bestehendes Gebäude (max. 6). Erhöht Rohstoffproduktion und oft auch Verteidigung.' },
-  { term: 'Innovation (⚡)',   def: 'Karten mit ⚡ skalieren ihre Siegpunkte mit dem Rathaus-Level. Bei Level 6 können sie sehr hohe Punktzahlen erreichen.' },
   { term: 'Stärkende Säulen', def: 'Solange aktiv erhalten alle fragilen Gebäude def 2 und werden nach einem Überfall nicht zerstört.' },
 ];
 
