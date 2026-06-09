@@ -87,7 +87,7 @@ header {
 }
 .logo-sub {
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 0.62rem;
+  font-size: 0.42rem;
   letter-spacing: 0.22em;
   color: rgba(255,255,255,0.65);
   font-weight: 600;
@@ -103,7 +103,7 @@ header {
 }
 #vp-display .vp-label {
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 0.75rem;
+  font-size: 0.58rem;
   letter-spacing: 0.14em;
   color: rgba(255,255,255,0.7);
   text-transform: uppercase;
@@ -125,6 +125,7 @@ header {
   color: rgba(255,180,160,0.7);
   letter-spacing: 0.04em;
 }
+#vp-display .vp-star {
   font-size: 0.85rem;
   color: rgba(255,255,255,0.7);
 }
@@ -142,7 +143,7 @@ header {
 }
 #phase-season-label {
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 0.68rem;
+  font-size: 0.52rem;
   letter-spacing: 0.14em;
   color: var(--ink-40);
   text-transform: uppercase;
@@ -158,12 +159,6 @@ header {
 }
 /* Pfeil-Button direkt in der Phasenleiste */
 /* ── Phase-Next Button (Pill) ── */
-.btn-next-wrap {
-  position: relative;
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-}
 .btn-next-wrap::after {
   content: '';
   position: absolute;
@@ -182,26 +177,16 @@ header {
 
 #btn-next-phase {
   flex-shrink: 0;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: rgba(26,18,8,0.25);
   background: transparent;
-  border: 1px solid rgba(26,18,8,0.12);
-  border-radius: 20px;
-  padding: 7px 12px 7px 14px;
+  border: none;
+  padding: 4px 6px;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  position: relative;
-  overflow: hidden;
-  transition: transform 0.15s cubic-bezier(0.34,1.4,0.64,1),
-              box-shadow 0.15s, color 0.2s,
-              background 0.2s, border-color 0.2s,
-              padding-right 0.25s cubic-bezier(0.34,1.4,0.64,1);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1rem;
+  color: var(--ink-20);
+  border-radius: 4px;
+  line-height: 1;
+  transition: color 0.2s, background 0.15s, transform 0.1s;
 }
 #btn-next-phase .btn-arrow {
   font-size: 1rem; line-height: 1;
@@ -218,7 +203,7 @@ header {
   box-shadow: 0 2px 6px rgba(180,130,0,0.25);
 }
 
-/* Ready state: golden pill + all effects */
+/* Ready state */
 #btn-next-phase.ready {
   color: white;
   background: linear-gradient(135deg, #c89010, #a07008);
@@ -2737,9 +2722,7 @@ header.scoring-flash {
   <div id="phase-bar">
     <div id="phase-season-label"></div>
     <div id="phase-dots"></div>
-    <div class="btn-next-wrap" id="btn-next-wrap">
-      <button id="btn-next-phase"><span id="btn-next-label">›</span><span class="btn-arrow">›</span></button>
-    </div>
+    <button id="btn-next-phase">›</button>
     <button id="btn-info" title="Glossar">i</button>
   </div>
 

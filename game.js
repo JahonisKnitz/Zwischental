@@ -1360,10 +1360,6 @@ function renderPhaseBar() {
   if (!seasonLabel || !dotsEl) return;
 
   const col         = SEASON_COLORS[SEASON_KEYS[G.season]] || '#7a7060';
-  const seasonRoman = ['I', 'II', 'III', 'IV'][G.season];
-
-  seasonLabel.textContent = `${SEASON_NAMES[G.season]}`;
-  seasonLabel.style.color = col;
 
   const winterPhases = [
     { name: 'Bauen',    idx: 1 },
@@ -1376,11 +1372,11 @@ function renderPhaseBar() {
   const total        = visiblePhases.length;
   const phaseName    = visiblePhases[currentPos]?.name || PHASES[G.phase];
 
-  // Kompakt: Phasenname fett + Fortschritt daneben
-  dotsEl.innerHTML = `
-    <span class="phase-label active" style="color:${col};font-weight:700;">${phaseName.toUpperCase()}</span>
-    <span class="phase-progress" style="color:rgba(18,14,10,0.3);font-size:0.62rem;letter-spacing:0.08em;margin-left:5px;">${currentPos + 1}/${total}</span>
-  `;
+  // Season left, phase + progress in middle — all in one line
+  seasonLabel.textContent = SEASON_NAMES[G.season];
+  seasonLabel.style.color = col;
+
+  dotsEl.innerHTML = `<span style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.68rem;letter-spacing:0.12em;text-transform:uppercase;color:${col}">${phaseName}</span><span style="font-family:'Barlow Condensed',sans-serif;font-size:0.62rem;letter-spacing:0.08em;color:rgba(18,14,10,0.3);margin-left:5px">${currentPos + 1}/${total}</span>`;
 }
 
 // Fächerrichtung je Grid-Position: -1=links, +1=rechts
@@ -2230,28 +2226,21 @@ function isPhaseAllowed(action) {
 
 function renderPlaceRow() {
   const btnNext = document.getElementById('btn-next-phase');
-  const btnWrap = document.getElementById('btn-next-wrap');
   const col = SEASON_COLORS[SEASON_KEYS[G.season]];
   btnNext.style.setProperty('--phase-col', col);
   const hasSelection = G.selectedHandIdx >= 0 || G.selectedBarrier ||
                        G.selectedTower || G.selectedKnight || G.selectedCellIdx >= 0;
   const isReady = !hasSelection;
   btnNext.classList.toggle('ready', isReady);
-  if (btnWrap) btnWrap.classList.toggle('ready', isReady);
 
   // Show next phase name when ready
-  const labelEl = document.getElementById('btn-next-label');
-  if (labelEl) {
-    const phaseNames = ['Gerüchte','Bauen','Rüsten','Überfall','Wertung'];
-    let nextPhase = G.phase + 1;
-    if (G.season === 0 && nextPhase === 3) nextPhase = 4;
-    const isLastPhase = G.season === 3 && G.phase === 4;
-    let label = '›';
-    if (isReady) {
-      label = isLastPhase ? 'Spielende' : (phaseNames[nextPhase > 4 ? 0 : nextPhase] || '›');
-    }
-    labelEl.textContent = label;
-  }
+  const phaseNames = ['Gerüchte','Bauen','Rüsten','Überfall','Wertung'];
+  let nextPhase = G.phase + 1;
+  if (G.season === 0 && nextPhase === 3) nextPhase = 4;
+  const isLastPhase = G.season === 3 && G.phase === 4;
+  btnNext.textContent = isReady
+    ? (isLastPhase ? 'Spielende ›' : (phaseNames[nextPhase > 4 ? 0 : nextPhase] || '›') + ' ›')
+    : '›';
 }
 
 // Phasenwechsel mit Animation — vollständiger Jahreszeiten-Durchlauf
@@ -3147,6 +3136,7 @@ function startRaidSequence() {
               const lost = calcCardPts(G.board[idx] || {pts:0});
               G.score = Math.max(0, G.score - lost);
               G.lostPoints = (G.lostPoints || 0) + lost;
+              renderVP();
               spawnColoredFloat(idx, `−${def}🛡`, '#c04040');
             }
 
@@ -3191,6 +3181,7 @@ function startRaidSequence() {
             const victimLost = calcCardPts(G.board[victim]);
             G.score = Math.max(0, G.score - victimLost);
             G.lostPoints = (G.lostPoints || 0) + victimLost;
+            renderVP();
             // Flip victim card before renderGrid
             const victimCells = document.querySelectorAll('.cell');
             const victimFlip = victimCells[victim]?.querySelector('.card-flip');
