@@ -1194,6 +1194,57 @@ header {
   border-top: 1px solid var(--ink-10);
   position: relative;
 }
+#defense-cta {
+  display: none;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 14px 4px;
+}
+#defense-cta.visible { display: flex; }
+.cta-btn {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 7px 14px;
+  border-radius: 20px;
+  border: 1.5px solid;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: transform 0.1s, opacity 0.2s, background 0.15s;
+}
+.cta-btn:active { transform: scale(0.93); }
+.cta-btn.disabled { opacity: 0.3; cursor: default; pointer-events: none; }
+.cta-btn-barriere {
+  background: rgba(196,149,90,0.1);
+  border-color: rgba(196,149,90,0.5);
+  color: #7a5020;
+}
+.cta-btn-barriere.active {
+  background: rgba(196,149,90,0.25);
+  border-color: #c4955a;
+}
+.cta-btn-ritter {
+  background: rgba(80,120,60,0.1);
+  border-color: rgba(80,120,60,0.5);
+  color: #3a6a2a;
+}
+.cta-btn-ritter.active {
+  background: rgba(80,120,60,0.25);
+  border-color: #507830;
+}
+.cta-btn-turm {
+  background: rgba(90,45,130,0.1);
+  border-color: rgba(90,45,130,0.45);
+  color: #5a2d82;
+}
+.cta-btn-turm.active {
+  background: rgba(90,45,130,0.22);
+  border-color: #5a2d82;
+}
 #btn-glossar {
   position: absolute;
   right: 0;
@@ -2767,6 +2818,7 @@ header.scoring-flash {
     <div id="hand-label"><span class="hand-id" id="hand-id"></span><span id="draft-indicator"></span><span id="barrier-count"></span><span id="discard-hint"></span></div>
     <div id="hand-cards"></div>
     <div id="resource-row"></div>
+    <div id="defense-cta"></div>
   </div>
 
   <div id="toast"></div>

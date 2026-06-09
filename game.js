@@ -118,8 +118,8 @@ function startDraft(season) {
   G.hand = [...DRAFT.hands[0]];
   setHint(`Drafting — Runde 1/5 · Wähle eine Karte zum Behalten`, true);
   setHandColor(0);
-  renderHand();
-}
+  renderHand(); renderDefenseCta();
+  }
 
 /**
  * Wird aufgerufen nachdem der Spieler eine Karte gewählt hat (placeCard).
@@ -157,8 +157,8 @@ function advanceDraft() {
       DRAFT.active = false;
       G.hand = [];
       setHandColor(-1);
-      renderHand();
-      setHint('Karten gedraftet — tippe › für Rüsten', true);
+      renderHand(); renderDefenseCta();
+  setHint('Karten gedraftet — tippe › für Rüsten', true);
       return;
     }
 
@@ -171,8 +171,8 @@ function advanceDraft() {
     // Slide-In
     el.style.setProperty('--slide-from', `${inDir}px`);
     setHandColor(DRAFT.handIdx);
-    renderHand();
-    el.classList.add('slide-in');
+    renderHand(); renderDefenseCta();
+  el.classList.add('slide-in');
     el.addEventListener('animationend', () => el.classList.remove('slide-in'), {once: true});
 
     const dir = DRAFT.direction === 1 ? '↻' : '↺';
@@ -1213,7 +1213,62 @@ function renderProductionPanel() {
   }
 }
 
-// ── Automatische Umrechnung zu Beginn der Verteidigungsphase ──────
+// ── Rüstphase: CTA-Buttons im Footer ─────────────────────────
+function renderDefenseCta() {
+  const cta = document.getElementById('defense-cta');
+  if (!cta) return;
+
+  if (G.phase !== 2) {
+    cta.classList.remove('visible');
+    cta.innerHTML = '';
+    return;
+  }
+
+  // G.barrierHand und G.knights sind die tatsächlichen Bestände (inkl. Vorjahresreste)
+  const barrAvail = G.barrierHand || 0;
+  const knAvail   = G.knights    || 0;
+
+  const buttons = [
+    {
+      cls: 'cta-btn-barriere',
+      icon: '🪵', label: 'Barriere',
+      sub: barrAvail > 0 ? `${barrAvail} verfügbar` : 'keine Barrieren',
+      disabled: barrAvail === 0,
+      active: G.selectedBarrier,
+      onClick: () => onBarrierHandClick()
+    },
+    {
+      cls: 'cta-btn-ritter',
+      icon: '🌾', label: 'Ritter',
+      sub: knAvail > 0 ? `${knAvail} verfügbar` : 'keine Ritter',
+      disabled: knAvail === 0,
+      active: G.selectedKnight,
+      onClick: () => onKnightClick()
+    },
+    {
+      cls: 'cta-btn-turm',
+      icon: '💰', label: 'Turm',
+      sub: G.coins >= RATIO ? `${Math.floor(G.coins / RATIO)} baubar (${G.coins} Münzen)` : 'zu wenig Münzen',
+      disabled: G.coins < RATIO,
+      active: G.selectedTower,
+      onClick: () => onTowerHandClick()
+    },
+  ];
+
+  cta.innerHTML = '';
+  buttons.forEach(b => {
+    const btn = document.createElement('button');
+    btn.className = `cta-btn ${b.cls}${b.disabled ? ' disabled' : ''}${b.active ? ' active' : ''}`;
+    btn.innerHTML = `<span style="font-size:1rem">${b.icon}</span><span><div>${b.label}</div><div style="font-size:0.58rem;opacity:0.65;letter-spacing:0.06em;font-weight:400">${b.sub}</div></span>`;
+    if (!b.disabled) {
+      btn.addEventListener('click', b.onClick);
+      btn.addEventListener('touchend', (e) => { e.preventDefault(); b.onClick(); }, {passive:false});
+    }
+    cta.appendChild(btn);
+  });
+
+  cta.classList.add('visible');
+}
 // ── Verteidigungs-Overlay ─────────────────────────────────────────
 function showDefenseOverlay() {
   const overlay   = document.getElementById('defense-overlay');
@@ -1331,8 +1386,8 @@ function showDefenseOverlay() {
 
   function checkAllDone() {
     if (animDone < conversions.length) return;
-    renderHand();
-    setTimeout(() => closeDefenseOverlay(), 900);
+    renderHand(); renderDefenseCta();
+  setTimeout(() => closeDefenseOverlay(), 900);
   }
 }
 
@@ -1342,8 +1397,8 @@ function closeDefenseOverlay() {
   overlay.classList.remove('show');
   overlay.onclick = null;
   document.querySelectorAll('.edge-barrier').forEach(e => e.style.visibility = '');
-  renderHand();
-  renderGrid();
+  renderHand(); renderDefenseCta();
+   renderGrid();
   setHint('Barrieren, Türme und Ritter setzen', true);
 }
 
@@ -1980,13 +2035,13 @@ function discardSelected(idx) {
         DRAFT.active = false;
         G.hand = [];
         setHint('5 Aktionen verbraucht · › weiter', true);
-        renderHand();
-      } else if (DRAFT.active) {
+        renderHand(); renderDefenseCta();
+  } else if (DRAFT.active) {
         G.hand = G.hand.filter(c => c !== null);
         advanceDraft();
       } else {
-        renderHand();
-      }
+        renderHand(); renderDefenseCta();
+  }
       renderGrid(true);
 
       // Slot-Unlock: Sonderkarten in der Hand kurz aufleuchten lassen
@@ -2018,8 +2073,8 @@ function discardSelected(idx) {
     // Hand kompaktieren — null-Lücken entfernen damit idx-Referenzen stimmen
     G.hand = G.hand.filter(c => c !== null);
   }
-  renderHand();
-  renderGrid(true);
+  renderHand(); renderDefenseCta();
+   renderGrid(true);
 }
 
 function renderResources() {
@@ -2370,8 +2425,8 @@ function advancePhase() {
 
     renderPhaseBar();
     renderPlaceRow();
-    renderHand();
-    renderGrid();
+    renderHand(); renderDefenseCta();
+   renderGrid();
 
     // Dot-Wellen-Animation
     const phaseHint = PHASE_HINTS[nextPhase];
@@ -3291,11 +3346,11 @@ function restartGame() {
   initDrawBags();
   dealHand();
   renderGrid();
-  renderHand();
+  renderHand(); renderDefenseCta();
   renderPhaseBar();
   renderPlaceRow();
   renderVP();
-  renderProductionPanel();
+  renderProductionPanel(); renderDefenseCta();
   setHint(PHASE_HINTS[G.phase], false);
   showToast('Neues Spiel gestartet');
   startSeasonParticles(G.season);
@@ -3426,7 +3481,8 @@ function onHandClick(idx) {
       setHint('Feld antippen', true);
     }
   }
-  renderHand(); renderGrid(true);
+  renderHand(); renderDefenseCta();
+   renderGrid(true);
 
   // After renderHand rebuilds DOM, flip the selected card
   if (G.selectedHandIdx === idx) {
@@ -3449,38 +3505,43 @@ function onBarrierHandClick() {
   if (G.selectedBarrier) {
     clearSelection();
     setHint('Karte wählen');
-    renderHand(); renderGrid(true);
+    renderHand(); renderDefenseCta();
+   renderGrid(true); renderDefenseCta();
     return;
   }
   clearSelection();
   G.selectedBarrier = true;
   G.mode = 'barrier';
   setHint('Spalt zwischen zwei Karten antippen', true);
-  renderHand();
-  renderGrid(true);
+  renderHand(); renderDefenseCta();
+   renderGrid(true); renderDefenseCta();
   setTimeout(() => renderEdgeZones(true), 50);
 }
 
 function onTowerHandClick() {
   if (!isPhaseAllowed('tower')) { showToast('Türme nur in der Verteidigungs-Phase'); return; }
   if (G.coins < RATIO) { showToast(`Nicht genug Münzen (${RATIO} benötigt)`); return; }
-  if (G.selectedTower) { clearSelection(); setHint('Karte wählen'); renderHand(); renderGrid(); return; }
+  if (G.selectedTower) { clearSelection(); setHint('Karte wählen'); renderHand(); renderDefenseCta();
+   renderGrid(); renderDefenseCta(); return; }
   clearSelection();
   G.selectedTower = true;
   G.mode = 'tower';
   setHint(`Tippe ein Gebäude zum Befestigen (−${RATIO} Münzen)`, true);
-  renderHand(); renderGrid(true);
+  renderHand(); renderDefenseCta();
+   renderGrid(true); renderDefenseCta();
 }
 
 function onKnightClick() {
   if (!isPhaseAllowed('knights')) { showToast('Ritter nur in der Verteidigungs-Phase'); return; }
   if (G.knights <= 0) return;
-  if (G.selectedKnight && G.knights <= 0) { clearSelection(); renderHand(); renderGrid(); return; }
+  if (G.selectedKnight && G.knights <= 0) { clearSelection(); renderHand(); renderDefenseCta();
+   renderGrid(); renderDefenseCta(); return; }
   clearSelection();
   G.selectedKnight = true;
   G.mode = 'knight';
   setHint('Tippe ein Gebäude für +1 Verteidigung', true);
-  renderHand(); renderGrid(true);
+  renderHand(); renderDefenseCta();
+   renderGrid(true); renderDefenseCta();
 }
 
 function onCellClick(idx) {
@@ -3715,8 +3776,8 @@ function commitPlacement() {
   renderDice(false);       // Würfel aktualisieren (reveal etc.)
   renderAttackOrigin();    // Angriffs-Marker
   updateRathausScore();
-  renderHand();
-  renderProductionPanel();
+  renderHand(); renderDefenseCta();
+  renderProductionPanel(); renderDefenseCta();
 
   // ── cardLand-Animation auf die neu gerenderte Zelle ───────────
   // Erst NACH dem Render-Block, damit die Zelle garantiert im DOM ist
@@ -3737,8 +3798,8 @@ function commitPlacement() {
   if (G.builtThisSeason >= 5) {
     DRAFT.active = false;
     G.hand = [];
-    renderHand();
-    setHint('5 Gebäude errichtet · › weiter', true);
+    renderHand(); renderDefenseCta();
+  setHint('5 Gebäude errichtet · › weiter', true);
   } else if (DRAFT.active) {
     advanceDraft();
   }
@@ -3776,8 +3837,8 @@ function placeTower(idx) {
   G.fortified[idx] = true;
   G.fortifiedNew.add(idx);
   clearSelection();
-  renderHand();
-  renderGrid();
+  renderHand(); renderDefenseCta();
+   renderGrid();
   renderResources();
   flashChip('tower');
   const cells = document.querySelectorAll('.cell');
@@ -3793,8 +3854,8 @@ function placeKnight(idx) {
   G.boosted[idx] = (G.boosted[idx] || 0) + 2;
   G.knights--;
   clearSelection();
-  renderHand();
-  renderGrid();
+  renderHand(); renderDefenseCta();
+   renderGrid();
   flashChip('knights');
   const cells = document.querySelectorAll('.cell');
   if (cells[idx]) spawnColorBurst(cells[idx], '#44ee44'); SFX.knight();
@@ -3808,8 +3869,8 @@ function placeBarrier(key, cellIdx, edge) {
 
   renderEdgeZones(false);
   clearSelection();
-  renderHand();
-  renderGrid();
+  renderHand(); renderDefenseCta();
+   renderGrid();
 
   // Re-Render der Barrieren + Settle-Animation auf der neuen
   setTimeout(() => {
@@ -4159,7 +4220,8 @@ function dealHand() {
 }
 buildSeasonPools();
 initDrawBags();
-dealHand(); renderGrid(); renderHand(); addDemoControls(); renderPhaseBar(); renderVP(); renderPlaceRow(); renderProductionPanel();
+dealHand(); renderGrid(); renderHand(); renderDefenseCta();
+  addDemoControls(); renderPhaseBar(); renderVP(); renderPlaceRow(); renderProductionPanel(); renderDefenseCta();
 setHint(PHASE_HINTS[G.phase], false);
 
 // Version anzeigen
