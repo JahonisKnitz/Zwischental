@@ -10,6 +10,7 @@ const G = {
   plundered: Array(9).fill(false),  // geplündert: deaktiviert, zählt nicht bei Wertung
   entered: Array(9).fill(false),    // während aktuellem Überfall betreten (für fragile-Logik)
   enteredProtected: new Set(),       // betreten aber durch Schutzpatronin geschützt
+  lostPoints: 0,                     // kumulierte geplünderte Punkte (für Anzeige)
   barriers: new Set(),
   hand: [],
   barrierHand: 0,
@@ -508,16 +509,16 @@ const CARD_DESC_FALLBACK = {
   destroyable:        '15 Punkte — wird bei Deaktivierung zerstört.',
   pts_if_plundered:   '0 Punkte wenn aktiv · 8 Punkte wenn geplündert.',
   season_pts:         'Punkte steigen je Jahreszeit: 0 · 4 · 8 · 12.',
-  sonder_count:       'Punkte = Anzahl Sonderkarten in der Stadt × 2 (auch geplünderte).',
-  reveal_yellow:      'Angriffsrichtung ist immer sichtbar, solange die Karte liegt.',
+  sonder_count:       'Punkte = Anzahl Sonderkarten in der Siedlung × 2 (auch geplünderte).',
+  reveal_yellow:      'Überfallrichtung ist immer sichtbar, solange die Karte liegt.',
   reveal_blue:        'Angreiferzahl ist immer sichtbar, solange die Karte liegt.',
-  reveal_red:         'Champion ist immer sichtbar, solange die Karte liegt.',
+  reveal_red:         'Anführer ist immer sichtbar, solange die Karte liegt.',
   free_build:         'Kostenlos bauen — zählt nicht zum Baulimit.',
 };
 const CARD_DESC_BY_ID = {
   Z1:  'Punkte = roter Würfel × 3.',
   Z3:  'Punkte = Rathaus-Level × 3.',
-  Z4:  'Punkte = Summe aller Verteidigungswerte in der Stadt.',
+  Z4:  'Punkte = Summe aller Verteidigungswerte in der Siedlung.',
   Z5:  'Punkte = Anzahl geplünderter Gebäude × 3.',
   Z9:  'Punkte = Glas-Produktion × 3.',
   Z13: 'Punkte = roter Würfel + 7.',
@@ -665,7 +666,7 @@ const LORE_INTROS = [
   'Nebel zieht durchs Bergland, und man flüstert:',
   'Ein Bote reitet atemlos ins Tor —',
   'Die Wächter auf dem Turm raunt einander zu:',
-  'Schlechte Nachrichten erreichen die Stadt —',
+  'Schlechte Nachrichten erreichen die Siedlung —',
   'Ein unheiliges Schweigen liegt über dem Tal —',
 ];
 const LORE_MIDDLES = ['nähern sich dem Tal','rücken heran','bedrohen die Stadt','ziehen auf die Mauern zu','marschieren auf das Tor'];
@@ -914,7 +915,7 @@ function handleAttackOverlayBtn() {
     loreReveal();
 
     setTimeout(() => {
-      btn.textContent = '⚔ Angriff starten';
+      btn.textContent = '⚔ Überfall starten';
       btn.className = 'ao-btn start';
       btn.disabled = false;
       _aoPhase = 'start';
@@ -1048,7 +1049,7 @@ function renderDice(animate) {
     if (concealed) {
       if (col === 'yellow') detail.textContent = 'Richtung verborgen';
       else if (col === 'blue') detail.textContent = 'Angreifer verborgen';
-      else if (col === 'red')  detail.textContent = 'Champion verborgen';
+      else if (col === 'red')  detail.textContent = 'Anführer verborgen';
     } else if (col === 'yellow') {
       if (G.attackDir) {
         const dirNames = { NW:'Nordwest', N:'Nord', NO:'Nordost', O:'Ost', SO:'Südost', S:'Süd', SW:'Südwest', W:'West' };
@@ -1508,10 +1509,10 @@ function getCardPlayability(card) {
 
 function fragileConflictMessage(mech) {
   const group = FRAGILE_MECHANIC_GROUP[mech];
-  if (group === 'start')     return 'Bereits ein Stadttor in der Stadt';
-  if (group === 'direction') return 'Bereits eine Windrose in der Stadt';
-  if (group === 'decoy')     return 'Bereits ein Ablenkungsmanöver in der Stadt';
-  return 'Diese fragile Karte ist bereits in der Stadt';
+  if (group === 'start')     return 'Bereits ein Stadttor in der Siedlung';
+  if (group === 'direction') return 'Bereits eine Windrose in der Siedlung';
+  if (group === 'decoy')     return 'Bereits ein Ablenkungsmanöver in der Siedlung';
+  return 'Diese fragile Karte ist bereits in der Siedlung';
 }
 
 // ── Boden-Glow hinter Karten ─────────────────────────────────────
@@ -2429,6 +2430,15 @@ function getVisiblePhaseIndex(phase, season) {
 function showGameEnd() {
   const overlay = document.getElementById('gameover-overlay');
   document.getElementById('go-score-num').textContent = G.victoryPoints;
+  // Geplünderte Punkte anzeigen
+  const lostWrap = document.getElementById('go-lost-wrap');
+  const lostNum  = document.getElementById('go-lost-num');
+  if (G.lostPoints > 0 && lostWrap && lostNum) {
+    lostNum.textContent = G.lostPoints;
+    lostWrap.style.display = 'block';
+  } else if (lostWrap) {
+    lostWrap.style.display = 'none';
+  }
   // Cover-Bild setzen
   const bg = overlay.querySelector('.go-bg');
   if (bg) bg.style.backgroundImage = "url('splash.png')";
@@ -2986,7 +2996,7 @@ function startRaidSequence() {
 
   // Visuelle Rückmeldung wenn Fragile-Karten den Überfall ändern
   if (effectiveStart !== beforeStart) {
-    showToast('🏰 Stadttor zieht den Angriff an!');
+    showToast('🏰 Stadttor zieht den Überfall an!');
     // attackDir aktualisieren, damit attack-origin auf neuem Feld erscheint
     G.attackDir = { ...G.attackDir, startCell: effectiveStart, direction: GRID_DIRECTION[effectiveStart] };
   }
@@ -2999,8 +3009,8 @@ function startRaidSequence() {
   // (Kann nicht passieren bei Stadttor oder ignore_barriers Champion, die haben effectiveStart bereits gesetzt.)
   if (effectiveStart === null) {
     clearAttackerBar();
-    showToast('🛡 Die Stadt ist uneinnehmbar — kein Angriff!');
-    setHint('🛡 Vollständig barrikadiert — kein Angriff möglich', true);
+    showToast('🛡 Die Siedlung ist uneinnehmbar — kein Überfall!');
+    setHint('🛡 Vollständig barrikadiert — kein Überfall möglich', true);
     document.querySelectorAll('.cell.attack-origin').forEach(c => c.classList.remove('attack-origin'));
     setTimeout(() => { stopRaidAtmosphere(stage); setTimeout(() => document.getElementById('raid-overlay').classList.remove('visible'), 5000); }, 600);
     return;
@@ -3027,7 +3037,7 @@ function startRaidSequence() {
 
   if (raidRoute.length === 0 || attackers <= 0) {
     clearAttackerBar();
-    showToast('Die Stadt hält stand!');
+    showToast('Die Siedlung hält stand!');
     document.querySelectorAll('.cell.attack-origin').forEach(c => c.classList.remove('attack-origin'));
     setTimeout(() => { stopRaidAtmosphere(stage); setTimeout(() => document.getElementById('raid-overlay').classList.remove('visible'), 5000); }, 600);
     return;
@@ -3035,7 +3045,7 @@ function startRaidSequence() {
 
   const champHint = G.attackChampion && G.attackChampion.id !== 'C6' && G.attackChampion.id !== 'C7'
     ? ` [${G.attackChampion.label}]` : '';
-  setHint(`Angriff aus ${GRID_DIRECTION[effectiveStart] || '?'} ${effectiveClockwise ? '↻' : '↺'} · ${attackers} Angreifer${champHint}`, true);
+  setHint(`Überfall aus ${GRID_DIRECTION[effectiveStart] || '?'} ${effectiveClockwise ? '↻' : '↺'} · ${attackers} Angreifer${champHint}`, true);
 
   const totalAttackers = attackers;
   initAttackerBar(totalAttackers);
@@ -3098,7 +3108,7 @@ function startRaidSequence() {
 
         const remaining = incoming - def;
         const forcedTxt = step.forced ? ' 🔥 Brandstifter!' : '';
-        setHint(`${incoming} ⚔ → 🛡${def}${hasTower ? ' ♜' : ''} — ${deactivate ? 'Geplündert!' + (remaining > 0 ? ' ' + remaining + ' weiter' : ' Stopp') + forcedTxt : blocked ? 'Turm hält!' : 'Stadt hält!'}`, true);
+        setHint(`${incoming} ⚔ → 🛡${def}${hasTower ? ' ♜' : ''} — ${deactivate ? 'Geplündert!' + (remaining > 0 ? ' ' + remaining + ' weiter' : ' Stopp') + forcedTxt : blocked ? 'Turm hält!' : 'Siedlung hält!'}`, true);
 
         if (cells[idx]) {
           cells[idx].classList.add('plundering');
@@ -3137,7 +3147,9 @@ function startRaidSequence() {
               G.score = G.score + 8;
               spawnColoredFloat(idx, '+8 💰 Versicherung!', '#3a8a3a');
             } else {
-              G.score = Math.max(0, G.score - calcCardPts(G.board[idx] || {pts:0}));
+              const lost = calcCardPts(G.board[idx] || {pts:0});
+              G.score = Math.max(0, G.score - lost);
+              G.lostPoints = (G.lostPoints || 0) + lost;
               spawnColoredFloat(idx, `−${def}🛡`, '#c04040');
             }
 
@@ -3179,7 +3191,9 @@ function startRaidSequence() {
         if (victim !== undefined) {
           setTimeout(() => {
             G.plundered[victim] = true;
-            G.score = Math.max(0, G.score - calcCardPts(G.board[victim]));
+            const victimLost = calcCardPts(G.board[victim]);
+            G.score = Math.max(0, G.score - victimLost);
+            G.lostPoints = (G.lostPoints || 0) + victimLost;
             // Flip victim card before renderGrid
             const victimCells = document.querySelectorAll('.cell');
             const victimFlip = victimCells[victim]?.querySelector('.card-flip');
@@ -3205,7 +3219,7 @@ function startRaidSequence() {
     if (deactivated > 0) {
       showToast(`${deactivated} Gebäude geplündert!`);
     } else {
-      showToast('Die Stadt hält stand!');
+      showToast('Die Siedlung hält stand!');
     }
     document.querySelectorAll('.cell.attack-origin').forEach(c => c.classList.remove('attack-origin'));
     setTimeout(() => {
@@ -3214,6 +3228,10 @@ function startRaidSequence() {
       updateRathausScore();
       stopRaidAtmosphere(stage);
       setTimeout(() => document.getElementById('raid-overlay').classList.remove('visible'), 5000);
+      // Verlorene Punkte anzeigen
+      if (G.lostPoints > 0) {
+        setTimeout(() => showToast(`⚔ ${G.lostPoints} Punkte geplündert`), 400);
+      }
     }, 600);
   }, stepDelay + 300);
 }  // end startRaidSequence
@@ -3252,6 +3270,7 @@ function restartGame() {
   G.barrierHand   = 0;
   G.towerHand     = 0;
   G.score         = 0;
+  G.lostPoints    = 0;
   G.victoryPoints = 0;
   G.builtThisSeason = 0;
   G.rathausLevel  = 1;
@@ -3319,8 +3338,8 @@ const SPECIAL_MECHANIC_DESC = {
   neighbor_defense:  'Nachbarkarten erhalten +1 Verteidigung',
   neighbor_defense_2:'Nachbarkarten erhalten +2 Verteidigung',
   zwillingsturm:     'Verdoppelt die Punkte aller direkten Nachbarkarten',
-  indestructible:    'Kann nie deaktiviert werden',
-  reveal_red:        'Deckt roten Würfel (Champion) auf, wenn verborgen',
+  indestructible:    'Kann nie geplündert werden',
+  reveal_red:        'Deckt roten Würfel (Anführer) auf, wenn verborgen',
   reveal_yellow:     'Deckt gelben Würfel (Richtung) auf, wenn verborgen',
   reveal_blue:       'Deckt blauen Würfel (Angreifer) auf, wenn verborgen',
   direct_knight:     'Gibt sofort 2 Ritter beim Bau',
@@ -3332,7 +3351,7 @@ const SPECIAL_MECHANIC_DESC = {
   schutzpatronin:    'Alle fragilen Gebäude erhalten def 2 und werden nicht zerstört',
   dual_res_glas:     'Produziert 2× Glas',
   destroyable:       '15 Punkte — wird bei Deaktivierung zerstört',
-  pts_if_plundered:  '0 Punkte wenn aktiv · 8 Punkte wenn deaktiviert',
+  pts_if_plundered:  '0 Punkte wenn aktiv · 8 Punkte wenn geplündert',
   season_pts:        'Punkte = Jahreszeit × 2 (max 8 in Herbst)',
   sonder_count:      'Punkte = Anzahl Sonderkarten auf dem Feld × 2',
 };
@@ -3659,12 +3678,12 @@ function commitPlacement() {
     showToast('Schildtor — Nachbarn erhalten +2 Verteidigung');
   } else if (mech === 'indestructible') {
     G.fortified[targetIdx] = true;
-    showToast('Ewige Bastion — kann nie deaktiviert werden!');
+    showToast('Ewige Bastion — kann nie geplündert werden!');
   } else if (mech === 'reveal_red' && G.diceConcealed?.has('red')) {
     G.diceConcealed.delete('red');
-    showToast('Spion des Rates — Champion aufgedeckt!');
+    showToast('Spion des Rates — Anführer aufgedeckt!');
   } else if (mech === 'reveal_yellow') {
-    showToast('Fernkundschafter — Angriffsrichtung wird immer aufgedeckt!');
+    showToast('Fernkundschafter — Überfallrichtung wird immer aufgedeckt!');
   } else if (mech === 'reveal_blue') {
     showToast('Zahlmeister — Angreiferzahl wird immer aufgedeckt!');
   } else if (mech === 'direct_knight') {
@@ -4238,7 +4257,7 @@ const GLOSSAR_ICONS = [
   { icon: 'def-turm.png',             term: 'Turm',                   def: 'Permanente Befestigung (2 Münzen). Ein Feld mit Turm kann nie geplündert werden.' },
   { icon: 'icon-defense.png',         term: 'Verteidigung',           def: 'Gibt an wie viele Angreifer ein Gebäude aufhalten kann, bevor es geplündert wird.' },
   { icon: 'icon-vp.png',              term: 'Siegpunkte',             def: 'Werden am Ende jeder Jahreszeit aus allen aktiven Gebäuden addiert. 4 Jahreszeiten ergeben den Gesamtscore.' },
-  { icon: 'icon-def-sum.png',         term: 'Summe der Verteidigung', def: 'Gesamte Verteidigung aller Gebäude in der Stadt — inklusive geplünderter Karten.' },
+  { icon: 'icon-def-sum.png',         term: 'Summe der Verteidigung', def: 'Gesamte Verteidigung aller Gebäude in der Siedlung — inklusive geplünderter Karten.' },
   { icon: 'icon-special.png',         term: 'Sondergebäude',          def: 'Karten mit einzigartigen Fähigkeiten. Kosten beim Bau Münzen je nach fehlendem Rathaus-Level.' },
   { icon: 'icon-fragile.png',         term: 'Fragil',                 def: 'Einmal-Effekt. Fragile Karten werden nach dem Überfall automatisch entfernt.' },
   { icon: 'icon-rathaus-level.png',   term: 'Rathaus-Level',          def: 'Stufe 1–6. Karten mit ⚡ skalieren ihre Punkte mit dem Level. Aufwertung durch Karte unters Rathaus schieben.' },
@@ -4246,10 +4265,10 @@ const GLOSSAR_ICONS = [
   { icon: 'icon-neighbor.png',        term: 'Nachbargebäude',         def: 'Direkt angrenzende Felder — horizontal und vertikal. Diagonal zählt nicht.' },
   { icon: 'icon-plundered.png',       term: 'Geplündertes Gebäude',   def: 'Wurde überrannt. Zählt nicht zur Wertung, bleibt aber auf dem Feld bis zum nächsten Bauen.' },
   { icon: 'icon-raid-start.png',      term: 'Start der Plünderung',   def: 'Das Außenfeld von dem der Überfall startet — bestimmt durch den gelben Würfel.' },
-  { icon: 'icon-raid-dir.png',        term: 'Laufrichtung',           def: 'Die Richtung in der der Überfall durch die Stadt zieht — mit oder gegen den Uhrzeigersinn.' },
+  { icon: 'icon-raid-dir.png',        term: 'Überfallrichtung',       def: 'Die Richtung in der der Überfall durch die Siedlung zieht — mit oder gegen den Uhrzeigersinn.' },
   { icon: 'icon-season-winter.png',   term: 'Winter',                 def: 'Jahreszeit 1. Kurze Runde: nur Bauen, Rüsten und Wertung — kein Überfall.' },
   { icon: 'icon-season-frühling.png', term: 'Frühling',               def: 'Jahreszeit 2. Erste vollständige Runde mit Gerüchten und Überfall.' },
-  { icon: 'icon-season-sommer.png',   term: 'Sommer',                 def: 'Jahreszeit 3. Angriffe werden intensiver.' },
+  { icon: 'icon-season-sommer.png',   term: 'Sommer',                 def: 'Jahreszeit 3. Überfälle werden intensiver.' },
   { icon: 'icon-season-herbst.png',   term: 'Herbst',                 def: 'Jahreszeit 4. Letzte Runde. Münzen werden am Ende in Siegpunkte umgewandelt.' },
 ];
 

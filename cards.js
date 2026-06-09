@@ -112,15 +112,15 @@ const BUILDINGS = [
 const RATHAUS = { id:'rathaus', cat:null, pts:0, def:0, res:null, inno:0, upgrade:false };
 
 const SPECIAL_BUILDINGS = [
-  {id:'Z1',  name:'Champion-Arena',         cat:'special', pts:{type:'dice*',color:'red',   factor:3}, def:2, res:null,      inno:0, upgrade:false, diceColor:'red'},
-  {id:'Z2',  name:'Spiegelturm',     cat:'special', pts:3,                                     def:2, res:null,      inno:0, upgrade:false, diceColor:'yellow', special_mechanic:'zwillingsturm'},
-  {id:'Z3',  name:'Elfenbeinturm',          cat:'special', pts:{type:'inno*',factor:3},               def:2, res:null,      inno:3, upgrade:false, diceColor:'blue'},
+  {id:'Z31',  name:'Champion-Arena',         cat:'special', pts:{type:'dice*',color:'red',   factor:3}, def:2, res:null,      inno:0, upgrade:false, diceColor:'red'},
+  {id:'Z33',  name:'Spiegelturm',     cat:'special', pts:3,                                     def:2, res:null,      inno:0, upgrade:false, diceColor:'yellow', special_mechanic:'zwillingsturm'},
+  {id:'Z34',  name:'Elfenbeinturm',          cat:'special', pts:{type:'inno*',factor:3},               def:2, res:null,      inno:3, upgrade:false, diceColor:'blue'},
   {id:'Z4',  name:'Brückenhinterhalt',cat:'special', pts:{type:'def_sum'},                      def:0, res:null,      inno:0, upgrade:false, diceColor:'yellow', fragile:true},
   {id:'Z5',  name:'Treppe zum Himmel',      cat:'special', pts:{type:'deact*',factor:3},              def:1, res:null,      inno:0, upgrade:false, diceColor:'red'},
   {id:'Z6',  name:'Ritterburg',        cat:'special', pts:6,                                     def:2, res:null,      inno:0, upgrade:false, diceColor:'red',    special_mechanic:'direct_knight'},
   {id:'Z7',  name:'stärkende Säulen',    cat:'special', pts:4,                                     def:1, res:null,      inno:0, upgrade:false, diceColor:'yellow', special_mechanic:'schutzpatronin'},
   {id:'Z8',  name:'Gezeiten-Kloster',     cat:'special', pts:{type:'season_table',table:[0,4,8,12]}, def:1, res:null,      inno:0, upgrade:false, diceColor:'spring', special_mechanic:'season_pts'},
-  {id:'Z34', name:'Gezeiten-Kloster',     cat:'special', pts:{type:'season_table',table:[0,4,8,12]}, def:1, res:null,      inno:0, upgrade:false, diceColor:'spring', special_mechanic:'season_pts'},
+  {id:'Z3', name:'Gezeiten-Kloster',     cat:'special', pts:{type:'season_table',table:[0,4,8,12]}, def:1, res:null,      inno:0, upgrade:false, diceColor:'spring', special_mechanic:'season_pts'},
   {id:'Z9',  name:'Alchemisten-Halle',  cat:'special', pts:{type:'res*',res:'glas',factor:3},     def:1, res:'glas',    inno:1, upgrade:false, diceColor:'yellow'},
   {id:'Z10', name:'Kristallpalast',    cat:'special', pts:15,                                    def:0, res:null,      inno:0, upgrade:false, diceColor:'yellow', special_mechanic:'destroyable', fragile:true},
   {id:'Z11', name:'Versicherung',      cat:'special', pts:0,                                     def:2, res:null,      inno:0, upgrade:false, diceColor:'blue',   special_mechanic:'pts_if_plundered'},
@@ -143,9 +143,9 @@ const SPECIAL_BUILDINGS = [
   {id:'Z28', name:'Bogenwacht',        cat:'special', pts:4,                                     def:2, res:null,      inno:0, upgrade:false, diceColor:'red',    special_mechanic:'minus2_attackers'},
   {id:'Z29', name:'Schildtor',        cat:'special', pts:3,                                     def:2, res:null,      inno:0, upgrade:false, diceColor:'yellow', special_mechanic:'neighbor_defense_2'},
   {id:'Z30', name:'Schildtor',        cat:'special', pts:3,                                     def:2, res:null,      inno:0, upgrade:false, diceColor:'yellow', special_mechanic:'neighbor_defense_2'},
-  {id:'Z31', name:'Holzfestung',       cat:'special', pts:6,                                     def:1, res:null,      inno:0, upgrade:false, diceColor:'yellow', special_mechanic:'direct_barrier'},
-  {id:'Z32', name:'Holzfestung',       cat:'special', pts:6,                                     def:1, res:null,      inno:0, upgrade:false, diceColor:'yellow', special_mechanic:'direct_barrier'},
-  {id:'Z33', name:'Schwarze Kathedrale', cat:'special', pts:{type:'sole_survivor',value:48},     def:0, res:null,      inno:0, upgrade:false, diceColor:'red'},
+  {id:'Z1', name:'Holzfestung',       cat:'special', pts:6,                                     def:1, res:null,      inno:0, upgrade:false, diceColor:'yellow', special_mechanic:'direct_barrier'},
+  {id:'Z2', name:'Holzfestung',       cat:'special', pts:6,                                     def:1, res:null,      inno:0, upgrade:false, diceColor:'yellow', special_mechanic:'direct_barrier'},
+  {id:'Z32', name:'Schwarze Kathedrale', cat:'special', pts:{type:'sole_survivor',value:48},     def:0, res:null,      inno:0, upgrade:false, diceColor:'red'},
 ];
 
 
