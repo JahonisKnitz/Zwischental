@@ -3,310 +3,203 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>26 Jahre Talwacht — Kampagne</title>
-<link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Cinzel:wght@400;700&family=Barlow+Condensed:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<title>Zwischental · Solo-Kampagne</title>
+<link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Lora:ital,wght@0,400;0,600;1,400&family=Cinzel:wght@500;600&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+/* Tokens identical to Anleitung */
 :root{
-  --ink:#1a1208;--gold:#c8920a;--dark:#2a1a0e;
-  --paper:#f5ede0;--off:#ede4d4;
-  --c-easy:#5a8a3a;--c-medium:#c8920a;--c-hard:#b03018;--c-epic:#7a1a9a;
+  --blue-dk:#1a4060;--blue-md:#2d7aaa;--blue-lt:#3a9aca;
+  --gold:#e8c840;--ink:#1a1810;--muted:#506070;
+  --border:#b0c0c8;--off:#f6f9fb;--page:#ffffff;--sky:#dce8ec;
+  --score:#b83040;--koop:#2a3a70;
 }
-html,body{min-height:100vh;background:var(--dark);font-family:'Crimson Text',serif;color:var(--ink)}
-header{
-  padding:32px 20px 20px;text-align:center;
-  background:linear-gradient(180deg,#1a0e06 0%,var(--dark) 100%);
-  border-bottom:1px solid rgba(200,146,10,0.2);
-}
-.logo{font-family:'Pirata One',cursive;font-size:2.2rem;color:var(--gold);line-height:1}
-.logo-sub{font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.3em;color:rgba(200,146,10,0.5);text-transform:uppercase;margin-top:4px}
-.intro{max-width:500px;margin:16px auto 0;font-style:italic;font-size:0.95rem;color:rgba(245,237,224,0.6);line-height:1.5}
 
-.campaign-desc {
-  max-width: 600px; margin: 0 auto;
-  padding: 20px 20px 22px;
-  border-bottom: 1px solid rgba(200,146,10,0.15);
-  background: #1a1208;
-}
-.cd-lead {
-  font-family: 'Pirata One', cursive;
-  font-size: 1.1rem; color: var(--gold);
-  line-height: 1.3; margin-bottom: 10px;
-}
-.campaign-desc p {
-  font-family: 'Crimson Text', serif;
-  font-size: 0.95rem; color: rgba(245,237,224,0.75);
-  line-height: 1.55; margin-bottom: 12px;
-}
-.cd-rules { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
-.cd-rule {
-  font-family: 'Crimson Text', serif;
-  font-size: 0.9rem; color: rgba(245,237,224,0.7);
-  line-height: 1.5; padding-left: 14px;
-  position: relative;
-}
-.cd-rule::before {
-  content: '›'; position: absolute; left: 0;
-  color: var(--gold); font-family: 'Pirata One', cursive;
-  font-size: 1rem;
-}
-.cd-rule strong { color: rgba(245,237,224,0.95); }
-.cd-material {
-  border: 1px solid rgba(200,146,10,0.25);
-  border-radius: 6px; padding: 10px 14px;
-  background: rgba(200,146,10,0.06);
-}
-.cd-material-title {
-  font-family: 'Cinzel', serif; font-size: 0.55rem;
-  letter-spacing: 0.2em; text-transform: uppercase;
-  color: var(--gold); margin-bottom: 6px;
-}
-.cd-material-items {
-  display: flex; flex-direction: column; gap: 3px;
-}
-.cd-material-items span {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 0.75rem; color: rgba(245,237,224,0.65);
-}
-.cd-material-items span::before { content: '· '; color: var(--gold); }
+html,body{min-height:100%;background:var(--sky);display:flex;flex-direction:column;align-items:center;
+  padding:40px 16px 80px;font-family:'Lora',serif;color:var(--ink)}
 
-.drafting-panel {  max-width: 600px; margin: 0 auto;
-  padding: 18px 20px 20px;
-  border-bottom: 1px solid rgba(200,146,10,0.15);
-  background: #1a1208;
-}
-.drafting-title {
-  font-family: 'Cinzel', serif; font-size: 0.65rem;
-  letter-spacing: 0.22em; text-transform: uppercase;
-  color: var(--gold); margin-bottom: 12px;
-}
-.drafting-steps { display: flex; flex-direction: column; gap: 10px; }
-.drafting-step { display: flex; gap: 12px; align-items: flex-start; }
-.drafting-num {
-  font-family: 'Pirata One', cursive; font-size: 1rem;
-  color: var(--gold); flex-shrink: 0; width: 20px; line-height: 1.3;
-}
-.drafting-step div:last-child {
-  font-family: 'Crimson Text', serif; font-size: 1rem;
-  color: rgba(245,237,224,1); line-height: 1.6;
-}
-.drafting-step strong { color: var(--gold); font-weight: 700; }
-.progress-bar-wrap{padding:16px 20px;background:#1a1208;border-bottom:1px solid rgba(200,146,10,0.15)}
-.progress-bar-track{height:4px;background:rgba(200,146,10,0.15);border-radius:2px;overflow:hidden}
-.progress-bar-fill{height:100%;background:var(--gold);border-radius:2px;transition:width 0.5s ease}
-.progress-label{font-family:'Cinzel',serif;font-size:0.55rem;letter-spacing:0.2em;color:rgba(200,146,10,0.5);text-transform:uppercase;margin-top:6px;text-align:center}
+/* Book stage */
+.book{width:580px;background:var(--page);box-shadow:0 16px 56px rgba(0,0,0,.18);
+  border-radius:10px;overflow:hidden;display:flex;flex-direction:column}
 
-.chapters{max-width:600px;margin:0 auto;padding:20px 16px 60px}
+/* Topbar */
+.bar{background:var(--blue-dk);padding:11px 22px;display:flex;align-items:center;gap:10px;
+  border-radius:10px 10px 0 0}
+.bar-logo{font-family:'Pirata One',cursive;font-size:1.1rem;color:var(--gold);cursor:pointer;flex-shrink:0}
+.bar-back{font-family:'Cinzel',serif;font-size:.5rem;letter-spacing:.1em;text-transform:uppercase;
+  color:rgba(255,255,255,.4);text-decoration:none;margin-left:auto;
+  border:1px solid rgba(255,255,255,.15);padding:3px 10px;border-radius:20px}
+.bar-back:hover{color:rgba(255,255,255,.75)}
 
-.difficulty-group{margin-bottom:8px}
-.difficulty-label{
-  font-family:'Cinzel',serif;font-size:0.55rem;letter-spacing:0.25em;
-  text-transform:uppercase;padding:12px 4px 6px;
-  display:flex;align-items:center;gap:10px;
-}
-.difficulty-label::after{content:'';flex:1;height:1px;background:currentColor;opacity:0.2}
+/* Accent strip */
+.strip{height:4px;background:var(--score);flex-shrink:0}
 
-.chapter{
-  background:var(--paper);border-radius:10px;margin-bottom:8px;
-  display:flex;align-items:flex-start;gap:0;
-  border:1px solid rgba(26,18,8,0.1);
-  transition:box-shadow 0.2s,opacity 0.2s;
-  cursor:pointer;overflow:hidden;
-  position:relative;
-}
-.chapter.done{opacity:0.55}
-.chapter.done .ch-name{text-decoration:line-through;opacity:0.6}
+/* Hero */
+.hero{padding:24px 24px 20px;border-bottom:1px solid var(--border)}
+.hero-eyebrow{font-family:'Cinzel',serif;font-size:.52rem;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--score);margin-bottom:4px}
+.hero-title{font-family:'Pirata One',cursive;font-size:2rem;color:var(--ink);line-height:1;margin-bottom:10px}
+.hero-lead{font-size:.88rem;line-height:1.7;color:#2a2820;margin-bottom:14px}
+.hero-lead strong{font-weight:600} .hero-rule strong{font-weight:600;display:inline}
+.hero-rules{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.hero-rule{font-size:.84rem;line-height:1.75;color:#2a2820;padding-left:22px;text-indent:-22px;margin-bottom:4px}
+.hero-rule-n{font-family:'Pirata One',cursive;font-size:1rem;color:var(--score);display:inline;margin-right:6px}
 
-.ch-num{
-  font-family:'Pirata One',cursive;font-size:1.4rem;line-height:1;
-  color:white;min-width:52px;padding:12px 10px;text-align:center;
-  align-self:stretch;display:flex;align-items:center;justify-content:center;
-  flex-shrink:0;
-}
-.ch-body{padding:11px 12px 10px;flex:1}
-.ch-name{
-  font-family:'Cinzel',serif;font-size:0.78rem;font-weight:700;
-  letter-spacing:0.06em;color:var(--ink);margin-bottom:3px;
-}
-.ch-story{
-  font-style:italic;font-size:0.82rem;color:rgba(26,18,8,0.6);
-  line-height:1.4;margin-bottom:5px;
-}
-.ch-tags{display:flex;flex-wrap:wrap;gap:4px}
-.ch-tag{
-  font-family:'Barlow Condensed',sans-serif;font-size:0.55rem;
-  font-weight:700;letter-spacing:0.08em;text-transform:uppercase;
-  padding:2px 7px;border-radius:10px;color:white;
-}
-.tag-ziel{background:#3a6a9a}
-.tag-mod{background:#6a3a1a}
-.tag-hard{background:#8a1a1a}
+/* Note box */
+.note{border-left:2px solid var(--blue-lt);background:var(--off);padding:9px 13px;
+  font-style:italic;font-size:.8rem;color:#3a4840;line-height:1.6;margin:10px 0}
 
-.ch-check{
-  width:26px;height:26px;border-radius:50%;
-  border:1.5px solid rgba(26,18,8,0.2);
-  margin:10px 12px 10px 0;flex-shrink:0;
+/* Material */
+.material{background:var(--off);border:1px solid var(--border);border-radius:3px;
+  padding:10px 14px;margin-top:10px}
+.mat-label{font-family:'Cinzel',serif;font-size:.52rem;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--blue-dk);margin-bottom:6px;
+  padding-bottom:4px;border-bottom:1px solid var(--border)}
+.mat-items{display:flex;flex-direction:column;gap:3px}
+.mat-item{font-size:.78rem;color:#2a2820;padding:2px 0;
+  border-bottom:1px solid rgba(0,0,0,.04)}
+.mat-item:last-child{border-bottom:none}
+.mat-item::before{content:'· ';color:var(--blue-md)}
+
+/* Progress */
+.progress-wrap{padding:12px 24px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px}
+.progress-track{flex:1;height:4px;background:rgba(26,64,96,.1);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:var(--score);border-radius:2px;transition:width .4s ease;width:0%}
+.progress-label{font-family:'Cinzel',serif;font-size:.48rem;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--muted);white-space:nowrap}
+
+/* Chapter list */
+.chapters{padding:16px 22px 28px;display:flex;flex-direction:column;gap:0}
+
+/* Group header */
+.group-hd{padding:14px 0 6px;display:flex;align-items:center;gap:10px;
+  font-family:'Cinzel',serif;font-size:.52rem;letter-spacing:.2em;
+  text-transform:uppercase}
+.group-hd::after{content:'';flex:1;height:1px;background:currentColor;opacity:.2}
+
+/* Reward panel */
+.reward{border:1px solid var(--border);border-radius:4px;margin-bottom:10px;overflow:hidden}
+.reward-hd{background:var(--blue-dk);padding:8px 14px;
+  display:flex;align-items:center;gap:10px}
+.reward-icon{font-size:1rem}
+.reward-title{font-family:'Pirata One',cursive;font-size:.95rem;color:var(--gold);line-height:1}
+.reward-sub{font-family:'Cinzel',serif;font-size:.46rem;letter-spacing:.12em;
+  text-transform:uppercase;color:rgba(232,200,64,.5);margin-top:2px}
+.reward-body{display:flex;gap:12px;padding:10px 14px;background:var(--off);align-items:flex-start}
+.reward-card{width:72px;flex-shrink:0;background:#fff;border:1px solid var(--border);
+  border-radius:3px;overflow:hidden}
+.reward-card-img{aspect-ratio:5/7;background:#f0f4f8;
   display:flex;align-items:center;justify-content:center;
-  transition:background 0.2s,border-color 0.2s;
-  font-size:0.8rem;color:transparent;align-self:center;
-}
-.chapter.done .ch-check{background:var(--gold);border-color:var(--gold);color:white}
+  font-family:'Cinzel',serif;font-size:.46rem;color:var(--muted);text-align:center;padding:4px}
+.reward-card-img img{width:100%;height:100%;object-fit:cover;display:block}
+.reward-card-info{padding:3px 5px}
+.reward-card-name{font-family:'Cinzel',serif;font-size:.5rem;letter-spacing:.04em;
+  font-weight:600;color:var(--ink);line-height:1.2;margin-bottom:1px}
+.reward-card-pts{font-size:.52rem;font-weight:700;color:var(--score)}
+.reward-text{flex:1;font-size:.78rem;color:#2a2820;line-height:1.6;font-style:italic}
+.reward-locked-msg{padding:8px 14px;font-family:'Cinzel',serif;font-size:.48rem;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-align:center}
 
-/* difficulty colors */
-.diff-1 .ch-num{background:var(--c-easy)}
-.diff-2 .ch-num{background:var(--c-medium)}
-.diff-3 .ch-num{background:var(--c-hard)}
-.diff-4 .ch-num{background:var(--c-epic)}
-.diff-1 .difficulty-label{color:var(--c-easy)}
-.diff-2 .difficulty-label{color:var(--c-medium)}
-.diff-3 .difficulty-label{color:var(--c-hard)}
-.diff-4 .difficulty-label{color:var(--c-epic)}
+/* Chapter card */
+.ch{background:#fff;border:1px solid var(--border);border-radius:3px;
+  margin-bottom:4px;display:flex;align-items:stretch;cursor:pointer;
+  transition:box-shadow .15s;overflow:hidden}
+.ch:hover{box-shadow:0 2px 8px rgba(26,64,96,.12)}
+.ch.done{opacity:.55}
+.ch.done .ch-name{text-decoration:line-through;opacity:.6}
+.ch.locked{opacity:.4;pointer-events:none}
 
-.reward-panel {
-  background: linear-gradient(135deg, #2a1a08, #1a1008);
-  border: 1px solid rgba(200,146,10,0.4);
-  border-radius: 10px;
-  margin-bottom: 16px;
-  overflow: hidden;
-}
-.reward-header {
-  background: linear-gradient(135deg, rgba(200,146,10,0.2), rgba(200,146,10,0.05));
-  padding: 10px 14px;
-  display: flex; align-items: center; gap: 10px;
-  border-bottom: 1px solid rgba(200,146,10,0.2);
-}
-.reward-icon { font-size: 1.4rem; }
-.reward-title {
-  font-family: 'Pirata One', cursive;
-  font-size: 1rem; color: var(--gold); line-height: 1.1;
-}
-.reward-rathaus {
-  font-family: 'Cinzel', serif; font-size: 0.55rem;
-  letter-spacing: 0.12em; text-transform: uppercase;
-  color: rgba(200,146,10,0.6); margin-top: 2px;
-}
-.reward-body { padding: 10px 14px 12px; display: flex; gap: 14px; align-items: flex-start; }
-.reward-card-mini {
-  flex-shrink: 0; width: 80px;
-  background: rgba(245,237,224,0.06);
-  border: 1px solid rgba(200,146,10,0.25);
-  border-radius: 6px; padding: 8px 7px;
-  display: flex; flex-direction: column; gap: 3px;
-}
-.rcm-id { font-family:'Cinzel',serif; font-size:0.38rem; color:rgba(200,146,10,0.4); letter-spacing:0.1em; }
-.rcm-name { font-family:'Pirata One',cursive; font-size:0.72rem; color:rgba(245,237,224,0.85); line-height:1.1; }
-.rcm-pts { font-family:'Barlow Condensed',sans-serif; font-size:0.58rem; font-weight:700;
-  color:var(--gold); text-transform:uppercase; margin-top:2px; }
-.rcm-def { font-family:'Barlow Condensed',sans-serif; font-size:0.55rem; color:rgba(245,237,224,0.4); }
-.rcm-flavor { font-family:'Crimson Text',serif; font-style:italic; font-size:0.62rem;
-  color:rgba(245,237,224,0.35); line-height:1.3; margin-top:4px; border-top:1px solid rgba(200,146,10,0.1); padding-top:4px; }
-.reward-text {
-  flex: 1; font-family:'Crimson Text',serif; font-style:italic;
-  font-size:0.82rem; color:rgba(245,237,224,0.55); line-height:1.5;
-}
-.reward-locked {
-  padding: 12px 14px;
-  font-family:'Cinzel',serif; font-size:0.55rem;
-  letter-spacing:0.15em; text-transform:uppercase;
-  color:rgba(200,146,10,0.2); text-align:center;
-}
+.ch-num{font-family:'Pirata One',cursive;font-size:1.3rem;line-height:1;
+  color:white;min-width:46px;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;padding:8px}
+.ch-body{flex:1;padding:9px 11px}
+.ch-name{font-family:'Cinzel',serif;font-size:.7rem;font-weight:600;
+  letter-spacing:.06em;color:var(--ink);margin-bottom:2px}
+.ch-story{font-style:italic;font-size:.76rem;color:var(--muted);
+  line-height:1.4;margin-bottom:4px}
+.ch-tags{display:flex;flex-wrap:wrap;gap:3px}
+.ch-tag{font-family:'Cinzel',serif;font-size:.46rem;letter-spacing:.06em;
+  text-transform:uppercase;padding:2px 7px;border-radius:20px;color:white}
+.tag-ziel{background:var(--blue-dk)}
+.tag-mod{background:#7a4400}
 
-.group-header {
-  font-family: 'Cinzel', serif;
-  font-size: 0.62rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--gold);
-  padding: 18px 4px 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  border-bottom: 1px solid rgba(200,146,10,0.2);
-  margin-bottom: 10px;
-}
-.group-header.locked { color: rgba(200,146,10,0.3); }
-.group-name { }
-.group-hint {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 0.6rem;
-  font-style: italic;
-  color: rgba(200,146,10,0.4);
-  letter-spacing: 0.05em;
-  text-transform: none;
-}
-.locked-card {
-  cursor: default !important;
-  opacity: 0.4;
-  pointer-events: none;
-}
+.ch-check{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--border);
+  margin:10px 12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  font-size:.75rem;color:transparent;transition:all .2s;align-self:center}
+.ch.done .ch-check{background:var(--score);border-color:var(--score);color:white}
 
-.back-btn{  position:fixed;bottom:24px;right:20px;
-  font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.15em;
-  text-transform:uppercase;color:var(--gold);
-  background:rgba(26,18,8,0.85);border:1px solid rgba(200,146,10,0.3);
-  padding:8px 16px;border-radius:20px;text-decoration:none;
-  backdrop-filter:blur(4px);transition:border-color 0.2s;
-}
-.back-btn:hover{border-color:var(--gold)}
+/* Difficulty colours */
+.diff-1 .ch-num{background:var(--blue-md)}
+.diff-2 .ch-num{background:#2a6a40}
+.diff-3 .ch-num{background:var(--score)}
+.diff-4 .ch-num{background:#4a1a6a}
+.diff-1 .group-hd{color:var(--blue-md)}
+.diff-2 .group-hd{color:#2a6a40}
+.diff-3 .group-hd{color:var(--score)}
+.diff-4 .group-hd{color:#4a1a6a}
+
+/* Footer */
+.bar-foot{background:var(--blue-dk);padding:10px 22px;
+  display:flex;align-items:center;justify-content:space-between;
+  border-radius:0 0 10px 10px}
+.foot-pg{font-family:'Cinzel',serif;font-size:.48rem;letter-spacing:.1em;
+  text-transform:uppercase;color:rgba(255,255,255,.3)}
+.foot-btn{font-family:'Cinzel',serif;font-size:.5rem;letter-spacing:.08em;
+  text-transform:uppercase;border:1px solid rgba(255,255,255,.18);
+  background:transparent;color:rgba(255,255,255,.45);padding:4px 12px;cursor:pointer}
+.foot-btn.p{background:var(--blue-md);border-color:var(--blue-md);color:white}
+.group-name{}
+.group-hint{font-size:.55rem;font-style:italic;color:var(--muted);letter-spacing:.04em;
+  text-transform:none;display:block;margin-top:2px}
+.locked-card{opacity:.4;pointer-events:none;cursor:default}
+
 </style>
 </head>
 <body>
+<div class="book">
 
-<header>
-  <div class="logo">26 Jahre Talwacht</div>
-  <div class="logo-sub">Die Solo-Kampagne</div>
-  <div class="intro">Das Tal hat eine Geschichte. Du schreibst sie — Jahreszeit für Jahreszeit, Sieg für Sieg.</div>
-</header>
-
-<div class="campaign-desc">
-  <p class="cd-lead">Werde zur Legende der Talwacht und spiele ein Vierteljahrhundert um das Schicksal des Zwischentals!</p>
-  <p>Stell dich in 5 Kapiteln mit je 5 Spielen den Abenteuern und Rückschlägen von 25 Jahren Talwacht und baue deine Siedlung mit permanenten Upgrades immer weiter aus bis zum großen Finale: Der Aufstieg zur goldenen Festung in Spiel 26.</p>
-  <div class="cd-rules">
-    <div class="cd-rule">Überstehe wenigstens <strong>4 von 5 Level</strong> in jedem Kapitel, um das nächste Kapitel freizuschalten.</div>
-    <div class="cd-rule">Für jedes freigeschaltete Kapitel startet dein <strong>Rathaus auf einem höheren Level</strong> für alle folgenden Spiele. Außerdem gewinnst du <strong>4 epische Sonderkarten</strong>, die dir von nun an im Hauptspiel zur Verfügung stehen.</div>
-    <div class="cd-rule">Bestehe alle 25 Level und stell dich dem Finale: <strong>Der großen Belagerung in Level 26.</strong></div>
-    <div class="cd-rule">Schaffst du auch das — was noch keiner vor dir geschafft hat — erhältst du das <strong>goldene Rathaus</strong> und den <strong>goldenen Turm</strong> (Kosten: 4 Münzen — verdoppelt die Punkte der geschützten Karte).</div>
+  <div class="bar">
+    <div class="bar-logo">Zwischental</div>
+    <a href="zwischental-anleitung.html" class="bar-back">← Anleitung</a>
   </div>
-  <div class="cd-material">
-    <div class="cd-material-title">Zusätzliches Spielmaterial</div>
-    <div class="cd-material-items">
-      <span>4 Sonderkarten Z1, Z2, Z3, Z33</span>
-      <span>1 alternative Rathauskarte in Gold</span>
-      <span>1 Turm-Token in Goldfarbe</span>
-    </div>
-  </div>
-</div>
+  <div class="strip"></div>
 
-<div class="drafting-panel">
-  <div class="drafting-title">⚔ Solo-Drafting</div>
-  <div class="drafting-steps">
-    <div class="drafting-step">
-      <div class="drafting-num">1</div>
-      <div>Bereite die Karten für die Jahreszeit vor, wie bei einem Spiel zu viert: Mische die Karten der Jahreszeit und teile sie auf <strong>4 gleiche Stapel</strong> auf. Ergänze jeden Stapel mit zufälligen Sonderkarten (ohne diese anzuschauen), bis jeder Stapel <strong>6 Karten</strong> hat. Anschließend lege die 4 Stapel übereinander zu einem großen Stapel.</div>
+  <div class="hero">
+    <div class="hero-eyebrow">Solo-Kampagne</div>
+    <div class="hero-title">26 Jahre Talwacht</div>
+    <p class="hero-lead">Das Tal hat eine Geschichte. Du schreibst sie — Jahreszeit für Jahreszeit, Sieg für Sieg. Stell dich in 5 Kapiteln den Abenteuern und Rückschlägen von 25 Jahren Talwacht.</p>
+    <div class="hero-rules">
+      <div class="hero-rule"><span class="hero-rule-n">1</span>Bestehe wenigstens <strong>4 von 5 Level</strong> in jedem Kapitel, um das nächste freizuschalten.</div>
+      <div class="hero-rule"><span class="hero-rule-n">2</span>Für jedes freigeschaltete Kapitel startet dein <strong>Rathaus höher</strong> und du gewinnst <strong>4 epische Sonderkarten</strong>.</div>
+      <div class="hero-rule"><span class="hero-rule-n">3</span>Bestehe alle 25 Level und stelle dich dem <strong>Finale: Level 26</strong>.</div>
+      <div class="hero-rule"><span class="hero-rule-n">4</span>Schaffe das Finale — erhalte das <strong>goldene Rathaus</strong> und den <strong>goldenen Turm</strong> (verdoppelt Punkte).</div>
     </div>
-    <div class="drafting-step">
-      <div class="drafting-num">2</div>
-      <div>Ziehe <strong>4 Karten</strong> von diesem Stapel und wähle <strong>eine</strong> zum Bauen.</div>
-    </div>
-    <div class="drafting-step">
-      <div class="drafting-num">3</div>
-      <div>Die anderen 3 Karten werden <strong>abgeworfen</strong> — sie sind für diese Jahreszeit nicht mehr verfügbar.</div>
-    </div>
-    <div class="drafting-step">
-      <div class="drafting-num">4</div>
-      <div>Nach <strong>5 Drafts</strong> hast du <strong>5 Karten</strong> für die Bauphase.</div>
+    <div class="note">Die Kampagne kann solo oder kooperativ gespielt werden. Alle normalen Regeln gelten.</div>
+    <div class="material">
+      <div class="mat-label">Zusätzliches Material</div>
+      <div class="mat-items">
+        <div class="mat-item">4 Sonderkarten Z1, Z2, Z3, Z33</div>
+        <div class="mat-item">1 alternative Rathauskarte in Gold</div>
+        <div class="mat-item">1 Turm-Token in Goldfarbe</div>
+      </div>
     </div>
   </div>
+
+  <div class="progress-wrap">
+    <div class="progress-label" id="prog-label">0 / 26</div>
+    <div class="progress-track"><div class="progress-fill" id="prog-fill"></div></div>
+  </div>
+
+  <div class="chapters" id="chapters"></div>
+
+  <div class="bar-foot">
+    <div class="foot-pg">Zwischental · Solo-Kampagne</div>
+    <a href="index.html" class="foot-btn p">▶ Demo spielen</a>
+  </div>
+
 </div>
-
-<div class="progress-bar-wrap">
-  <div class="progress-bar-track"><div class="progress-bar-fill" id="progress-fill" style="width:0%"></div></div>
-  <div class="progress-label" id="progress-label">0 von 26 Kapiteln abgeschlossen</div>
-</div>
-
-<div class="chapters" id="chapters"></div>
-
-<a href="index.html" class="back-btn">← Zum Spiel</a>
 
 <script>
 const CHAPTERS = [
@@ -474,10 +367,7 @@ const CHAPTERS = [
     mod:'Alle Überfälle mit Anführer C9 · Felder S/SO/SW nicht bebaubar · Keine Türme', diff:4,
   },
 ];
-
-const DIFF_LABELS = {1:'Einsteiger',2:'Fortgeschritten',3:'Schwer',4:'Legendär'};
-
-const GROUPS = [
+const GROUPS   = [
   {
     name:'Kapitel I · Die Anfänge', nums:[1,2,3,4,5],
     reward: {
@@ -529,6 +419,13 @@ const GROUPS = [
   },
 ];
 
+
+
+
+const DIFF_LABELS = {1:'Einsteiger',2:'Fortgeschritten',3:'Schwer',4:'Legendär'};
+
+
+
 const KEY = 'talwacht_kampagne_v2';
 let done = JSON.parse(localStorage.getItem(KEY) || '{}');
 
@@ -551,8 +448,8 @@ function groupDone(groupIdx) {
 function updateProgress(){
   const n = Object.values(done).filter(Boolean).length;
   const pct = Math.round(n / 26 * 100);
-  document.getElementById('progress-fill').style.width = pct + '%';
-  document.getElementById('progress-label').textContent = `${n} von 26 Kapiteln abgeschlossen`;
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-label').textContent = `${n} von 26 Kapiteln abgeschlossen`;
 }
 
 function render(){
@@ -568,7 +465,7 @@ function render(){
 
     // Gruppenheader
     const header = document.createElement('div');
-    header.className = `group-header${unlocked ? '' : ' locked'}`;
+    header.className = `group-hd diff-${gi < 5 ? gi+1 : 4}${unlocked ? '' : ' locked'}`;
     const lockIcon = unlocked ? '' : '🔒 ';
     const progress = isFinale ? (done[26] ? ' · ✓' : ' · 0/1') : ` · ${doneCount}/${total}`;
     const unlockHint = !unlocked && gi < 5
@@ -585,7 +482,7 @@ function render(){
       if (!ch) return;
       const el = document.createElement('div');
       const isDone = !!done[ch.num];
-      el.className = `chapter diff-${ch.diff}${isDone ? ' done' : ''}${!unlocked ? ' locked-card' : ''}`;
+      el.className = `ch diff-${ch.diff}${isDone ? ' done' : ''}${!unlocked ? ' locked-card' : ''}`;
       if (!unlocked) {
         el.innerHTML = `<div class="ch-num" style="background:#3a3028">?</div><div class="ch-body"><div class="ch-name" style="color:rgba(26,18,8,0.3)">Gesperrt</div><div class="ch-story" style="color:rgba(26,18,8,0.2)">Schließe das vorherige Kapitel ab.</div></div>`;
       } else {
@@ -611,12 +508,12 @@ function render(){
     // Belohnungs-Panel
     if (group.reward && unlocked) {
       const rp = document.createElement('div');
-      rp.className = 'reward-panel';
+      rp.className = 'reward';
       if (rewardUnlocked) {
         const r = group.reward;
         const c = r.card;
         rp.innerHTML = `
-          <div class="reward-header">
+          <div class="reward-hd">
             <div class="reward-icon">${r.icon}</div>
             <div>
               <div class="reward-title">${r.title}</div>
@@ -624,17 +521,17 @@ function render(){
             </div>
           </div>
           <div class="reward-body">
-            <div class="reward-card-mini">
-              <div class="rcm-id">${c.id}</div>
-              <div class="rcm-name">${c.name}</div>
-              <div class="rcm-pts">★ ${c.pts}</div>
-              <div class="rcm-def">🛡 ${c.def}</div>
-              <div class="rcm-flavor">${c.flavor}</div>
+            <div class="reward-card">
+              <div class="reward-card-id">${c.id}</div>
+              <div class="reward-card-name">${c.name}</div>
+              <div class="reward-card-pts">★ ${c.pts}</div>
+              <div class="reward-card-def">🛡 ${c.def}</div>
+              <div class="reward-card-flavor">${c.flavor}</div>
             </div>
             <div class="reward-text">${r.desc}</div>
           </div>`;
       } else {
-        rp.innerHTML = `<div class="reward-locked">🔒 Belohnung — schließe ${gi < 5 ? '4 von 5 Kapiteln' : 'das Finale'} ab</div>`;
+        rp.innerHTML = `<div class="reward-locked-msg">🔒 Belohnung — schließe ${gi < 5 ? '4 von 5 Kapiteln' : 'das Finale'} ab</div>`;
       }
       cont.appendChild(rp);
     }
@@ -644,6 +541,7 @@ function render(){
 }
 
 render();
+
 </script>
 </body>
 </html>

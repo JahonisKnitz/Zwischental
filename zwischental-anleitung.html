@@ -597,7 +597,7 @@ strong { font-weight: 600; }
   <div class="accent" style="background:#3a9aca"></div>
   <div class="ref-index">
     <div class="ch-label">Solo/Koop/Glossar</div>
-    <div class="ch-title" style="margin-bottom:16px">Nachschlagen</div>
+    <div class="ch-title" style="margin-bottom:16px">Kartenübersicht & Spielmodi</div>
     <div class="ref-items" id="ref-items"></div>
   </div>
   <div class="foot">
@@ -666,14 +666,14 @@ function iconEntry(src, name, desc) {
    GUIDED
 ══════════════════════════════ */
 var ST = [
-  { name: 'Spielprinzip', acc: 'intro',
+  { name: 'Spielidee', acc: 'intro',
     main: function(a) {
       return '<div class="ch-label" style="color:'+a+'">Kapitel I</div>'
         +'<div class="ch-title">Das Zwischental</div>'
-        +'<p style="font-style:italic;color:#506878;border-left:2px solid '+a+';padding:6px 12px;margin-bottom:12px">Willkommen bei der Talwacht. Vier verfeindete K\u00f6nigreiche liegen in jahrhunderte-altem Streit und das fruchtbare Zwischental liegt ausgerechnet genau dazwischen. Als Teil der Talwacht beschützt du eine kleine Siedlung und baust sie aus zur reichen Metropole. Aber baue clever, denn Pl\u00fcnderer ziehen Jahreszeit f\u00fcr Jahreszeit durch das Tal.</p>'
-        +'<p>Dein Spielfeld ist ein <strong>3\u00d73-Raster</strong>. Das <strong>Rathaus</strong> steht in der Mitte. Die angrenzenden acht Felder sind deine Siedlung \u2014 baue, verst\u00e4rke oder sch\u00fctze wertvolle Gebäude darauf.</p>'
-        +'<p>In vier Jahreszeiten spielst du jeweils 5 Karten und baust damit Geb\u00e4ude und triffst kluge Entscheidungen für deine Siedlung. Am Ende jeder Jahreszeit gibt es eine Wertung und die begehrten Siegpunkte. Im Winter halten die Räuber Winterschlaf, aber ab Fr\u00fchling kommt die Horde und will dir die wertvollen Siedpunkte plündern \u2014 nur wer gut baut, ist bestens vorbereitet.</p>'
-        +'<div class="note"><strong>Spielziel:</strong> Wer am Ende der letzen Jahreszeit die meisten Siegpunkte vor den Pl\u00fcnderern gesch\u00fctzt hat, gewinnt das Spiel.</div>';
+        +'<p style="font-style:italic;color:#506878;border-left:2px solid '+a+';padding:6px 12px;margin-bottom:12px">Willkommen bei der Talwacht. Vier K\u00f6nigreiche liegen seit Jahrhunderten im Streit und das fruchtbare Zwischental liegt ausgerechnet genau dazwischen. Du beschützt eine kleine Siedlung und baust sie aus zur reichen Metropole. Aber baue clever, denn Pl\u00fcnderer aus allen Richtungen ziehen regelmäßig durch das Tal.</p>'
+        +'<p>Deine Siedlung ist ein <strong>3\u00d73-Raster</strong>. Das <strong>Rathaus</strong> steht in der Mitte. Auf den umliegenden acht Feldern kannst du wertvolle Gebäude bauen, hochleveln oder verteidigen.</p>'
+        +'<p>In vier Jahreszeiten spielst du jeweils 5 Karten um deine Siedlung zu entwickeln. Am Ende jeder Jahreszeit bringen deine Gebäude Punkte. Aber Achtung: Herumziehende Räuber wollen deine Siedlung plündern. Jedes "geplünderte" Gebäude bringt keine Punkte in der anschließenden Jahreszeitenwertung \u2014 nur wer gut baut, ist bestens vorbereitet.</p>'
+        +'<div class="note"><strong>Spielziel:</strong> Wer nach vier Jahreszeiten die meisten Siegpunkte gesammelt hat, gewinnt das Spiel.</div>';
     },
     aside: function(a) {
       return '<div class="aside-label">Symbole</div>'
@@ -686,14 +686,14 @@ var ST = [
     main: function(a) {
       return '<div class="ch-label" style="color:'+a+'">Kapitel II</div>'
         +'<div class="ch-title">Spielaufbau</div>'
-        +'<p>Jede:r w\u00e4hlt eine <strong>Siedlungskarte</strong> und legt sie vor sich ab. Sortiert alle Karten nach Rückseite, mischt die einzelnen Stapel kräftig und legt sie verdeckt in die Tischmitte:</p>'
+        +'<p>Jede:r w\u00e4hlt ein <strong>Rathaus</strong> und legt sie vor sich als Zentrum der Siedlung. Sortiert alle Karten nach Rückseite, mischt die einzelnen Stapel kräftig:</p>'
         +'<div class="phases">'
-        +'<div class="phase"><span class="ph-n" style="color:'+a+'">1</span><div><div class="ph-t" style="color:'+a+'">Gebäudekarten</div><div class="ph-d">4 Jahreszeitstapel + 1 Sonderkartenstapel am Rand verdeckt bereitgelegt.</div></div></div>'
-        +'<div class="phase"><span class="ph-n" style="color:'+a+'">2</span><div><div class="ph-t" style="color:'+a+'">Überfallkarten &amp; W\u00fcrfel</div><div class="ph-d">Die 3 Überfallkartenstapel (gelb, blau, rot) verdeckt in die Mitte legen. Den passenden W\u00fcrfel neben jeden Stapel.</div></div></div>'
+        +'<div class="phase"><span class="ph-n" style="color:'+a+'">1</span><div><div class="ph-t" style="color:'+a+'">Gebäudekarten</div><div class="ph-d">4 Jahreszeitstapel + 1 Sonderkartenstapel bereitgelegen.</div></div></div>'
+        +'<div class="phase"><span class="ph-n" style="color:'+a+'">2</span><div><div class="ph-t" style="color:'+a+'">Überfallkarten &amp; W\u00fcrfel</div><div class="ph-d">Die 3 Überfallkartenstapel (gelb, blau, rot) verdeckt in die Mitte legen. Den passenden W\u00fcrfel neben jeden Stapel legen.</div></div></div>'
         +'<div class="phase"><span class="ph-n" style="color:'+a+'">3</span><div><div class="ph-t" style="color:'+a+'">Token &amp; M\u00fcnzen</div><div class="ph-d">Ritter, Barrieren, T\u00fcrme und M\u00fcnzen als gemeinsamen Vorrat bereithalten.</div></div></div>'
         +'</div>'
-        +'<p style="margin-top:10px"><strong>Drafting:</strong> Jede Jahreszeit beginnt mit einem Draftig. So bereitet ihr die Karten vor. Pro Spieler:in pro Jahreszeit 6 Karten ziehen (Jahreszeitkarten + Sonderkarten je nach Jahreszeit).</p>'
-        +'<table class="tbl"><thead style="background:'+a+'"><tr><th>Jahreszeit</th><th>Jahreszeit</th><th>Sonder</th><th>Draftig-Richtung</th></tr></thead><tbody>'
+        +'<p style="margin-top:10px"><strong>Drafting:</strong> Jede Jahreszeit beginnt mit einem Draftig. Vorbereitung: Für jeden Spielenden 6 Karten verdeckt ziehen als Starthand, bestehend aus Jahreszeitkarten + Sonderkarten je nach Jahreszeit).</p>'
+        +'<table class="tbl"><thead style="background:'+a+'"><tr><th> </th><th>Jahreszeit</th><th>Sonder</th><th>Draftig-Richtung</th></tr></thead><tbody>'
         +'<tr><td>'+img('icon-season-winter.png',14)+' Winter</td><td>6</td><td>0</td><td>\u21bb immer</td></tr>'
         +'<tr><td>'+img('icon-season-fr\u00fchling.png',14)+' Fr\u00fchling</td><td>5</td><td>1</td><td>\u21bb / \u21ba per Gelb</td></tr>'
         +'<tr><td>'+img('icon-season-sommer.png',14)+' Sommer</td><td>4</td><td>2</td><td>\u21bb / \u21ba per Gelb</td></tr>'
@@ -711,15 +711,15 @@ var ST = [
   },
   { name: 'Ablauf einer Jahreszeit', acc: 'intro',
   main: function(a) {
-      return '<div class="ch-label" style="color:'+a+'">Kapitel IV</div>'
+      return '<div class="ch-label" style="color:'+a+'">Kapitel III</div>'
         +'<div class="ch-title">Ablauf einer Jahreszeit</div>'
         +'<p>Jede Jahreszeit l\u00e4uft in Phasen ab. Im <strong>Winter</strong> gibt es keine Gerüchte (1) und keinen Überfall (4)</p>'
         +'<div class="phases">'
-        +'<div class="phase"><span class="ph-n" style="color:'+a+'">1</span><div><div class="ph-t" style="color:'+a+'">Ger\u00fcchte</div><div class="ph-d">W\u00fcrfel werfen, Überfallkarten aufdecken. Mindestens eine Karte bleibt ein Geheimnis.</div></div></div>'
-        +'<div class="phase"><span class="ph-n" style="color:'+a+'">2</span><div><div class="ph-t" style="color:'+a+'">Drafting & Bauen</div><div class="ph-d">Jede:r baut f\u00fcnf Karten aus einer rotierenden Auswahl.</div></div></div>'
+        +'<div class="phase"><span class="ph-n" style="color:'+a+'">1</span><div><div class="ph-t" style="color:'+a+'">Ger\u00fcchte</div><div class="ph-d">W\u00fcrfel werfen, Überfallkarten aufdecken. Die Karte mit dem höchsten Würfel bleibt ein Geheimnis.</div></div></div>'
+        +'<div class="phase"><span class="ph-n" style="color:'+a+'">2</span><div><div class="ph-t" style="color:'+a+'">Drafting & Bauen</div><div class="ph-d">Jede:r zieht und baut f\u00fcnf Karten aus einer rotierenden Auswahl.</div></div></div>'
         +'<div class="phase"><span class="ph-n" style="color:'+a+'">3</span><div><div class="ph-t" style="color:'+a+'">R\u00fcsten</div><div class="ph-d">Grüne Geb\u00e4ude produzieren Ressourcen. Stärke damit deine Verteidigung.</div></div></div>'
-        +'<div class="phase"><span class="ph-n" style="color:#1a4878">4</span><div><div class="ph-t" style="color:#1a4878">\u00dcberfall</div><div class="ph-d">Die verborgene Karte aufdecken, dann den \u00dcberfall durchf\u00fchren.</div></div></div>'
-        +'<div class="phase"><span class="ph-n" style="color:#b83040">5</span><div><div class="ph-t" style="color:#b83040">Wertung</div><div class="ph-d">Siegpunkte der \u00fcbrig gebliebenen aktiven Geb\u00e4ude z\u00e4hlen und notieren.</div></div></div>'
+        +'<div class="phase"><span class="ph-n" style="color:#1a4878">4</span><div><div class="ph-t" style="color:#1a4878">\u00dcberfall</div><div class="ph-d">Die bisher noch verdeckt gebliebenen Überfallkarten aufdecken, dann den \u00dcberfall durchf\u00fchren.</div></div></div>'
+        +'<div class="phase"><span class="ph-n" style="color:#b83040">5</span><div><div class="ph-t" style="color:#b83040">Wertung</div><div class="ph-d">Punkte der nicht geplünderten Geb\u00e4ude zusammenz\u00e4hlen und als Siegpunktenotieren.</div></div></div>'
         +'</div>';
     },
     aside: function(a) {
@@ -732,48 +732,49 @@ var ST = [
   },
   { name: 'Ger\u00fcchte & \u00dcberfall', acc: 'build',
     main: function(a) {
-      return '<div class="ch-label" style="color:'+a+'">Kapitel III</div>'
+      return '<div class="ch-label" style="color:'+a+'">Kapitel IV</div>'
         +'<div class="ch-title">Ger\u00fcchte</div>'
-        +'<p>Zu Beginn jeder Runde werden alle drei W\u00fcrfel geworfen.</p>'
-        +'<div class="note">Die oberste Überfallkarte von jedem Stapel (gelb, blau, rot) wird aufgedeckt,<strong> außer die Farbe mit dem h\u00f6chsten W\u00fcrfelwert.</strong> Der Farbe bleibt verdeckt. Zeigen mehrere W\u00fcrfel denselben H\u00f6chstwert, bleiben alle diese verborgen. Das Geheimnis wird erst beim \u00dcberfall (Phase 4) gel\u00fcftet.</div>'
-        +'<p>In der <strong>Ger\u00fcchtephase</strong> erf\u00e4hrt ihr also alles \u2014 au\u00dfer was ihr am meisten f\u00fcrchten solltet. Nutzt die offenen Informationen klug beim Bauen.</p>'
+        +'<p>Zu Beginn jeder Jahreszeit werden alle drei W\u00fcrfel geworfen.</p>'
+        +'<div class="note">Die oberste Überfallkarte von jedem Stapel (gelb, blau, rot) wird aufgedeckt,<strong> außer die Farbe mit dem h\u00f6chsten W\u00fcrfelwert.</strong> Diese Farbe bleibt verdeckt bis zum Überfall. Zeigen mehrere W\u00fcrfel denselben H\u00f6chstwert, bleiben alle diese verborgen.</div>'
+        +'<p>Die <strong>Farben</strong>:</p>'
         +'<div class="phases">'
-        +'<div class="phase"><span class="ph-n" style="color:#d4b800">\u25a0</span><div><div class="ph-t" style="color:#9a7800">Gelb \u2014 Startpunkt &amp; Richtung</div><div class="ph-d">Gerade \u2192 \u21bb im Uhrzeigersinn. Ungerade \u2192 \u21ba gegen Uhrzeigersinn.</div></div></div>'
-        +'<div class="phase"><span class="ph-n" style="color:#1a5cb8">\u25a0</span><div><div class="ph-t" style="color:#1a5cb8">Blau \u2014 Anzahl der Pl\u00fcnderer</div><div class="ph-d">Wie viele Angreifer durch Eure Siedlung ziehen.</div></div></div>'
-        +'<div class="phase"><span class="ph-n" style="color:#c41820">\u25a0</span><div><div class="ph-t" style="color:#c41820">Rot \u2014 Anf\u00fchrer</div><div class="ph-d">Sonderf\u00e4higkeit der Horde. Wechselt jede Runde aus einem Bag.</div></div></div>'
+        +'<div class="phase"><span class="ph-n" style="color:#d4b800">\u25a0</span><div><div class="ph-t" style="color:#9a7800">Gelb \u2014 Startpunkt des Überfalls &amp; Laufrichtung</div><div class="ph-d">Die gelbe Karte verrät, auf welchem Feld der Überfall beginnt. Bei gerader Zahl \u2192 \u21bb die Räuber laufen im Uhrzeigersinn. Bei ungerader Zahl \u2192 \u21ba die diebische Meute läuft gegen den Uhrzeigersinn durch die Siedlung.</div></div></div>'
+        +'<div class="phase"><span class="ph-n" style="color:#1a5cb8">\u25a0</span><div><div class="ph-t" style="color:#1a5cb8">Blau \u2014 Anzahl der Pl\u00fcnderer</div><div class="ph-d">Wie viele Übeltäter durch die Siedlung ziehen.</div></div></div>'
+        +'<div class="phase"><span class="ph-n" style="color:#c41820">\u25a0</span><div><div class="ph-t" style="color:#c41820">Rot \u2014 Anf\u00fchrer</div><div class="ph-d">Eine Sonderf\u00e4higkeit macht den Überfall noch herausfordernder.</div></div></div>'
         +'</div>';
     },
     aside: function(a) {
       return '<div class="aside-label">Das Geheimnis</div>'
-        +'<div class="icon-entry"><img src="icon-raid-start.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Startfeld</div><div class="ie-desc">sichtbar wenn Gelb nicht höchster Wert</div></div></div>'
+        +'<div class="icon-entry"><img src="icon-raid-start.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Startfeld</div><div class="ie-desc"></div></div></div>'
         +'<div class="icon-entry"><img src="icon-raid-dir.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Richtung</div><div class="ie-desc">gerade ↻ / ungerade ↺</div></div></div>'
         +'<div class="aside-label" style="margin-top:10px">Simulator</div>'
-        +'<a href="angriff-simulation.html" target="_blank" style="display:block;font-family:Cinzel,serif;font-size:.48rem;letter-spacing:.08em;text-transform:uppercase;color:#506070;border:1px solid #a0a8b0;padding:5px 8px;text-align:center;text-decoration:none;margin-top:4px">Angriffs-Simulator ↗</a>'
-        +'<div style="font-size:.64rem;color:#708090;line-height:1.45;margin-top:5px">Interaktiv ausprobieren was aufgedeckt wird und was verborgen bleibt.</div>';
+        +'<a href="angriff-simulation.html" target="_blank" style="display:block;font-family:Cinzel,serif;font-size:.48rem;letter-spacing:.08em;text-transform:uppercase;color:#506070;border:1px solid #a0a8b0;padding:5px 8px;text-align:center;text-decoration:none;margin-top:4px">Überfall-Simulator</a>'
+        +'<div style="font-size:.64rem;color:#708090;line-height:1.45;margin-top:5px">Folge dem Link und probier es aus.</div>';
     }
   },
   { name: 'Die Bauphase', acc: 'build',
     main: function(a) {
       return '<div class="ch-label" style="color:'+a+'">Kapitel V</div>'
-        +'<div class="ch-title">Die Bauphase</div>'
-        +'<p>Jede:r erh\u00e4lt eine Hand aus <strong>6 Karten</strong> (Saisonkarten + Sonderkarten). Eine Karte wird in Drafting-Richtung weitergegeben \u2014 dann spielt man mit 5 Karten.</p>'
+        +'<div class="ch-title">Drafting & Bauphase</div>'
+        +'<p>Bereitet die verdeckte Starthand für jeden Spielenden vor, bestehend aus <strong>6 Karten</strong> (Saisonkarten + Sonderkarten). Jetzt kann das Kartenziehen und Bauen beginnen. Wähle eine Karte aus deiner Starthand und gib die restlichen Karten in Drafting-Richtung weiter. Die gewählte Karte wird sofort gespielt.</p>'
         +'<p><strong>Mit jeder Karte gibt es 4 M\u00f6glichkeiten:</strong></p>'
         +'<div class="phases">'
         +'<div class="phase"><span class="ph-n" style="color:'+a+'">1</span><div><div class="ph-t" style="color:'+a+'">Bauen</div><div class="ph-d">Karte auf ein leeres Feld legen.</div></div></div>'
-        +'<div class="phase"><span class="ph-n" style="color:'+a+'">2</span><div><div class="ph-t" style="color:'+a+'">Abreissen &amp; Bauen</div><div class="ph-d">Karte auf ein belegtes Feld \u2014 das alte Geb\u00e4ude wird entfernt.</div></div></div>'
-        +'<div class="phase"><span class="ph-n" style="color:'+a+'">3</span><div><div class="ph-t" style="color:'+a+'">Upgraden</div><div class="ph-d">Gleiche Ressourcenkarte stapeln (nur mit Stapel-Icon, max. 6 Ebenen).</div></div></div>'
-        +'<div class="phase"><span class="ph-n" style="color:'+a+'">4</span><div><div class="ph-t" style="color:'+a+'">Rathaus upgraden</div><div class="ph-d">Karte unters Rathaus schieben \u2192 +1 Level, +1 M\u00fcnze sofort. Max. Level 6.</div></div></div>'
+        +'<div class="phase"><span class="ph-n" style="color:'+a+'">2</span><div><div class="ph-t" style="color:'+a+'">Abreissen &amp; Bauen</div><div class="ph-d">Karte auf ein belegtes Feld legen \u2014 das alte Geb\u00e4ude wird entfernt und abgeworfen.</div></div></div>'
+        +'<div class="phase"><span class="ph-n" style="color:'+a+'">3</span><div><div class="ph-t" style="color:'+a+'">Upgraden (nur grüne Karten) (Stapeln)</div><div class="ph-d">Karten, welche eine Ressource produzieren (Holz, Nahrung, Glas) aufeinander stapeln (nur wenn Stapel-Icon vorhanden und bei gleicher Ressource). Dieses Feld produziert soviele Einheiten der Ressource, wie Karten in diesem Stapel liegen</div></div></div>'
+        +'<div class="phase"><span class="ph-n" style="color:'+a+'">4</span><div><div class="ph-t" style="color:'+a+'">Siedlung upgraden</div><div class="ph-d">Karte ungenutzt unter das Rathaus schieben \u2192 das Level der Siedlung steigt +1 und +1 M\u00fcnze sofort. Das Siedlungs-Level entspricht der Höhe des Stapels inklusive Rathaus (Max. Level 6)</div></div></div>'
         +'</div>'
-        +'<div class="note"><strong>Wichtig:</strong> Jede Karte muss sofort gespielt oder unters Rathaus geschoben werden. Erst wenn die aktuelle Karte gebaut ist, darf die n\u00e4chste aufgenommen werden. Die Bauphase endet nachdem jede:r die f\u00fcnfte Karte gebaut hat. \u00dcbrige Karten kommen zur\u00fcck in die Schachtel.<br><br><strong>Sondergeb\u00e4ude:</strong> Man darf nur so viele Sonderkarten gleichzeitig bauen wie das Rathaus Level hat.</div>';
+        +'<p><strong>Wurde die Karte gespielt, kann die nächste Starthand aufgenommen und eine neue Karte gewählt werden.</strong> Wählen, weitergeben, bauen - das wird wiederholt bis jede:r die f\u00fcnfte Karte gebaut hat. Die 6. Karte wird abgeworfen und die Bauphase ist beendet. </p>'
+        +'<div class="note"><strong>Wichtig:</strong> Jede Karte muss sofort gespielt oder unters Rathaus geschoben werden. Erst wenn die aktuelle Karte gebaut ist, darf die n\u00e4chste Kartensammlung aufgenommen werden.<br><br><strong>Sondergeb\u00e4ude:</strong>Das Siedlungs-Level gibt vor, wieviele Sonderkarten in der Siedlung sein dürfen. Man startet mit Level 1 - ein Sondergbäude darf in der Siedlung gebaut werden. </div>';
     },
     aside: function(a) {
       return '<div class="aside-label">Gebäudetypen</div>'
-        +'<div class="icon-entry"><img src="icon-vp.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Gr\u00fcn</div><div class="ie-desc">Rohstoff, stapelbar</div></div></div>'
-        +'<div class="icon-entry"><img src="icon-defense.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Blau</div><div class="ie-desc">Punkte + Verteidigung</div></div></div>'
-        +'<div class="icon-entry"><img src="icon-fragile.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Gelb \u26a1</div><div class="ie-desc">Fragil, einmalig</div></div></div>'
-        +'<div class="icon-entry"><img src="icon-special.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Lila</div><div class="ie-desc">Sonderkarte</div></div></div>'
+        +'<div class="icon-entry"><img src="icon-vp.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Gr\u00fcn</div><div class="ie-desc">Rohstoffe, einzige stapelbare Kartenart (siehe Icon)</div></div></div>'
+        +'<div class="icon-entry"><img src="icon-defense.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Blau</div><div class="ie-desc">Punkte, ertragreiche Kartenart, häufig schwache Verteidigung</div></div></div>'
+        +'<div class="icon-entry"><img src="icon-fragile.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Gelb \u26a1</div><div class="ie-desc">Verteidgung, einzige fragile Kartenart - fragil = Karte wird noch Plünderung entfernt</div></div></div>'
+        +'<div class="icon-entry"><img src="icon-special.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Lila</div><div class="ie-desc">Sonderkarte, einzige Kartenart mit Baubeschränkung (Siedlungs-Level), spektakuläre Effekte und Punkte</div></div></div>'
         +'<div class="aside-label" style="margin-top:8px">Siedlung</div>'
-        +'<div class="icon-entry"><img src="icon-rathaus-level.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Level 1\u20136</div><div class="ie-desc">= max. Sonderkarten &amp; Rabatt</div></div></div>';
+        +'<div class="icon-entry"><img src="icon-rathaus-level.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Level 1\u20136</div><div class="ie-desc">= max. Mehr Sonderkarten bauen &amp; Münzen</div></div></div>';
     }
   },
   { name: 'Die R\u00fcstphase', acc: 'build',
