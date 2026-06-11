@@ -236,7 +236,7 @@ const DICE_COLORS = ['yellow', 'blue', 'red'];
 
 // ── Tauschverhältnis — fest 2:1 ──
 const RATIO = 2;
-const VERSION = '1.0.0';
+const VERSION = '1.0.1';
 
 // ── Außenkanten-System für Barrieren ──────────────────────────────
 // 12 Außenkanten am 3×3-Grid: jedes Randfeld hat 1 (Kante) oder 2 (Ecke) Außenkanten.
@@ -383,7 +383,7 @@ const CHAMPION_POOL = [
   { id:'C6',  label: 'Ohne Anführer',     desc: ()  => `Kein Anführer` },
   { id:'C7',  label: 'Konan der Barbär',  desc: ()  => `Blau und Gelb tauschen den Würfelwert` },
   { id:'C8',  label: 'Zugvogel',          desc: ()  => `Sommer: −3 · Frühling/Herbst: +6` },
-  { id:'C9',  label: 'Brandstifter',      desc: ()  => `Mindestens 1 Karte wird immer geplündert` },
+  { id:'C9',  label: 'Brandstifter',      desc: ()  => `Startkarte wird fragil und nach dem Überfall entfernt (außer Turm/Luftschloss)` },
 ];
 
 G.attackDir      = null;
@@ -1726,10 +1726,10 @@ function renderGrid(skipGlows) {
         cell.classList.add('plundered-cell');
       }
 
-      // Oberste Karte — Schildtor-Bonus in der Anzeige berücksichtigen
+      // Schildtor-Bonus gilt immer — auch wenn Schildtor oder Nachbar geplündert
       const topDiv = document.createElement('div');
       topDiv.style.cssText = 'position:absolute; inset:0; z-index:10;';
-      const swBonus = !G.plundered[i] ? getSchildtorBonus(i) : 0;
+      const swBonus = getSchildtorBonus(i);
       const renderCard = swBonus > 0
         ? { ...G.board[i], def: (G.board[i].def || 0) + swBonus }
         : G.board[i];
@@ -2914,23 +2914,30 @@ function setRaidActive(idx) {
   }
 }
 
-// Schildtor: gibt +1 (+2 bei neighbor_defense_2) pro benachbarter Schildtor-Karte
+// Schildtor: gibt +2 (neighbor_defense_2) pro benachbarter Schildtor-Karte
+// Regeln:
+// - Schildtor-Karte darf geplündert sein — Bonus gilt trotzdem (Fähigkeiten bleiben aktiv)
+// - Empfangende Karte darf geplündert sein — Bonus gilt für Verteidigung trotzdem
+// - Jede Schildtor-Karte zählt max. einmal pro Nachbar
+// - Wird bei jedem renderGrid() neu berechnet (Überbau, neue Karten etc.)
 function getSchildtorBonus(idx) {
-  if (!G.schildwall || G.schildwall.size === 0) return 0;
-  // Nur echte Nachbarn: vertikal ±3, horizontal ±1 nur in gleicher Zeile
+  if (!G.board) return 0;
   const row = Math.floor(idx / 3);
   const neighbors = [
-    idx - 3,                                          // oben
-    idx + 3,                                          // unten
-    (idx - 1 >= 0 && Math.floor((idx-1)/3) === row) ? idx-1 : -1,  // links (gleiche Zeile)
-    (idx + 1 <  9 && Math.floor((idx+1)/3) === row) ? idx+1 : -1,  // rechts (gleiche Zeile)
+    idx - 3,
+    idx + 3,
+    (idx - 1 >= 0 && Math.floor((idx-1)/3) === row) ? idx-1 : -1,
+    (idx + 1 <  9 && Math.floor((idx+1)/3) === row) ? idx+1 : -1,
   ].filter(n => n >= 0 && n < 9 && n !== 4);
+
   let bonus = 0;
-  for (const sw of G.schildwall) {
-    if (neighbors.includes(sw) && G.board[sw]) {
-      const mech = G.board[sw].special_mechanic;
-      bonus += (mech === 'neighbor_defense_2') ? 2 : 1;
-    }
+  // Iteriere über alle Felder — suche Schildtor-Karten die Nachbarn von idx sind
+  for (let n = 0; n < 9; n++) {
+    if (!G.board[n]) continue;
+    if (!neighbors.includes(n)) continue;
+    const mech = G.board[n].special_mechanic;
+    if (mech === 'neighbor_defense_2') bonus += 2;
+    else if (mech === 'neighbor_defense') bonus += 1;
   }
   return bonus;
 }
@@ -3020,7 +3027,22 @@ function startRaidSequence() {
         else if (G.season === 1 || G.season === 3) attackers += 6;
         break;
       case 'C9':
-        // Brandstifter: mindestens 1 Karte immer geplündert
+        // Brandstifter: Startkarte wird fragil — nach dem Überfall entfernt.
+        // Ausnahme: Turm darauf ODER Luftschloss (indestructible).
+        if (effectiveStart !== null && effectiveStart !== 4) {
+          const startCard = G.board[effectiveStart];
+          const hasTowerOnStart   = G.fortified[effectiveStart];
+          const isIndestructible  = startCard && startCard.special_mechanic === 'indestructible';
+          if (startCard && !hasTowerOnStart && !isIndestructible) {
+            // Karte als fragile markieren: entered setzen damit sie nach dem Überfall entfernt wird
+            G.entered[effectiveStart] = true;
+            // Temporär fragil machen (falls nicht schon)
+            if (!startCard.fragile) {
+              startCard._brandstifter = true; // merken dass wir das gesetzt haben
+              startCard.fragile = true;
+            }
+          }
+        }
         break;
       case 'C6':
       default:
@@ -3110,18 +3132,7 @@ function startRaidSequence() {
     steps.push({ type: 'attack', idx, incoming, def, hasTower, deactivate, blocked, spent: Math.min(def, incoming) });
   }
 
-  // Brandstifter: mindestens 1 Karte erzwingen wenn keine deaktiviert wurde
-  if (G.attackChampion && G.attackChampion.id === 'C9') {
-    const hasDeactivation = steps.some(s => s.type === 'attack' && s.deactivate);
-    if (!hasDeactivation) {
-      // Erste Angriffs-Karte erzwingen
-      const firstAttack = steps.find(s => s.type === 'attack');
-      if (firstAttack) {
-        firstAttack.deactivate = true;
-        firstAttack.forced = true;
-      }
-    }
-  }
+  // Brandstifter (C9): Startkarte wurde bereits als fragil markiert im Champion-Switch.
 
   const cells = document.querySelectorAll('.cell');
   let stepDelay = 0;
@@ -3148,7 +3159,7 @@ function startRaidSequence() {
         spentSoFar += spent;
 
         const remaining = incoming - def;
-        const forcedTxt = step.forced ? ' 🔥 Brandstifter!' : '';
+        const forcedTxt = '';
         setHint(`${incoming} ⚔ → 🛡${def}${hasTower ? ' ♜' : ''} — ${deactivate ? 'Geplündert!' + (remaining > 0 ? ' ' + remaining + ' weiter' : ' Stopp') + forcedTxt : blocked ? 'Turm hält!' : 'Siedlung hält!'}`, true);
 
         if (cells[idx]) {

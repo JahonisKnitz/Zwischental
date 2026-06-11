@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zwischental</title>
+<link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Lora:ital,wght@0,400;0,600;1,400&family=Cinzel:wght@500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #c8d8e0;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 48px 20px 80px;
+  font-family: 'Lora', serif;
+}
+
+/* ── THE BOOK ── */
+.book {
+  width: 580px;
+  background: #fff;
+  box-shadow: 0 16px 56px rgba(0,0,0,.18); border-radius: 10px; overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── HEADER BAR ── */
+.bar {
+  background: #1a4060;
+  padding: 11px 22px;
+  border-radius: 10px 10px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+.bar-logo {
+  font-family: 'Pirata One', cursive;
+  font-size: 1.1rem;
+  color: #e8c840;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.bar-nav {
+  display: flex;
+  margin-left: auto;
+  gap: 0;
+}
+.bar-tab {
+  font-family: 'Cinzel', serif;
+  font-size: .5rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.35);
+  padding: 4px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid transparent;
+}
+.bar-tab.on { color: #e8c840; border-bottom-color: #e8c840; }
+.bar-demo {
+  font-family: 'Cinzel', serif;
+  font-size: .46rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.35);
+  text-decoration: none;
+  margin-left: 16px;
+}
+
+/* ── PAGES ── */
+.page { display: none; flex-direction: column; }
+.page.on { display: flex; }
+
+/* ── ACCENT LINE (top of each chapter) ── */
+.accent { height: 4px; }
+
+/* ── SPREAD: two columns ── */
+.spread {
+  display: grid;
+  grid-template-columns: 1fr 140px;
+  flex: 1;
+}
+.main { padding: 28px 24px 22px; }
+.aside {
+  padding: 22px 16px;
+  border-left: 1px solid #e8eef0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── CHAPTER HEADING ── */
+.ch-label {
+  font-family: 'Cinzel', serif;
+  font-size: .52rem;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: #2d7aaa;
+  margin-bottom: 3px;
+}
+.ch-title {
+  font-family: 'Pirata One', cursive;
+  font-size: 2rem;
+  color: #1a1810;
+  line-height: 1;
+  margin-bottom: 18px;
+}
+
+/* ── BODY TEXT ── */
+p {
+  font-size: .84rem;
+  line-height: 1.75;
+  color: #2a2820;
+  margin-bottom: 11px;
+}
+p:last-child { margin-bottom: 0; }
+strong { font-weight: 600; }
+
+/* ── PHASE LIST ── */
+.phases { margin: 12px 0; }
+.phase {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  padding: 9px 0;
+  border-bottom: 1px solid #f0f0ee;
+}
+.phase:last-child { border-bottom: none; }
+.ph-num {
+  font-family: 'Pirata One', cursive;
+  font-size: 1.1rem;
+  color: #2d7aaa;
+  min-width: 18px;
+  line-height: 1;
+}
+.ph-title {
+  font-family: 'Cinzel', serif;
+  font-size: .62rem;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #1a4060;
+  margin-bottom: 1px;
+}
+.ph-desc {
+  font-size: .78rem;
+  color: #506070;
+  line-height: 1.45;
+}
+
+/* ── CALLOUT ── */
+.note {
+  border-left: 2px solid #3a9aca;
+  padding: 8px 12px;
+  margin: 12px 0;
+  font-style: italic;
+  font-size: .8rem;
+  color: #404840;
+  line-height: 1.6;
+  background: #f6f9fb;
+}
+
+/* ── ASIDE: icon entries ── */
+.aside-label {
+  font-family: 'Cinzel', serif;
+  font-size: .46rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: #90a0a8;
+  margin-bottom: 6px;
+}
+.icon-entry {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 5px 0;
+  border-bottom: 1px solid #f0f2f0;
+}
+.icon-entry:last-child { border-bottom: none; }
+.icon-entry img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  flex-shrink: 0;
+  opacity: .85;
+}
+.icon-entry .ie-text { flex: 1; }
+.ie-name {
+  font-family: 'Cinzel', serif;
+  font-size: .52rem;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: #1a4060;
+  line-height: 1.2;
+}
+.ie-desc {
+  font-size: .68rem;
+  color: #7090a0;
+  line-height: 1.35;
+  margin-top: 1px;
+}
+
+/* ── TABLE ── */
+.tbl {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .78rem;
+  margin: 10px 0;
+}
+.tbl th {
+  font-family: 'Cinzel', serif;
+  font-size: .5rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: #fff;
+  padding: 5px 8px;
+  text-align: left;
+}
+.tbl td {
+  padding: 6px 9px;
+  border-bottom: 1px solid #eef0ee;
+  vertical-align: top;
+  line-height: 1.4;
+}
+.tbl tr:last-child td { border-bottom: none; }
+.tbl .season-icon { width: 18px; height: 18px; vertical-align: middle; }
+
+/* ── HOME ── */
+.splash {
+  position: relative;
+  height: 260px;
+  background: linear-gradient(160deg, #1a4060 0%, #2d7aaa 100%);
+  overflow: hidden;
+}
+.splash img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  opacity: 0;
+  transition: opacity .5s;
+}
+.splash img.on { opacity: 1; }
+.splash-over {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(20,14,6,.82) 0%, transparent 60%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 18px 22px;
+}
+.splash-title {
+  font-family: 'Pirata One', cursive;
+  font-size: 2.8rem;
+  color: #e8c840;
+  line-height: 1;
+}
+.splash-sub {
+  font-family: 'Cinzel', serif;
+  font-size: .56rem;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.4);
+  margin-top: 5px;
+}
+.home-content {
+  display: grid;
+  grid-template-columns: 1fr 140px;
+}
+.home-main { padding: 22px 24px 20px; }
+.home-aside {
+  padding: 18px 14px;
+  border-left: 1px solid #e8eef0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.mat-head {
+  font-family: 'Cinzel', serif;
+  font-size: .52rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: #1a4060;
+  margin-bottom: 8px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #e8eef0;
+}
+.mat-list { margin-bottom: 18px; }
+.mat-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 3px 0;
+  font-size: .8rem;
+  color: #2a2820;
+  border-bottom: 1px solid #f4f4f2;
+}
+.mat-row:last-child { border-bottom: none; }
+.mat-n {
+  font-family: 'Pirata One', cursive;
+  font-size: 1rem;
+  color: #1a4060;
+  min-width: 28px;
+  line-height: 1;
+}
+.cta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.btn-p {
+  background: #1a4060;
+  color: #e8c840;
+  border: none;
+  padding: 9px 14px;
+  font-family: 'Cinzel', serif;
+  font-size: .58rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  width: 100%;
+}
+.btn-s {
+  background: none;
+  color: #1a4060;
+  border: 1px solid #c8d8e0;
+  padding: 7px 14px;
+  font-family: 'Cinzel', serif;
+  font-size: .54rem;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  cursor: pointer;
+  width: 100%;
+}
+.version {
+  font-family: 'Cinzel', serif;
+  font-size: .46rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: #a0b0b8;
+  text-align: center;
+  padding-top: 6px;
+}
+.info-b { }
+.ib-head {
+  font-family: 'Cinzel', serif;
+  font-size: .48rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: #90a0a8;
+  margin-bottom: 5px;
+}
+.ib-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: .7rem;
+  color: #2a2820;
+  padding: 2px 0;
+}
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* ── REF INDEX ── */
+.ref-index { padding: 24px 22px; flex: 1; }
+.ref-items { display: flex; flex-direction: column; gap: 0; }
+.ref-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 0;
+  border-bottom: 1px solid #f0f2f0;
+  cursor: pointer;
+}
+.ref-row:last-child { border-bottom: none; }
+.ref-row:hover .ref-row-title { color: #2d7aaa; }
+.ref-row-icon { width: 28px; height: 28px; object-fit: contain; flex-shrink: 0; opacity: .8; }
+.ref-row-title {
+  font-family: 'Cinzel', serif;
+  font-size: .7rem;
+  font-weight: 600;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: #1a4060;
+  flex: 1;
+}
+.ref-row-desc { font-size: .72rem; color: #8090a0; }
+.ref-arr { color: #3a9aca; font-size: .9rem; }
+
+/* ── FOOTER ── */
+.foot {
+  background: #1a4060;
+  padding: 10px 22px;
+  border-radius: 0 0 10px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.foot-pg {
+  font-family: 'Cinzel', serif;
+  font-size: .48rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.3);
+}
+.foot-nav { display: flex; gap: 6px; align-items: center; }
+.foot-btn {
+  font-family: 'Cinzel', serif;
+  font-size: .5rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  background: none;
+  border: 1px solid rgba(255,255,255,.18);
+  color: rgba(255,255,255,.45);
+  padding: 4px 12px;
+  cursor: pointer;
+}
+.foot-btn.p { background: #2d7aaa; border-color: #2d7aaa; color: white; }
+.foot-pips { display: flex; gap: 3px; align-items: center; }
+.pip { width: 4px; height: 4px; border-radius: 50%; background: rgba(255,255,255,.18); cursor: pointer; }
+.pip.on { background: #e8c840; }
+
+/* ── GLOSSAR FULL ── */
+.glos-section {
+  font-family: 'Cinzel', serif;
+  font-size: .5rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: #90a0a8;
+  padding: 10px 0 5px;
+  border-bottom: 1px solid #eef0ee;
+  margin-bottom: 6px;
+}
+.glos-icon-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid #f4f4f2;
+}
+.glos-icon-row:last-child { border-bottom: none; }
+.glos-icon-row img { width: 28px; height: 28px; object-fit: contain; flex-shrink: 0; opacity: .85; }
+.glos-term {
+  font-family: 'Cinzel', serif;
+  font-size: .58rem;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #1a4060;
+  margin-bottom: 2px;
+}
+.glos-def { font-size: .74rem; color: #404840; line-height: 1.5; }
+.glos-simple-row {
+  display: flex;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid #f4f4f2;
+  font-size: .78rem;
+}
+.glos-simple-row:last-child { border-bottom: none; }
+.glos-t { font-family: 'Cinzel', serif; font-size: .58rem; letter-spacing: .06em; text-transform: uppercase; color: #1a4060; min-width: 100px; }
+.glos-d { color: #404840; line-height: 1.5; flex: 1; }
+
+/* ── FAQ ── */
+.faq-row {
+  padding: 10px 0;
+  border-bottom: 1px solid #f0f2f0;
+  cursor: pointer;
+}
+.faq-row:last-child { border-bottom: none; }
+.faq-q {
+  font-family: 'Cinzel', serif;
+  font-size: .62rem;
+  font-weight: 600;
+  letter-spacing: .06em;
+  color: #1a4060;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  user-select: none;
+}
+.faq-q::after { content: '+'; color: #90a0a8; font-size: .9rem; }
+.faq-row.on .faq-q::after { content: '−'; }
+.faq-a { display: none; font-size: .78rem; color: #404840; line-height: 1.6; padding-top: 5px; }
+.faq-row.on .faq-a { display: block; }
+
+/* ── SEASON TABS ── */
+.stabs { display: flex; gap: 0; margin-bottom: 0; border-bottom: 2px solid #e8eef0; }
+.stab {
+  font-family: 'Cinzel', serif;
+  font-size: .5rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: 6px 10px;
+  cursor: pointer;
+  color: #90a0a8;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+}
+.stab.on { color: #1a4060; border-bottom-color: #1a4060; }
+
+/* ── CARD GRID ── */
+.cgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 10px 0; }
+.ccard { border: 1px solid #e8eef0; display: flex; flex-direction: column; }
+.ccard-img { aspect-ratio: 5/7; background: #f6f8fa; overflow: hidden; position: relative; }
+.ccard-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ccard-ct { position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,.45); color: white; font-size: .5rem; font-weight: 700; padding: 1px 3px; }
+.ccard-info { padding: 3px 4px; }
+.ccard-name { font-size: .58rem; font-weight: 600; line-height: 1.2; color: #1a1810; margin-bottom: 1px; }
+.ccard-st { display: flex; gap: 2px; }
+.ccard-p { font-size: .52rem; font-weight: 700; padding: 1px 3px; background: #f5e8c8; color: #7a4400; }
+.ccard-d { font-size: .52rem; font-weight: 700; padding: 1px 3px; background: #dae8f0; color: #1a4060; }
+</style>
+</head>
+<body>
+<div class="book">
+
+<div class="bar">
+  <div class="bar-logo" onclick="go('home')">Talwacht</div>
+  <nav class="bar-nav" id="nav"></nav>
+  <a class="bar-demo" href="index.html">Demo &#9654;</a>
+</div>
+
+<!-- HOME -->
+<div class="page on" id="page-home">
+  <div class="splash">
+    <img src="splash.png" alt="" onload="this.classList.add('on')">
+    <div class="splash-over">
+      <div class="splash-title">Talwacht</div>
+      <div class="splash-sub">Bauen &middot; Pl&uuml;ndern &middot; Bauen</div>
+      <a href="index.html" style="display:inline-block;margin-top:10px;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.45);border:1px solid rgba(255,255,255,.2);padding:4px 12px;text-decoration:none;border-radius:20px">&#9654; Demo spielen</a>
+    </div>
+  </div>
+  <div class="home-content">
+    <div class="home-main">
+      <div class="mat-head">Spielmaterial</div>
+      <div class="mat-list">
+        <div class="mat-row"><span class="mat-n">136</span>Karten</div>
+        <div class="mat-row"><span class="mat-n">20</span>Ritter (graue Kl&ouml;tzchen)</div>
+        <div class="mat-row"><span class="mat-n">20</span>Barrieren (Holzst&auml;bchen)</div>
+        <div class="mat-row"><span class="mat-n">16</span>T&uuml;rme (schwarze Zylinder)</div>
+        <div class="mat-row"><span class="mat-n">20</span>Pappm&uuml;nzen</div>
+        <div class="mat-row"><span class="mat-n">4</span>Zählscheiben</div>
+        <div class="mat-row"><span class="mat-n">3</span>W&uuml;rfel (gelb, blau, rot)</div>
+      </div>
+      <div class="cta">
+        <button class="btn-p" onclick="go('guided')">Spielanleitung &rarr;</button>
+        <button class="btn-s" onclick="go('ref')">Solo / Koop / Kampagne &amp; Karten&uuml;bersicht</button>
+      </div>
+      <div class="version">v0.9.63 &middot; Johannes Zirm</div>
+    </div>
+    <div class="home-aside">
+      <div class="info-b">
+        <div class="ib-head">W&uuml;rfel</div>
+        <div class="ib-row"><span class="dot" style="background:#d4b800"></span>Richtung</div>
+        <div class="ib-row"><span class="dot" style="background:#1a5cb8"></span>Horde (Anzahl)</div>
+        <div class="ib-row"><span class="dot" style="background:#c41820"></span>Anf&uuml;hrer</div>
+      </div>
+      <div class="info-b">
+        <div class="ib-head">Jahreszeiten</div>
+        <div class="ib-row"><span class="dot" style="background:#8eb4c8"></span>Winter</div>
+        <div class="ib-row"><span class="dot" style="background:#7ab890"></span>Fr&uuml;hling</div>
+        <div class="ib-row"><span class="dot" style="background:#c8a050"></span>Sommer</div>
+        <div class="ib-row"><span class="dot" style="background:#b87840"></span>Herbst</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GUIDED -->
+<div class="page" id="page-guided">
+  <div class="accent" id="g-acc"></div>
+  <div class="spread">
+    <div class="main" id="g-main"></div>
+    <div class="aside" id="g-aside"></div>
+  </div>
+  <div class="foot">
+    <div class="foot-pg" id="g-pg">Seite 1</div>
+    <div class="foot-nav">
+      <button class="foot-btn" id="g-prev" onclick="gStep(-1)">&larr;</button>
+      <div class="foot-pips" id="g-pips"></div>
+      <button class="foot-btn p" id="g-nxt">Weiter &rarr;</button>
+    </div>
+  </div>
+</div>
+
+<!-- REF INDEX -->
+<div class="page" id="page-ref">
+  <div class="accent" style="background:#3a9aca"></div>
+  <div class="ref-index">
+    <div class="ch-label">Solo/Koop/Glossar</div>
+    <div class="ch-title" style="margin-bottom:16px">Nachschlagen</div>
+    <div class="ref-items" id="ref-items"></div>
+  </div>
+  <div class="foot">
+    <div class="foot-pg">Solo/Koop/Glossar</div>
+    <div class="foot-nav">
+      <button class="foot-btn" onclick="go('guided')">&larr; Spielanleitung</button>
+    </div>
+  </div>
+</div>
+
+<!-- REF DETAIL -->
+<div class="page" id="page-ref-detail">
+  <div class="accent" id="rd-acc"></div>
+  <div class="spread">
+    <div class="main" id="rd-main"></div>
+    <div class="aside" id="rd-aside"></div>
+  </div>
+  <div class="foot">
+    <div class="foot-pg" id="rd-pg"></div>
+    <div class="foot-nav">
+      <button class="foot-btn" id="rd-prev"></button>
+      <button class="foot-btn p" id="rd-nxt"></button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /book -->
+<script>
+var PG = ['home','guided','ref','ref-detail'];
+var cs = 0;
+var TABS = [{id:'home',l:'Material'},{id:'guided',l:'Spielanleitung'},{id:'ref',l:'Solo/Koop/Glossar'}];
+var AC = {intro:'#1a4060',build:'#2d7aaa',raid:'#1a4878',score:'#b83040',ref:'#1a7aaa',koop:'#2a3a70'};
+
+function go(p, a) {
+  PG.forEach(function(x){ document.getElementById('page-'+x).classList.toggle('on', x===p); });
+  renderNav(p==='ref-detail' ? 'ref' : p);
+  if (p==='guided') gGo(typeof a==='number' ? a : 0);
+  if (p==='ref') buildRef();
+  if (p==='ref-detail') showRD(a);
+}
+
+function renderNav(active) {
+  var nav = document.getElementById('nav');
+  nav.innerHTML = TABS.map(function(t) {
+    return '<div class="bar-tab'+(t.id===active?' on':'')+'" data-page="'+t.id+'">'+t.l+'</div>';
+  }).join('');
+  nav.onclick = function(e) {
+    var pg = e.target.getAttribute('data-page');
+    if (pg) go(pg);
+  };
+}
+renderNav('home');
+
+/* icons */
+function img(src, sz) {
+  sz = sz || 24;
+  return '<img src="'+src+'" width="'+sz+'" height="'+sz+'" style="object-fit:contain" onerror="this.style.opacity=\'0.1\'">';
+}
+
+function iconEntry(src, name, desc) {
+  return '<div class="icon-entry">'+img(src, 24)
+    +'<div class="ie-text"><div class="ie-name">'+name+'</div><div class="ie-desc">'+desc+'</div></div></div>';
+}
+
+/* ══════════════════════════════
+   GUIDED
+══════════════════════════════ */
+var ST = [
+  { name: 'Spielprinzip', acc: 'intro',
+    main: function(a) {
+      return '<div class="ch-label" style="color:'+a+'">Kapitel I</div>'
+        +'<div class="ch-title">Das Zwischental</div>'
+        +'<p style="font-style:italic;color:#506878;border-left:2px solid '+a+';padding:6px 12px;margin-bottom:12px">Willkommen bei der Talwacht. Vier verfeindete K\u00f6nigreiche liegen in jahrhunderte-altem Streit und das fruchtbare Zwischental liegt ausgerechnet genau dazwischen. Als Teil der Talwacht beschützt du eine kleine Siedlung und baust sie aus zur reichen Metropole. Aber baue clever, denn Pl\u00fcnderer ziehen Jahreszeit f\u00fcr Jahreszeit durch das Tal.</p>'
+        +'<p>Dein Spielfeld ist ein <strong>3\u00d73-Raster</strong>. Das <strong>Rathaus</strong> steht in der Mitte. Die angrenzenden acht Felder sind deine Siedlung \u2014 baue, verst\u00e4rke oder sch\u00fctze wertvolle Gebäude darauf.</p>'
+        +'<p>In vier Jahreszeiten spielst du jeweils 5 Karten und baust damit Geb\u00e4ude und triffst kluge Entscheidungen für deine Siedlung. Am Ende jeder Jahreszeit gibt es eine Wertung und die begehrten Siegpunkte. Im Winter halten die Räuber Winterschlaf, aber ab Fr\u00fchling kommt die Horde und will dir die wertvollen Siedpunkte plündern \u2014 nur wer gut baut, ist bestens vorbereitet.</p>'
+        +'<div class="note"><strong>Spielziel:</strong> Wer am Ende der letzen Jahreszeit die meisten Siegpunkte vor den Pl\u00fcnderern gesch\u00fctzt hat, gewinnt das Spiel.</div>';
+    },
+    aside: function(a) {
+      return '<div class="aside-label">Symbole</div>'
+        +'<div class="icon-entry"><img src="icon-vp.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Siegpunkte</div><div class="ie-desc">z\u00e4hlen am Jahreszeitende</div></div></div>'
+        +'<div class="icon-entry"><img src="icon-defense.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Verteidigung</div><div class="ie-desc">h\u00e4lt Plünderer auf</div></div></div>'
+        +'<div class="icon-entry"><img src="icon-plundered.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Gepl\u00fcndert </div><div class="ie-desc">bringt 0 Siegpunkte am Ende der laufenden Jahreszeit, bringt neue Siegpunkte in der nächsten Jahreszeit</div></div></div>';
+    }
+  },
+  { name: 'Spielaufbau', acc: 'intro',
+    main: function(a) {
+      return '<div class="ch-label" style="color:'+a+'">Kapitel II</div>'
+        +'<div class="ch-title">Spielaufbau</div>'
+        +'<p>Jede:r w\u00e4hlt eine <strong>Siedlungskarte</strong> und legt sie vor sich ab. Sortiert alle Karten nach Rückseite, mischt die einzelnen Stapel kräftig und legt sie verdeckt in die Tischmitte:</p>'
+        +'<div class="phases">'
+        +'<div class="phase"><span class="ph-n" style="color:'+a+'">1</span><div><div class="ph-t" style="color:'+a+'">Gebäudekarten</div><div class="ph-d">4 Jahreszeitstapel + 1 Sonderkartenstapel am Rand verdeckt bereitgelegt.</div></div></div>'
+        +'<div class="phase"><span class="ph-n" style="color:'+a+'">2</span><div><div class="ph-t" style="color:'+a+'">Überfallkarten &amp; W\u00fcrfel</div><div class="ph-d">Die 3 Überfallkartenstapel (gelb, blau, rot) verdeckt in die Mitte legen. Den passenden W\u00fcrfel neben jeden Stapel.</div></div></div>'
+        +'<div class="phase"><span class="ph-n" style="color:'+a+'">3</span><div><div class="ph-t" style="color:'+a+'">Token &amp; M\u00fcnzen</div><div class="ph-d">Ritter, Barrieren, T\u00fcrme und M\u00fcnzen als gemeinsamen Vorrat bereithalten.</div></div></div>'
+        +'</div>'
+        +'<p style="margin-top:10px"><strong>Drafting:</strong> Jede Jahreszeit beginnt mit einem Draftig. So bereitet ihr die Karten vor. Pro Spieler:in pro Jahreszeit 6 Karten ziehen (Jahreszeitkarten + Sonderkarten je nach Jahreszeit).</p>'
+        +'<table class="tbl"><thead style="background:'+a+'"><tr><th>Jahreszeit</th><th>Jahreszeit</th><th>Sonder</th><th>Draftig-Richtung</th></tr></thead><tbody>'
+        +'<tr><td>'+img('icon-season-winter.png',14)+' Winter</td><td>6</td><td>0</td><td>\u21bb immer</td></tr>'
+        +'<tr><td>'+img('icon-season-fr\u00fchling.png',14)+' Fr\u00fchling</td><td>5</td><td>1</td><td>\u21bb / \u21ba per Gelb</td></tr>'
+        +'<tr><td>'+img('icon-season-sommer.png',14)+' Sommer</td><td>4</td><td>2</td><td>\u21bb / \u21ba per Gelb</td></tr>'
+        +'<tr><td>'+img('icon-season-herbst.png',14)+' Herbst</td><td>3</td><td>3</td><td>\u21bb / \u21ba per Gelb</td></tr>'
+        +'</tbody></table>'
+        +'<p style="font-size:.74rem;color:#607080">Drafting-Richtung ab Fr\u00fchling: Gelber Würfel <strong>gerade</strong> \u2192 \u21bb, gelber Würfel <strong>ungerade</strong> \u2192 \u21ba.</p>';
+    },
+    aside: function(a) {
+      return '<div class="aside-label">Jahreszeiten</div>'
+        +'<div class="icon-entry"><img src="icon-season-winter.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Winter</div><div class="ie-desc">kein \u00dcberfall</div></div></div>'
+        +'<div class="icon-entry"><img src="icon-season-fr\u00fchling.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Fr\u00fchling</div><div class="ie-desc">erster \u00dcberfall</div></div></div>'
+        +'<div class="icon-entry"><img src="icon-season-sommer.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Sommer</div><div class="ie-desc">zweiter \u00dcberfall</div></div></div>'
+        +'<div class="icon-entry"><img src="icon-season-herbst.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Herbst</div><div class="ie-desc">dritter \u00dcberfall & Endwertung: Siegpunkte + M\u00fcnzen</div></div></div>';
+    }
+  },
+  { name: 'Ablauf einer Jahreszeit', acc: 'intro',
+  main: function(a) {
+      return '<div class="ch-label" style="color:'+a+'">Kapitel IV</div>'
+        +'<div class="ch-title">Ablauf einer Jahreszeit</div>'
+        +'<p>Jede Jahreszeit l\u00e4uft in Phasen ab. Im <strong>Winter</strong> gibt es keine Gerüchte (1) und keinen Überfall (4)</p>'
+        +'<div class="phases">'
+        +'<div class="phase"><span class="ph-n" style="color:'+a+'">1</span><div><div class="ph-t" style="color:'+a+'">Ger\u00fcchte</div><div class="ph-d">W\u00fcrfel werfen, Überfallkarten aufdecken. Mindestens eine Karte bleibt ein Geheimnis.</div></div></div>'
+        +'<div class="phase"><span class="ph-n" style="color:'+a+'">2</span><div><div class="ph-t" style="color:'+a+'">Drafting & Bauen</div><div class="ph-d">Jede:r baut f\u00fcnf Karten aus einer rotierenden Auswahl.</div></div></div>'
+        +'<div class="phase"><span class="ph-n" style="color:'+a+'">3</span><div><div class="ph-t" style="color:'+a+'">R\u00fcsten</div><div class="ph-d">Grüne Geb\u00e4ude produzieren Ressourcen. Stärke damit deine Verteidigung.</div></div></div>'
+        +'<div class="phase"><span class="ph-n" style="color:#1a4878">4</span><div><div class="ph-t" style="color:#1a4878">\u00dcberfall</div><div class="ph-d">Die verborgene Karte aufdecken, dann den \u00dcberfall durchf\u00fchren.</div></div></div>'
+        +'<div class="phase"><span class="ph-n" style="color:#b83040">5</span><div><div class="ph-t" style="color:#b83040">Wertung</div><div class="ph-d">Siegpunkte der \u00fcbrig gebliebenen aktiven Geb\u00e4ude z\u00e4hlen und notieren.</div></div></div>'
+        +'</div>';
+    },
+    aside: function(a) {
+      return '<div class="aside-label">R\u00fcsten 2:1</div>'
+        +'<div class="icon-entry"><img src="res-holz.png" onerror="this.style.opacity=.15"><div><div class="ie-name">2 Holz</div><div class="ie-desc">= 1 Barriere</div></div></div>'
+        +'<div class="icon-entry"><img src="res-nahrung.png" onerror="this.style.opacity=.15"><div><div class="ie-name">2 Nahrung</div><div class="ie-desc">= 1 Ritter</div></div></div>'
+        +'<div class="icon-entry"><img src="res-glas.png" onerror="this.style.opacity=.15"><div><div class="ie-name">2 Glas</div><div class="ie-desc">= 1 M\u00fcnze</div></div></div>'
+        +'<div class="icon-entry"><img src="res-muenze.png" onerror="this.style.opacity=.15"><div><div class="ie-name">2 M\u00fcnzen</div><div class="ie-desc">= 1 Turm</div></div></div>';
+    }
+  },
+  { name: 'Ger\u00fcchte & \u00dcberfall', acc: 'build',
+    main: function(a) {
+      return '<div class="ch-label" style="color:'+a+'">Kapitel III</div>'
+        +'<div class="ch-title">Ger\u00fcchte</div>'
+        +'<p>Zu Beginn jeder Runde werden alle drei W\u00fcrfel geworfen.</p>'
+        +'<div class="note">Die oberste Überfallkarte von jedem Stapel (gelb, blau, rot) wird aufgedeckt,<strong> außer die Farbe mit dem h\u00f6chsten W\u00fcrfelwert.</strong> Der Farbe bleibt verdeckt. Zeigen mehrere W\u00fcrfel denselben H\u00f6chstwert, bleiben alle diese verborgen. Das Geheimnis wird erst beim \u00dcberfall (Phase 4) gel\u00fcftet.</div>'
+        +'<p>In der <strong>Ger\u00fcchtephase</strong> erf\u00e4hrt ihr also alles \u2014 au\u00dfer was ihr am meisten f\u00fcrchten solltet. Nutzt die offenen Informationen klug beim Bauen.</p>'
+        +'<div class="phases">'
+        +'<div class="phase"><span class="ph-n" style="color:#d4b800">\u25a0</span><div><div class="ph-t" style="color:#9a7800">Gelb \u2014 Startpunkt &amp; Richtung</div><div class="ph-d">Gerade \u2192 \u21bb im Uhrzeigersinn. Ungerade \u2192 \u21ba gegen Uhrzeigersinn.</div></div></div>'
+        +'<div class="phase"><span class="ph-n" style="color:#1a5cb8">\u25a0</span><div><div class="ph-t" style="color:#1a5cb8">Blau \u2014 Anzahl der Pl\u00fcnderer</div><div class="ph-d">Wie viele Angreifer durch Eure Siedlung ziehen.</div></div></div>'
+        +'<div class="phase"><span class="ph-n" style="color:#c41820">\u25a0</span><div><div class="ph-t" style="color:#c41820">Rot \u2014 Anf\u00fchrer</div><div class="ph-d">Sonderf\u00e4higkeit der Horde. Wechselt jede Runde aus einem Bag.</div></div></div>'
+        +'</div>';
+    },
+    aside: function(a) {
+      return '<div class="aside-label">Das Geheimnis</div>'
+        +'<div class="icon-entry"><img src="icon-raid-start.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Startfeld</div><div class="ie-desc">sichtbar wenn Gelb nicht höchster Wert</div></div></div>'
+        +'<div class="icon-entry"><img src="icon-raid-dir.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Richtung</div><div class="ie-desc">gerade ↻ / ungerade ↺</div></div></div>'
+        +'<div class="aside-label" style="margin-top:10px">Simulator</div>'
+        +'<a href="angriff-simulation.html" target="_blank" style="display:block;font-family:Cinzel,serif;font-size:.48rem;letter-spacing:.08em;text-transform:uppercase;color:#506070;border:1px solid #a0a8b0;padding:5px 8px;text-align:center;text-decoration:none;margin-top:4px">Angriffs-Simulator ↗</a>'
+        +'<div style="font-size:.64rem;color:#708090;line-height:1.45;margin-top:5px">Interaktiv ausprobieren was aufgedeckt wird und was verborgen bleibt.</div>';
+    }
+  },
+  { name: 'Die Bauphase', acc: 'build',
+    main: function(a) {
+      return '<div class="ch-label" style="color:'+a+'">Kapitel V</div>'
+        +'<div class="ch-title">Die Bauphase</div>'
+        +'<p>Jede:r erh\u00e4lt eine Hand aus <strong>6 Karten</strong> (Saisonkarten + Sonderkarten). Eine Karte wird in Drafting-Richtung weitergegeben \u2014 dann spielt man mit 5 Karten.</p>'
+        +'<p><strong>Mit jeder Karte gibt es 4 M\u00f6glichkeiten:</strong></p>'
+        +'<div class="phases">'
+        +'<div class="phase"><span class="ph-n" style="color:'+a+'">1</span><div><div class="ph-t" style="color:'+a+'">Bauen</div><div class="ph-d">Karte auf ein leeres Feld legen.</div></div></div>'
+        +'<div class="phase"><span class="ph-n" style="color:'+a+'">2</span><div><div class="ph-t" style="color:'+a+'">Abreissen &amp; Bauen</div><div class="ph-d">Karte auf ein belegtes Feld \u2014 das alte Geb\u00e4ude wird entfernt.</div></div></div>'
+        +'<div class="phase"><span class="ph-n" style="color:'+a+'">3</span><div><div class="ph-t" style="color:'+a+'">Upgraden</div><div class="ph-d">Gleiche Ressourcenkarte stapeln (nur mit Stapel-Icon, max. 6 Ebenen).</div></div></div>'
+        +'<div class="phase"><span class="ph-n" style="color:'+a+'">4</span><div><div class="ph-t" style="color:'+a+'">Rathaus upgraden</div><div class="ph-d">Karte unters Rathaus schieben \u2192 +1 Level, +1 M\u00fcnze sofort. Max. Level 6.</div></div></div>'
+        +'</div>'
+        +'<div class="note"><strong>Wichtig:</strong> Jede Karte muss sofort gespielt oder unters Rathaus geschoben werden. Erst wenn die aktuelle Karte gebaut ist, darf die n\u00e4chste aufgenommen werden. Die Bauphase endet nachdem jede:r die f\u00fcnfte Karte gebaut hat. \u00dcbrige Karten kommen zur\u00fcck in die Schachtel.<br><br><strong>Sondergeb\u00e4ude:</strong> Man darf nur so viele Sonderkarten gleichzeitig bauen wie das Rathaus Level hat.</div>';
+    },
+    aside: function(a) {
+      return '<div class="aside-label">Gebäudetypen</div>'
+        +'<div class="icon-entry"><img src="icon-vp.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Gr\u00fcn</div><div class="ie-desc">Rohstoff, stapelbar</div></div></div>'
+        +'<div class="icon-entry"><img src="icon-defense.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Blau</div><div class="ie-desc">Punkte + Verteidigung</div></div></div>'
+        +'<div class="icon-entry"><img src="icon-fragile.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Gelb \u26a1</div><div class="ie-desc">Fragil, einmalig</div></div></div>'
+        +'<div class="icon-entry"><img src="icon-special.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Lila</div><div class="ie-desc">Sonderkarte</div></div></div>'
+        +'<div class="aside-label" style="margin-top:8px">Siedlung</div>'
+        +'<div class="icon-entry"><img src="icon-rathaus-level.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Level 1\u20136</div><div class="ie-desc">= max. Sonderkarten &amp; Rabatt</div></div></div>';
+    }
+  },
+  { name: 'Die R\u00fcstphase', acc: 'build',
+    main: function(a) {
+      return '<div class="ch-label" style="color:'+a+'">Kapitel VI</div>'
+        +'<div class="ch-title">Die R\u00fcstphase</div>'
+        +'<p>Alle Geb\u00e4ude produzieren ihre Ressourcen. Diese k\u00f6nnen dann 2:1 in Verteidigungseinheiten umgewandelt werden:</p>'
+        +'<div class="phases">'
+        +'<div class="phase"><span class="ph-n" style="color:'+a+'"><img src="def-ritter.png" width="18" height="18" style="object-fit:contain"></span><div><div class="ph-t" style="color:'+a+'">Ritter</div><div class="ph-d">2 Nahrung \u2192 1 Ritter. Legt einen Ritter auf ein Geb\u00e4ude: +2 Verteidigung solange die Karte liegt. Wird die Karte entfernt, verschwindet auch der Ritter.</div></div></div>'
+        +'<div class="phase"><span class="ph-n" style="color:'+a+'"><img src="def-barriere.png" width="18" height="18" style="object-fit:contain"></span><div><div class="ph-t" style="color:'+a+'">Barriere</div><div class="ph-d">2 Holz \u2192 1 Barriere. Sch\u00fctzt eine Au\u00dfenkante eines Randfeldes permanent. Sind alle Au\u00dfenkanten barrikadiert, weicht der Angriff in Laufrichtung aus.</div></div></div>'
+        +'<div class="phase"><span class="ph-n" style="color:'+a+'"><img src="def-turm.png" width="18" height="18" style="object-fit:contain"></span><div><div class="ph-t" style="color:'+a+'">Turm</div><div class="ph-d">2 M\u00fcnzen \u2192 1 Turm. Ein Geb\u00e4ude mit Turm ist permanent uneinnehmbar \u2014 egal wie viele Angreifer kommen.</div></div></div>'
+        +'</div>';
+    },
+    aside: function(a) {
+      return '<div class="aside-label">Umrechnung</div>'
+        +'<div class="icon-entry"><img src="res-holz.png" onerror="this.style.opacity=.15"><div><div class="ie-name">2 Holz</div><div class="ie-desc">= Barriere</div></div></div>'
+        +'<div class="icon-entry"><img src="res-nahrung.png" onerror="this.style.opacity=.15"><div><div class="ie-name">2 Nahrung</div><div class="ie-desc">= Ritter</div></div></div>'
+        +'<div class="icon-entry"><img src="res-glas.png" onerror="this.style.opacity=.15"><div><div class="ie-name">2 Glas</div><div class="ie-desc">= M\u00fcnze</div></div></div>'
+        +'<div class="icon-entry"><img src="res-muenze.png" onerror="this.style.opacity=.15"><div><div class="ie-name">2 M\u00fcnzen</div><div class="ie-desc">= Turm</div></div></div>';
+    }
+  },
+  { name: 'Der \u00dcberfall', acc: 'raid',
+    main: function(a) {
+      return '<div class="ch-label" style="color:'+a+'">Kapitel VII</div>'
+        +'<div class="ch-title">Der \u00dcberfall</div>'
+        +'<p>Zuerst: die verborgene Karte aufdecken. Der <strong>Anf\u00fchrer-Effekt</strong> tritt in Kraft. Jetzt ist klar, wie viele Angreifer kommen und woher.</p>'
+        +'<p>Die Horde zieht Feld f\u00fcr Feld um das Raster. Bei jedem Feld:</p>'
+        +'<div class="phases">'
+        +'<div class="phase"><span class="ph-n" style="color:'+a+'">1</span><div><div class="ph-t" style="color:'+a+'">Verteidigung pr\u00fcfen</div><div class="ph-d">Hat das Geb\u00e4ude mehr Verteidigung als noch Angreifer \u00fcbrig sind? \u2192 Es h\u00e4lt stand, kein weiteres Feld wird getroffen.</div></div></div>'
+        +'<div class="phase"><span class="ph-n" style="color:'+a+'">2</span><div><div class="ph-t" style="color:'+a+'">Geb\u00e4ude \u00fcberrennen</div><div class="ph-d">Verbleibende Angreifer minus Verteidigungswert. Das Geb\u00e4ude wird gepl\u00fcndert \u2014 seine Siegpunkte z\u00e4hlen diese Runde nicht. Alle anderen Effekte bleiben intakt.</div></div></div>'
+        +'<div class="phase"><span class="ph-n" style="color:'+a+'">3</span><div><div class="ph-t" style="color:'+a+'">N\u00e4chstes Feld</div><div class="ph-d">Die restlichen Angreifer ziehen weiter zum n\u00e4chsten Feld in Laufrichtung.</div></div></div>'
+        +'</div>'
+        +'<div class="note"><strong>Barrieren:</strong> Ist eine Au\u00dfenkante durch eine Barriere gesch\u00fctzt, beginnt der Angriff am n\u00e4chsten ungesch\u00fctzten Feld in Laufrichtung.<br><br><strong>Geplünderte Gebäude</strong> verlieren ihre Siegpunkte \u2014 Ressourcen und Spezialf\u00e4higkeiten bleiben vollst\u00e4ndig aktiv.</div>';
+    },
+    aside: function(a) {
+      return '<div class="aside-label">Verteidigung</div>'
+        +'<div class="icon-entry"><img src="def-barriere.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Barriere</div><div class="ie-desc">Au\u00dfenkante</div></div></div>'
+        +'<div class="icon-entry"><img src="def-ritter.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Ritter</div><div class="ie-desc">+2 def</div></div></div>'
+        +'<div class="icon-entry"><img src="def-turm.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Turm</div><div class="ie-desc">uneinnehmbar</div></div></div>';
+    }
+  },
+  { name: 'Wertung', acc: 'score',
+    main: function(a) {
+      return '<div class="ch-label" style="color:'+a+'">Kapitel VIII</div>'
+        +'<div class="ch-title">Wertung</div>'
+        +'<p>Nach dem \u00dcberfall z\u00e4hlen alle noch aktiven Geb\u00e4ude ihre Siegpunkte '+img('icon-vp.png',14)+'. Notiert die Punkte.</p>'
+        +'<p>Danach: Alle gepl\u00fcnderten Geb\u00e4ude sind wieder aktiv \u2014 die n\u00e4chste Jahreszeit beginnt.</p>'
+        +'<div class="note"><strong>Im Herbst:</strong> Alle \u00fcbrigen M\u00fcnzen '+img('res-muenze.png',14)+' z\u00e4hlen zus\u00e4tzlich 1:1 als Siegpunkte.</div>';
+    },
+    aside: function(a) {
+      return '<div class="aside-label">Beispiele</div>'
+        +'<div class="icon-entry"><img src="icon-vp.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Schatzkammer</div><div class="ie-desc">13 VP</div></div></div>'
+        +'<div class="icon-entry"><img src="icon-vp.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Residenz</div><div class="ie-desc">9 VP</div></div></div>'
+        +'<div class="icon-entry"><img src="res-muenze.png" onerror="this.style.opacity=.15"><div><div class="ie-name">M\u00fcnzen</div><div class="ie-desc">1 VP je (Herbst)</div></div></div>';
+    }
+  },
+  { name: 'Spielende', acc: 'score', last: true,
+    main: function(a) {
+      return '<div class="ch-label" style="color:'+a+'">Kapitel IX</div>'
+        +'<div class="ch-title">Spielende</div>'
+        +'<p><strong>Herbst ist die letzte Jahreszeit.</strong> Nach der Herbst-Wertung endet das Spiel sofort.</p>'
+        +'<div class="note">Im Herbst z\u00e4hlen zus\u00e4tzlich alle verbliebenen M\u00fcnzen 1:1 als Siegpunkte. Plant Eure M\u00fcnzen bewusst ein!</div>'
+        +'<p>Wer nach dem letzten \u00dcberfall und der Herbst-Wertung die meisten Gesamtsiegpunkte \u00fcber alle vier Jahreszeiten hat, <strong>gewinnt das Spiel</strong>.</p>'
+        +'<p style="margin-top:14px;font-style:italic;color:#506878">Bereit f\u00fcr die vollst\u00e4ndige Referenz? Karten, Glossar, Sonderregeln und alle Spielvarianten findest du im Referenz-Tab oben.</p>';
+    },
+    aside: function(a) {
+      return '<div class="aside-label">4 Jahreszeiten</div>'
+        +'<div class="icon-entry"><img src="icon-season-winter.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Winter</div><div class="ie-desc">kein \u00dcberfall</div></div></div>'
+        +'<div class="icon-entry"><img src="icon-season-fr\u00fchling.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Fr\u00fchling</div><div class="ie-desc"></div></div></div>'
+        +'<div class="icon-entry"><img src="icon-season-sommer.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Sommer</div><div class="ie-desc"></div></div></div>'
+        +'<div class="icon-entry"><img src="icon-season-herbst.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Herbst</div><div class="ie-desc">Finale + M\u00fcnzen = VP</div></div></div>';
+    }
+  }
+];
+
+
+function gGo(n) {
+  cs = n;
+  var s = ST[n];
+  var a = AC[s.acc] || AC.intro;
+  document.getElementById('g-acc').style.background = a;
+  document.getElementById('g-main').innerHTML = s.main(a);
+  var aside = document.getElementById('g-aside');
+  aside.style.background = '#f6f9fb';
+  aside.innerHTML = s.aside(a);
+  document.getElementById('g-pg').textContent = 'Seite '+(n+1)+' von '+ST.length;
+  document.getElementById('g-pips').innerHTML = ST.map(function(_,i) {
+    return '<div class="pip'+(i===n?' on':'')+'" onclick="gGo('+i+')"></div>';
+  }).join('');
+  document.getElementById('g-prev').disabled = (n===0);
+  var nxt = document.getElementById('g-nxt');
+  if (s.last) { nxt.textContent = 'Referenz →'; nxt.onclick = function(){ go('ref'); }; }
+  else { nxt.textContent = 'Weiter →'; nxt.onclick = function(){ gStep(1); }; }
+}
+function gStep(d) { var n=cs+d; if(n>=0&&n<ST.length) gGo(n); }
+
+/* ══════════════════════════════
+   REFERENCE
+══════════════════════════════ */
+var REFS = [
+  {id:'karten',    icon:'icon-special.png',      title:'Standardgebäude',   desc:'Standardgebäude &amp; Sondergebäude',          acc:'intro'},
+  {id:'sonder',    icon:'icon-rathaus-level.png', title:'Sonderkarten',         desc:'32 Karten &amp; Mechaniken',          acc:'ref'},
+  {id:'anfuehrer', icon:'icon-plundered.png',     title:'Überfallkarten',  desc:'Anführer, Angreifer, Richtung',  acc:'raid'},
+  {id:'glossar',   icon:'icon-defense.png',       title:'Glossar',              desc:'Alle Begriffe',                      acc:'intro'},
+  {id:'faq',       icon:'icon-neighbor.png',      title:'Regelfragen',          desc:'Sonderfälle &amp; Grenzfälle', acc:'build'},
+  {id:'solo',      icon:'icon-vp.png',            title:'Solo-Modus',           desc:'Alleine spielen',                    acc:'score', special:true},
+  {id:'koop',      icon:'icon-free-build.png',    title:'Koop-Variante',        desc:'Kooperativ spielen',                 acc:'koop',  special:true},
+  {id:'kampagne',  icon:'icon-rathaus-level.png', title:'Solo-Kampagne',        desc:'26 Kapitel, Unlock-System',          acc:'score', special:true},
+  {id:'erweiterungen', icon:'icon-special.png',   title:'Erweiterungen',        desc:'Mini-Erweiterungen',                 acc:'koop'},
+];
+
+function buildRef() {
+  var el = document.getElementById('ref-items');
+  var special_started = false;
+  el.innerHTML = REFS.map(function(r) {
+    var divider = '';
+    if (r.special && !special_started) {
+      special_started = true;
+      divider = '<div style="padding:14px 0 6px;font-family:Cinzel,serif;font-size:.52rem;letter-spacing:.16em;text-transform:uppercase;color:#b83040;border-top:1px solid #f0f2f0;margin-top:4px">Spielvarianten</div>';
+    }
+    return divider + '<div class="ref-row'+(r.special?' ref-special':'')+'" data-ref="'+r.id+'">'
+      +'<img class="ref-row-icon" src="'+r.icon+'" onerror="this.style.opacity=.15">'
+      +'<div><div class="ref-row-title'+(r.special?' ref-special-title':'')+'">'+(r.special?'<span style="color:#b83040">✶</span> ':'')+r.title+'</div><div class="ref-row-desc">'+r.desc+'</div></div>'
+      +'<span class="ref-arr">›</span></div>';
+  }).join('');
+  el.onclick = function(e) {
+    var row = e.target.closest ? e.target.closest('.ref-row') : (function(t){
+      while(t && !t.classList.contains('ref-row')) t = t.parentElement; return t;
+    })(e.target);
+    if (row) go('ref-detail', row.getAttribute('data-ref'));
+  };
+}
+
+function shade(hex,p){
+  var n=parseInt(hex.slice(1),16);
+  var r=Math.max(0,Math.min(255,(n>>16)+p));
+  var g=Math.max(0,Math.min(255,((n>>8)&0xff)+p));
+  var b=Math.max(0,Math.min(255,(n&0xff)+p));
+  return '#'+((r<<16)|(g<<8)|b).toString(16).padStart(6,'0');
+}
+
+function showRD(id) {
+  var d = RD[id]; if (!d) return;
+  var a = AC[d.acc] || AC.intro;
+  var r = REFS.find(function(x){ return x.id===id; });
+  document.getElementById('rd-acc').style.background = a;
+  document.getElementById('rd-pg').textContent = r ? r.title.replace(/&amp;/g,'&').replace(/&#x\w+;/g,'') : '';
+  document.getElementById('rd-main').innerHTML = d.main(a);
+  var aside = document.getElementById('rd-aside');
+  aside.style.background = '#f6f9fb';
+  aside.innerHTML = d.aside(a);
+
+  /* stab delegation for card tabs */
+  setTimeout(function(){
+    var tabs = document.getElementById('stabs');
+    if (tabs && !tabs._delegated) {
+      tabs._delegated = true;
+      tabs.onclick = function(e) {
+        var s = e.target.getAttribute('data-season');
+        if (s) showSeason(s, e.target);
+      };
+      var first = tabs.querySelector('[data-season]');
+      if (first) showSeason(first.getAttribute('data-season'), first);
+    }
+    /* faq delegation */
+    var m = document.getElementById('rd-main');
+    if (m && !m._faqDelegated) {
+      m._faqDelegated = true;
+      m.addEventListener('click', function(e) {
+        var t = e.target;
+        while (t && t !== m) {
+          if (t.getAttribute && t.getAttribute('data-faq')) { t.classList.toggle('on'); return; }
+          t = t.parentElement;
+        }
+      });
+    }
+  }, 20);
+
+  var prev = document.getElementById('rd-prev');
+  var nxt  = document.getElementById('rd-nxt');
+  prev.style.display = d.prev ? '' : 'none';
+  if (d.prev) { prev.textContent = '\u2190'; prev.onclick = function(){ go('ref-detail', d.prev); }; }
+  nxt.textContent = d.next ? 'Weiter \u2192' : '\u00dcbersicht';
+  nxt.style.background = d.next ? a : '#1a4060';
+  nxt.style.borderColor = d.next ? a : '#1a4060';
+  nxt.onclick = d.next ? function(){ go('ref-detail', d.next); } : function(){ go('ref'); };
+}
+
+var RD = {
+symbole:{acc:'intro',prev:null,next:'ressourcen',
+ main:function(a){return '<div class="ch-label" style="color:'+a+'">Symbole</div><div class="ch-title">Alle Symbole</div>'
+  +'<div class="glos-section">Gameplay</div>'
+  +'<div class="glos-icon-row">'+img('icon-vp.png',28)+'<div><div class="glos-term">Siegpunkte</div><div class="glos-def">Am Ende jeder Jahreszeit aus allen aktiven Gebäuden addiert.</div></div></div>'
+  +'<div class="glos-icon-row">'+img('icon-defense.png',28)+'<div><div class="glos-term">Verteidigung</div><div class="glos-def">Wie viele Angreifer ein Gebäude aufhalten kann.</div></div></div>'
+  +'<div class="glos-icon-row">'+img('icon-plundered.png',28)+'<div><div class="glos-term">Geplündert</div><div class="glos-def">Wurde überrannt. Kein VP — Funktion und Ressourcen bleiben aktiv.</div></div></div>'
+  +'<div class="glos-icon-row">'+img('icon-fragile.png',28)+'<div><div class="glos-term">Fragil &#x26A1;</div><div class="glos-def">Einmal-Effekt. Nach dem Überfall automatisch entfernt.</div></div></div>'
+  +'<div class="glos-icon-row">'+img('icon-special.png',28)+'<div><div class="glos-term">Sondergebäude</div><div class="glos-def">Einzigartige Fähigkeiten. Kosten beim Bau Münzen.</div></div></div>'
+  +'<div class="glos-section">Rathaus &amp; Bau</div>'
+  +'<div class="glos-icon-row">'+img('icon-rathaus-level.png',28)+'<div><div class="glos-term">Rathaus-Level</div><div class="glos-def">Stufe 1–6. Karte unters Rathaus schieben → +1 Level, +1 Münze sofort.</div></div></div>'
+  +'<div class="glos-icon-row">'+img('icon-free-build.png',28)+'<div><div class="glos-term">Kostenlos baubar</div><div class="glos-def">Verbraucht keinen der 5 Bauplätze.</div></div></div>'
+  +'<div class="glos-icon-row">'+img('icon-neighbor.png',28)+'<div><div class="glos-term">Nachbarfeld</div><div class="glos-def">Direkt angrenzend — horizontal und vertikal. Diagonal zählt nicht.</div></div></div>'
+  +'<div class="glos-section">Angriff</div>'
+  +'<div class="glos-icon-row">'+img('icon-raid-start.png',28)+'<div><div class="glos-term">Startfeld</div><div class="glos-def">Außenfeld von dem der Überfall startet. Bestimmt durch den gelben Würfel.</div></div></div>'
+  +'<div class="glos-icon-row">'+img('icon-raid-dir.png',28)+'<div><div class="glos-term">Überfallrichtung</div><div class="glos-def">Richtung der Horde. Gelber Würfel gerade = ↻, ungerade = ↺.</div></div></div>'
+  +'<div class="glos-icon-row">'+img('icon-def-sum.png',28)+'<div><div class="glos-term">Σ Verteidigung</div><div class="glos-def">Gesamte Verteidigung aller Gebäude in der Siedlung.</div></div></div>';},
+ aside:function(a){return '<div class="aside-label">Jahreszeiten</div>'
+  +'<div class="glos-icon-row">'+img('icon-season-winter.png',22)+'<div><div class="glos-term" style="font-size:.5rem">Winter</div><div class="ie-desc">kein Überfall</div></div></div>'
+  +'<div class="glos-icon-row">'+img('icon-season-frühling.png',22)+'<div><div class="glos-term" style="font-size:.5rem">Frühling</div><div class="ie-desc">erster Überfall</div></div></div>'
+  +'<div class="glos-icon-row">'+img('icon-season-sommer.png',22)+'<div><div class="glos-term" style="font-size:.5rem">Sommer</div><div class="ie-desc">volle Runde</div></div></div>'
+  +'<div class="glos-icon-row">'+img('icon-season-herbst.png',22)+'<div><div class="glos-term" style="font-size:.5rem">Herbst</div><div class="ie-desc">Münzen = VP</div></div></div>';}
+},
+ressourcen:{acc:'build',prev:'symbole',next:'karten',
+ main:function(a){return '<div class="ch-label" style="color:'+a+'">Ressourcen</div><div class="ch-title">Ressourcen</div>'
+  +'<div class="glos-section">Rohstoffe → Verteidigung (2:1)</div>'
+  +'<div class="glos-icon-row">'+img('res-holz.png',28)+'<div><div class="glos-term">Holz</div><div class="glos-def">2 Holz → 1 Barriere. Schützt eine Außenkante. Permanent.</div></div></div>'
+  +'<div class="glos-icon-row">'+img('res-nahrung.png',28)+'<div><div class="glos-term">Nahrung</div><div class="glos-def">2 Nahrung → 1 Ritter. +2 Verteidigung auf einem Gebäude.</div></div></div>'
+  +'<div class="glos-icon-row">'+img('res-glas.png',28)+'<div><div class="glos-term">Glas</div><div class="glos-def">2 Glas → 1 Münze (Währung).</div></div></div>'
+  +'<div class="glos-icon-row">'+img('res-muenze.png',28)+'<div><div class="glos-term">Münze</div><div class="glos-def">2 Münzen → 1 Turm. Im Herbst zählt jede Münze als 1 VP.</div></div></div>'
+  +'<div class="glos-section">Verteidigungseinheiten</div>'
+  +'<div class="glos-icon-row">'+img('def-barriere.png',28)+'<div><div class="glos-term">Barriere</div><div class="glos-def">Holzwall an einer Außenkante. Alle Kanten barrikadiert → Angriff weicht aus. Permanent.</div></div></div>'
+  +'<div class="glos-icon-row">'+img('def-ritter.png',28)+'<div><div class="glos-term">Ritter</div><div class="glos-def">+2 Verteidigung auf einem Gebäude. Bleibt solange die Karte liegt.</div></div></div>'
+  +'<div class="glos-icon-row">'+img('def-turm.png',28)+'<div><div class="glos-term">Turm</div><div class="glos-def">Gebäude permanent uneinnehmbar. 2 Münzen in der Rüstphase.</div></div></div>';},
+ aside:function(a){return '<div class="aside-label">Siedlung</div>'
+  +iconEntry('icon-rathaus-level.png','Level +1','Karte drunter')
+  +iconEntry('res-muenze.png','+1 Münze','sofort')
+  +'<div style="font-size:.68rem;color:#7090a0;line-height:1.5;margin-top:8px">Level = max. Sonderkarten &amp; Rabatt.</div>';}
+},
+karten:{acc:'intro',prev:'ressourcen',next:'sonder',
+ main:function(a){return '<div class="ch-label" style="color:'+a+'">Karten</div><div class="ch-title">Standardgebäude &amp; Sondergebäude</div>'
+  +'<div class="stabs" id="stabs">'
+  +'<div class="stab on" data-season="winter">Winter</div>'
+  +'<div class="stab" data-season="spring">Frühling</div>'
+  +'<div class="stab" data-season="summer">Sommer</div>'
+  +'<div class="stab" data-season="autumn">Herbst</div>'
+  +'<div class="stab" data-season="sonder" style="border-bottom-color:#8a4abf;color:#8a4abf">Sondergebäude</div>'
+  +'<div class="stab" data-season="rathaus" style="border-bottom-color:#d4820a;color:#d4820a">Siedlung</div>'
+  +'</div>'
+  +'<div id="cgc"></div>';},
+ aside:function(a){return '<div class="aside-label">Gebäudetypen</div>'
+  +'<div class="icon-entry"><img src="icon-vp.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Grün</div><div class="ie-desc">Rohstoff, stapelbar</div></div></div>'
+  +'<div class="icon-entry"><img src="icon-defense.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Blau</div><div class="ie-desc">Punkte + Verteidigung</div></div></div>'
+  +'<div class="icon-entry"><img src="icon-fragile.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Gelb ⚡</div><div class="ie-desc">Fragil, einmalig</div></div></div>'
+  +'<div class="icon-entry"><img src="icon-special.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Lila ✶</div><div class="ie-desc">Sonderkarte</div></div></div>';}
+},
+sonder:{acc:'ref',prev:'karten',next:'anfuehrer',
+ main:function(a){return '<div class="ch-label" style="color:'+a+'">Sondergebäude</div><div class="ch-title">Sondergebäude</div>'
+  +'<p>32 Karten aus gemeinsamem Pool. Preis = Würfelwert − Rathaus-Level.</p>'
+  +'<table class="tbl"><thead style="background:'+a+'"><tr><th>Name</th><th>VP</th><th>Mechanik</th></tr></thead><tbody>'
+  +'<tr><td>Spiegelturm</td><td>3</td><td>Nachbarn ×2</td></tr>'
+  +'<tr><td>Elfenbeinturm</td><td>Lv×3</td><td>Rathaus-Level</td></tr>'
+  +'<tr><td>Immobilienhändler</td><td>✶×2</td><td>Alle Sonderkarten</td></tr>'
+  +'<tr><td>Bogenwacht</td><td>3</td><td>−2 Angreifer / Karte</td></tr>'
+  +'<tr><td>Luftschloss</td><td>7</td><td>Ungeplünderbar</td></tr>'
+  +'<tr><td>Versicherung</td><td>0 / +8</td><td>+8 wenn geplündert</td></tr>'
+  +'<tr><td>Außenposten</td><td>7</td><td>Kein Slot-Verbrauch</td></tr>'
+  +'<tr><td>Schwarze Kathedrale</td><td>48</td><td>Nur allein aktiv</td></tr>'
+  +'</tbody></table>';},
+ aside:function(a){return iconEntry('icon-special.png','Sonderkarte','lila Rahmen')+iconEntry('icon-free-build.png','Außenposten','kein Slot')+iconEntry('icon-fragile.png','Fragil ⚡','einmalig');}
+},
+anfuehrer:{acc:'raid',prev:'sonder',next:'glossar',
+ main:function(a){return '<div class="ch-label" style="color:'+a+'">Überfallkarten</div><div class="ch-title">Überfallkarten</div>'
+  +'<div class="glos-section" style="margin-top:0">&#x1F535; Blaue Karten — Stärke der Horde (blauer Würfel bestimmt welche)</div>'
+  +'<div class="cgrid" style="grid-template-columns:repeat(3,1fr);margin-top:8px"><div class="ccard"><div class="ccard-img"><img src="A1.png" alt="Räuber-Rudel" onerror="this.style.opacity=.08"></div><div class="ccard-info"><div class="ccard-name">Räuber-Rudel</div><div class="ccard-st"><span class="ccard-p">7</span></div><div style="font-size:.55rem;color:#607080;margin-top:1px">7 Angreifer — immer.</div></div></div><div class="ccard"><div class="ccard-img"><img src="A2.png" alt="Hornochsen" onerror="this.style.opacity=.08"></div><div class="ccard-info"><div class="ccard-name">Hornochsen</div><div class="ccard-st"><span class="ccard-p">5 + Max</span></div><div style="font-size:.55rem;color:#607080;margin-top:1px">5 + höchster Würfelwert (Gelb/Blau/Rot).</div></div></div><div class="ccard"><div class="ccard-img"><img src="A3.png" alt="Nachtschleicher" onerror="this.style.opacity=.08"></div><div class="ccard-info"><div class="ccard-name">Nachtschleicher</div><div class="ccard-st"><span class="ccard-p">Jahreszahl + Blau</span></div><div style="font-size:.55rem;color:#607080;margin-top:1px">(Jahreszeit 1–4) + blauer Würfelwert.</div></div></div><div class="ccard"><div class="ccard-img"><img src="A4.png" alt="Schattenschnäbel" onerror="this.style.opacity=.08"></div><div class="ccard-info"><div class="ccard-name">Schattenschnäbel</div><div class="ccard-st"><span class="ccard-p">6 + Rathaus-Lv</span></div><div style="font-size:.55rem;color:#607080;margin-top:1px">6 + aktuelles Rathaus-Level.</div></div></div><div class="ccard"><div class="ccard-img"><img src="A5.png" alt="Moosbach-Diebe" onerror="this.style.opacity=.08"></div><div class="ccard-info"><div class="ccard-name">Moosbach-Diebe</div><div class="ccard-st"><span class="ccard-p">Blau + 3</span></div><div style="font-size:.55rem;color:#607080;margin-top:1px">Blauer Würfelwert + 3.</div></div></div><div class="ccard"><div class="ccard-img"><img src="A6.png" alt="Trüffelräuber" onerror="this.style.opacity=.08"></div><div class="ccard-info"><div class="ccard-name">Trüffelräuber</div><div class="ccard-st"><span class="ccard-p">4 + Sonder</span></div><div style="font-size:.55rem;color:#607080;margin-top:1px">4 + Anzahl aktiver Sondergebäude auf dem Feld.</div></div></div><div class="ccard"><div class="ccard-img"><img src="A7.png" alt="Hinterfeld-Horde" onerror="this.style.opacity=.08"></div><div class="ccard-info"><div class="ccard-name">Hinterfeld-Horde</div><div class="ccard-st"><span class="ccard-p">Blau + Gelb</span></div><div style="font-size:.55rem;color:#607080;margin-top:1px">Blauer + gelber Würfelwert addiert.</div></div></div><div class="ccard"><div class="ccard-img"><img src="A8.png" alt="Familienbande" onerror="this.style.opacity=.08"></div><div class="ccard-info"><div class="ccard-name">Familienbande</div><div class="ccard-st"><span class="ccard-p">6</span></div><div style="font-size:.55rem;color:#607080;margin-top:1px">6 Angreifer — immer.</div></div></div></div>'
+  +'<div class="glos-section">&#x1F534; Rote Karten — Anführer (roter Würfel bestimmt welche)</div>'
+  +'<div class="cgrid" style="grid-template-columns:repeat(3,1fr);margin-top:8px"><div class="ccard"><div class="ccard-img"><img src="C1.png" onerror="this.style.opacity=.08"></div><div class="ccard-info"><div class="ccard-name">Vollstrecker</div><div class="ccard-st"><span class="ccard-p">+Blau</span></div><div style="font-size:.55rem;color:#607080;margin-top:1px">Blauer Wert als Bonus.</div></div></div><div class="ccard"><div class="ccard-img"><img src="C2.png" onerror="this.style.opacity=.08"></div><div class="ccard-info"><div class="ccard-name">Nord. Ninja</div><div class="ccard-st"><span class="ccard-p">Gegenrichtung</span></div></div></div><div class="ccard"><div class="ccard-img"><img src="C3.png" onerror="this.style.opacity=.08"></div><div class="ccard-info"><div class="ccard-name">Wechselwütige</div><div class="ccard-st"><span class="ccard-p">↻↺ tauschen</span></div></div></div><div class="ccard"><div class="ccard-img"><img src="C4.png" onerror="this.style.opacity=.08"></div><div class="ccard-info"><div class="ccard-name">Bärserker</div><div class="ccard-st"><span class="ccard-p">Gelb+Blau=6</span></div></div></div><div class="ccard"><div class="ccard-img"><img src="C5.png" onerror="this.style.opacity=.08"></div><div class="ccard-info"><div class="ccard-name">Ole Ochsenberg</div><div class="ccard-st"><span class="ccard-p">Barrieren weg</span></div></div></div><div class="ccard"><div class="ccard-img"><img src="C6.png" onerror="this.style.opacity=.08"></div><div class="ccard-info"><div class="ccard-name">Ohne Anführer</div><div class="ccard-st"><span class="ccard-p">Kein Effekt</span></div></div></div><div class="ccard"><div class="ccard-img"><img src="C7.png" onerror="this.style.opacity=.08"></div><div class="ccard-info"><div class="ccard-name">Konan</div><div class="ccard-st"><span class="ccard-p">Blau/Gelb tauschen</span></div></div></div><div class="ccard"><div class="ccard-img"><img src="C8.png" onerror="this.style.opacity=.08"></div><div class="ccard-info"><div class="ccard-name">Zugvogel</div><div class="ccard-st"><span class="ccard-p">Jahreszeitabhängig</span></div></div></div><div class="ccard"><div class="ccard-img"><img src="C9.png" onerror="this.style.opacity=.08"></div><div class="ccard-info"><div class="ccard-name">Brandstifter</div><div class="ccard-st"><span class="ccard-p">Startkarte wird fragil</span></div></div></div></div>';},
+ aside:function(a){return '<div class="aside-label">Würfel</div>'
+  +'<div class="icon-entry"><img src="icon-horde.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Blau</div><div class="ie-desc">Stärke der Horde</div></div></div>'
+  +'<div class="icon-entry"><img src="icon-plundered.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Rot</div><div class="ie-desc">Anführer-Effekt</div></div></div>';}
+},
+glossar:{acc:'intro',prev:'anfuehrer',next:'faq',
+ main:function(a){return '<div class="ch-label" style="color:'+a+'">Begriffe</div><div class="ch-title">Glossar</div>'
+  +'<div class="glos-section" style="margin-top:0">Symbole &amp; Icons</div>'
+  +'<div class="glos-icon-row"><img src="res-holz.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Holz</div><div class="glos-def">2 Holz → 1 Barriere in der Rüstphase.</div></div></div><div class="glos-icon-row"><img src="res-nahrung.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Nahrung</div><div class="glos-def">2 Nahrung → 1 Ritter. Wird in der Rüstphase 1:1 in Münzen umgewandelt.</div></div></div><div class="glos-icon-row"><img src="res-glas.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Glas</div><div class="glos-def">2 Glas → 1 Münze in der Rüstphase.</div></div></div><div class="glos-icon-row"><img src="def-barriere.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Barriere</div><div class="glos-def">Holzwall an der Außenkante eines Randfeldes. Verhindert den Angriffsstart dort.</div></div></div><div class="glos-icon-row"><img src="def-ritter.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Ritter</div><div class="glos-def">Verteidiger auf einem Gebäude. +2 Verteidigung solange die Karte liegt.</div></div></div><div class="glos-icon-row"><img src="res-muenze.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Münze</div><div class="glos-def">Währung für Türme (2 Münzen) und Sonderkarten.</div></div></div><div class="glos-icon-row"><img src="def-turm.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Turm</div><div class="glos-def">Permanente Befestigung. Ein Feld mit Turm kann nie geplündert werden.</div></div></div><div class="glos-icon-row"><img src="icon-defense.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Verteidigung</div><div class="glos-def">Gibt an wie viele Angreifer ein Gebäude aufhalten kann.</div></div></div><div class="glos-icon-row"><img src="icon-vp.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Siegpunkte</div><div class="glos-def">Am Ende jeder Jahreszeit aus allen aktiven Gebäuden addiert.</div></div></div><div class="glos-icon-row"><img src="icon-def-sum.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Summe der Verteidigung</div><div class="glos-def">Gesamte Verteidigung aller Gebäude in der Siedlung.</div></div></div><div class="glos-icon-row"><img src="icon-special.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Sondergebäude</div><div class="glos-def">Karten mit einzigartigen Fähigkeiten. Kosten beim Bau Münzen.</div></div></div><div class="glos-icon-row"><img src="icon-fragile.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Fragil ⚡</div><div class="glos-def">Einmal-Effekt. Fragile Karten werden nach dem Überfall automatisch entfernt.</div></div></div><div class="glos-icon-row"><img src="icon-rathaus-level.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Rathaus-Level</div><div class="glos-def">Stufe 1–6. Karte unters Rathaus schieben → +1 Level, +1 Münze sofort.</div></div></div><div class="glos-icon-row"><img src="icon-free-build.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Kostenlos baubar</div><div class="glos-def">Verbraucht keinen der 5 Bauplätze der Jahreszeit.</div></div></div><div class="glos-icon-row"><img src="icon-neighbor.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Nachbargebäude</div><div class="glos-def">Direkt angrenzend — horizontal und vertikal. Diagonal zählt nicht.</div></div></div><div class="glos-icon-row"><img src="icon-plundered.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Geplündertes Gebäude</div><div class="glos-def">Wurde überrannt. Kein VP — bleibt auf dem Feld bis zum nächsten Bauen.</div></div></div><div class="glos-icon-row"><img src="icon-horde.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Horde</div><div class="glos-def">Anzahl der Plünderer beim Überfall. Bestimmt durch den blauen Würfel.</div></div></div><div class="glos-icon-row"><img src="icon-raid-start.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Start der Plünderung</div><div class="glos-def">Außenfeld von dem der Überfall startet. Bestimmt durch den gelben Würfel.</div></div></div><div class="glos-icon-row"><img src="icon-raid-dir.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Überfallrichtung</div><div class="glos-def">Richtung der Horde. Gelber Würfel gerade = ↻, ungerade = ↺.</div></div></div><div class="glos-icon-row"><img src="icon-season-winter.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Winter</div><div class="glos-def">Jahreszeit 1. Nur Bauen, Rüsten und Wertung — kein Überfall.</div></div></div><div class="glos-icon-row"><img src="icon-season-frühling.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Frühling</div><div class="glos-def">Jahreszeit 2. Erste vollständige Runde mit Gerüchten und Überfall.</div></div></div><div class="glos-icon-row"><img src="icon-season-sommer.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Sommer</div><div class="glos-def">Überfälle werden intensiver.</div></div></div><div class="glos-icon-row"><img src="icon-season-herbst.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Herbst</div><div class="glos-def">Letzte Jahreszeit. Münzen werden am Ende in Siegpunkte umgewandelt.</div></div></div>'
+  +'<div class="glos-section">Begriffe</div>'
+  +'<div class="glos-simple-row"><span class="glos-t">Barriere</span><span class="glos-d">Holzwall an der Außenkante eines Randfeldes. Sind ALLE Außenkanten barrikadiert, weicht der Angriff aus.</span></div><div class="glos-simple-row"><span class="glos-t">Ritter</span><span class="glos-d">Verteidiger. +2 Verteidigung. Bleibt solange die Karte liegt.</span></div><div class="glos-simple-row"><span class="glos-t">Münze</span><span class="glos-d">Währung. Für Türme (2) und Sonderkarten. Bleibt über Jahreszeiten erhalten.</span></div><div class="glos-simple-row"><span class="glos-t">Turm</span><span class="glos-d">Permanente Befestigung (2 Münzen). Feld uneinnehmbar.</span></div><div class="glos-simple-row"><span class="glos-t">Rathaus</span><span class="glos-d">Das feste Gebäude in der Mitte. Karte darunter schieben → Level +1, +1 Münze sofort. Max. Level 6.</span></div><div class="glos-simple-row"><span class="glos-t">Rathaus-Level</span><span class="glos-d">Stufe 1–6. Bestimmt max. Sonderkarten auf dem Feld und Rabatt beim Kauf.</span></div><div class="glos-simple-row"><span class="glos-t">Rohstoffe</span><span class="glos-d">Holz, Nahrung und Glas. In der Rüstphase 2:1 in Verteidigung.</span></div><div class="glos-simple-row"><span class="glos-t">Fragile ⚡</span><span class="glos-d">Einmal-Effekt. Fragile Karten nach dem Überfall automatisch entfernt.</span></div><div class="glos-simple-row"><span class="glos-t">Decoy</span><span class="glos-d">Sondertyp der Fragile-Karten. Zieht Angreifer auf sich — der restliche Pfad bleibt verschont.</span></div><div class="glos-simple-row"><span class="glos-t">Plündern</span><span class="glos-d">Ein Gebäude das überrannt wurde. Kein VP — Funktion und Ressourcen bleiben aktiv.</span></div><div class="glos-simple-row"><span class="glos-t">Siegpunkte</span><span class="glos-d">Am Ende jeder Jahreszeit addiert. Nach 4 Jahreszeiten ist der Gesamtscore dein Ergebnis.</span></div><div class="glos-simple-row"><span class="glos-t">Anführer</span><span class="glos-d">Der rote Würfel bestimmt eine Sonderfähigkeit der Horde — immer eine Überraschung.</span></div><div class="glos-simple-row"><span class="glos-t">Überfallrichtung</span><span class="glos-d">Der gelbe Würfel. Startfeld + Laufrichtung (gerade = ↻, ungerade = ↺).</span></div><div class="glos-simple-row"><span class="glos-t">Upgrade</span><span class="glos-d">Gleiche Ressourcenkarte auf bestehendes Gebäude (max. 6). Erhöht Produktion.</span></div><div class="glos-simple-row"><span class="glos-t">Stärkende Säulen</span><span class="glos-d">Solange aktiv: alle fragilen Gebäude bekommen def 2 und werden nicht zerstört.</span></div>';},
+ aside:function(a){return '';}
+},
+faq:{acc:'build',prev:'glossar',next:'koop',
+ main:function(a){return '<div class="ch-label" style="color:'+a+'">Sonderfälle</div><div class="ch-title">Regelfragen</div>'
+  +'<div class="faq-row" data-faq="1"><div class="faq-q">Produzieren geplünderte Gebäude?</div><div class="faq-a">Ja. Nur Siegpunkte gehen verloren. Ressourcen und alle Fähigkeiten bleiben vollständig aktiv.</div></div>'
+  +'<div class="faq-row" data-faq="1"><div class="faq-q">Wann zählen Münzen als VP?</div><div class="faq-a">Nur im Herbst, am Ende der Wertungsphase.</div></div>'
+  +'<div class="faq-row" data-faq="1"><div class="faq-q">Was zählt für den Immobilienhändler?</div><div class="faq-a">Alle Sonderkarten — aktiv und geplündert. Er zählt sich selbst mit.</div></div>'
+  +'<div class="faq-row" data-faq="1"><div class="faq-q">Alle Startfelder barrikadiert?</div><div class="faq-a">Angriff beginnt am nächsten ungeschützten Feld in Laufrichtung.</div></div>'
+  +'<div class="faq-row" data-faq="1"><div class="faq-q">Stärkende Säulen geplündert?</div><div class="faq-a">Geplünderte Karten behalten alle Fähigkeiten. Säulen schützen weiterhin.</div></div>'
+  +'<div class="faq-row" data-faq="1"><div class="faq-q">Solo-Drafting?</div><div class="faq-a">4 Stapel à 6 Karten. Je 4 ziehen, 1 wählen, 3 abwerfen.</div></div>';},
+ aside:function(a){return '<div class="aside-label">Kernsatz</div><div style="font-size:.72rem;color:#404840;line-height:1.6;font-style:italic">Geplünderte Gebäude verlieren Siegpunkte — nicht ihre Funktion.</div>';}
+},
+koop:{acc:'koop',prev:'faq',next:'solo',
+ main:function(a){return '<div class="ch-label" style="color:'+a+'">Spielvariante</div><div class="ch-title">Koop-Variante</div>'
+  +'<p style="font-style:italic;color:#506878;border-left:2px solid '+a+';padding:6px 12px">Alle gegen die Horde. Drei Säulen: Eskalationsleiter · geteilte Städte · Verborgenheits-Tokens</p>'
+  +'<p><strong>Geteilte Städte:</strong> Jede:r betreut nicht eine eigene, sondern <strong>zwei halbe Städte</strong>. Du teilst eine Stadt mit dem linken Nachbarn und eine mit dem rechten. Mit jeder Karte entscheidest du: Baust du sie in die linke oder rechte Stadt? Absprache ist alles.</p>'
+  +'<p><strong>Ressourcen</strong> fließen in einen gemeinsamen Pool. Ein Würfelwurf gilt für alle Siedlungen gleichzeitig.</p>'
+  +'<div class="note"><strong>Verborgenheits-Tokens:</strong> Fällt eine Siedlung auf 0 VP → Token auf eine Würfelfarbe. Alle 3 Farben verborgen = die Horde ist unaufhaltsam. Sofortiges Spielende.</div>'
+  +'<p><strong>Spielziel:</strong> Mehr Gesamtpunkte beschützen als die Horde stiehlt. Gemeinsam gewinnen oder gemeinsam verlieren.</p>'
+  +'<table class="tbl" style="margin-top:10px"><thead style="background:'+a+'"><tr><th>Spielende</th><th>Normal</th><th>Schwer</th></tr></thead><tbody>'
+  +'<tr><td>2</td><td>40</td><td>60</td></tr>'
+  +'<tr><td>3</td><td>60</td><td>90</td></tr>'
+  +'<tr><td>4</td><td>80</td><td>120</td></tr>'
+  +'</tbody></table>';},
+ aside:function(a){return '<div class="aside-label">Eskalation</div>'
+  +'<div style="font-size:.68rem;color:#506070;line-height:1.55">Ab 15 gepl. Punkten: min. 5 Angreifer.<br>Ab 30: kein Münzbonus.<br>Ab 50: Türme kosten 3 Münzen.</div>';}
+},
+solo:{acc:'score',prev:'koop',next:'kampagne',
+ main:function(a){return '<div class="ch-label" style="color:'+a+'">Spielvariante</div><div class="ch-title">Solo-Modus</div>'
+  +'<p style="font-style:italic;color:#506878;border-left:2px solid '+a+';padding:6px 12px">Allein gegen die Horde. Das Zwischental gehört dir — und dir allein. Kein Mitspieler hilft. Nur dein Geschick zählt.</p>'
+  +'<p>Alle Regeln gelten wie im Mehrspielerspiel — mit einem Unterschied: <strong>das Drafting funktioniert anders.</strong></p>'
+  +'<p><strong>Solo-Drafting:</strong> 4 Stapel à 6 Karten aufbauen. Je eine Hand aufnehmen, <strong>4 Karten ziehen, 1 spielen, 3 abwerfen</strong>. Das fünfmal wiederholen. So baut man 5 Gebäude pro Jahreszeit.</p>'
+  +'<div class="note"><strong>Spielziel:</strong> Mehr Punkte beschützen als die Horde dir stiehlt. Du spielst gegen das Spiel. Tracke am Ende jeder Jahreszeit die geplünderten Punkte — wer am Ende der Herbst-Wertung mehr nicht-geplünderte Punkte hat als geplünderte, gewinnt.</div>'
+  +'<p style="margin-top:10px;font-size:.78rem;color:#506878">Kein gemeinsamer Ressourcenpool, kein Drafting mit Nachbarn — du allein planst und baust. Eine meditative, intensive Erfahrung.</p>';},
+ aside:function(a){return '';}
+},
+kampagne:{acc:'score',prev:'solo',next:'erweiterungen',
+ main:function(a){return '<div class="ch-label" style="color:'+a+'">Spielvariante</div><div class="ch-title">Solo-Kampagne</div>'
+  +'<p>26 Kapitel mit steigendem Schwierigkeitsgrad. Jede Gruppe von 5 Kapiteln schaltet ein <strong>permanentes Upgrade</strong> frei — das nächste Spiel startet stärker.</p>'
+  +'<div class="glos-section" style="margin-top:8px">Gruppen &amp; Belohnungen</div>'
+  +'<div class="glos-simple-row"><span class="glos-t">Kapitel I</span><span class="glos-d">Reward: <strong>Rathaus Level 2</strong> — Startest jedes Spiel mit Rathaus Level 2.</span></div><div class="glos-simple-row"><span class="glos-t">Kapitel II</span><span class="glos-d">Reward: <strong>Rathaus Level 3</strong> — Startest jedes Spiel mit Rathaus Level 3.</span></div><div class="glos-simple-row"><span class="glos-t">Kapitel III</span><span class="glos-d">Reward: <strong>Rathaus Level 4</strong> — Startest jedes Spiel mit Rathaus Level 4.</span></div><div class="glos-simple-row"><span class="glos-t">Kapitel IV</span><span class="glos-d">Reward: <strong>Rathaus Level 5</strong> — Startest jedes Spiel mit Rathaus Level 5.</span></div><div class="glos-simple-row"><span class="glos-t">Kapitel V</span><span class="glos-d">Reward: <strong>Rathaus Level 6</strong> — Startest jedes Spiel mit Rathaus Level 6.</span></div><div class="glos-simple-row"><span class="glos-t">⚔ Finale</span><span class="glos-d">Reward: <strong>Goldene Rathausfestung</strong> — Das Rathaus startet permanent auf Level 6.</span></div>'
+  +'<div class="glos-section">Alle 26 Kapitel</div>'
+  +'<table class="tbl"><thead style="background:#b83040"><tr><th>#</th><th>Name</th><th>Ziel</th><th>Mod.</th></tr></thead><tbody><tr><td style="font-weight:700;color:#b83040">1</td><td>Die ersten Steine</td><td style="font-size:.68rem">Erreiche 40 Siegpunkte</td><td style="font-size:.65rem;color:#607080">—</td></tr><tr><td style="font-weight:700;color:#b83040">2</td><td>Der müde Händler</td><td style="font-size:.68rem">Baue mindestens 5 Rohstoffkarten und err…</td><td style="font-size:.65rem;color:#607080">Starte jede Jahreszeit mit 2 G…</td></tr><tr><td style="font-weight:700;color:#b83040">3</td><td>Friedliche Jahre</td><td style="font-size:.68rem">Erreiche 45 Siegpunkte</td><td style="font-size:.65rem;color:#607080">Spiele nur Winter und Frühling…</td></tr><tr><td style="font-weight:700;color:#b83040">4</td><td>Das Stadttor</td><td style="font-size:.68rem">Baue in jeder Jahreszeit ein Tor oder ei…</td><td style="font-size:.65rem;color:#607080">—</td></tr><tr><td style="font-weight:700;color:#b83040">5</td><td>Kein Anführer</td><td style="font-size:.68rem">Erreiche 75 Siegpunkte</td><td style="font-size:.65rem;color:#607080">Jeden Überfall mit Anführer C6…</td></tr><tr><td style="font-weight:700;color:#b83040">6</td><td>Der Schreiber</td><td style="font-size:.68rem">Erreiche 40 Siegpunkte und endet mit min…</td><td style="font-size:.65rem;color:#607080">Steuern: 2 Glas pro Jahreszeit…</td></tr><tr><td style="font-weight:700;color:#b83040">7</td><td>Immer von Süden</td><td style="font-size:.68rem">Überlebst du alle 4 Jahreszeiten ohne ei…</td><td style="font-size:.65rem;color:#607080">Jeder Überfall startet aus S (…</td></tr><tr><td style="font-weight:700;color:#b83040">8</td><td>Der Immobilienhändler kommt</td><td style="font-size:.68rem">Werte mindestens 4 Sonderkarten in der H…</td><td style="font-size:.65rem;color:#607080">—</td></tr><tr><td style="font-weight:700;color:#b83040">9</td><td>Stadtmauer</td><td style="font-size:.68rem">Erreiche 50 Siegpunkte</td><td style="font-size:.65rem;color:#607080">Barrikadiere alle 8 Außenkante…</td></tr><tr><td style="font-weight:700;color:#b83040">10</td><td>Am Ufer</td><td style="font-size:.68rem">Erreiche 55 Siegpunkte</td><td style="font-size:.65rem;color:#607080">Felder S, SO und SW (Unterkant…</td></tr><tr><td style="font-weight:700;color:#b83040">11</td><td>Winterüberfall</td><td style="font-size:.68rem">Überstehe alle 4 Jahreszeiten inkl. Wint…</td><td style="font-size:.65rem;color:#607080">Auch im Winter findet ein Über…</td></tr><tr><td style="font-weight:700;color:#b83040">12</td><td>Der unerbittliche Bärserker</td><td style="font-size:.68rem">Erreiche 50 Siegpunkte</td><td style="font-size:.65rem;color:#607080">Anführer C9 (Brandstifter) tri…</td></tr><tr><td style="font-weight:700;color:#b83040">13</td><td>Das Elfenbeinjahr</td><td style="font-size:.68rem">Baue den Elfenbeinturm und erreiche Leve…</td><td style="font-size:.65rem;color:#607080">—</td></tr><tr><td style="font-weight:700;color:#b83040">14</td><td>Der Spiegel</td><td style="font-size:.68rem">Werte den Spiegelturm mit mindestens 4 N…</td><td style="font-size:.65rem;color:#607080">Der Spiegelturm muss in der Mi…</td></tr><tr><td style="font-weight:700;color:#b83040">15</td><td>Die schwarze Kathedrale</td><td style="font-size:.68rem">Die Schwarze Kathedrale muss in der Herb…</td><td style="font-size:.65rem;color:#607080">Keine Türme verfügbar</td></tr><tr><td style="font-weight:700;color:#b83040">16</td><td>Das fragile Rathaus</td><td style="font-size:.68rem">Beende das Spiel mit aktivem Rathaus</td><td style="font-size:.65rem;color:#607080">Das Rathaus gilt als fragil — …</td></tr><tr><td style="font-weight:700;color:#b83040">17</td><td>Hände weg vom Brunnen</td><td style="font-size:.68rem">Karte auf Feld oben-links darf nie geplü…</td><td style="font-size:.65rem;color:#607080">Keine Türme verfügbar — nur Ba…</td></tr><tr><td style="font-weight:700;color:#b83040">18</td><td>Sechs Sonderkarten im Herbst</td><td style="font-size:.68rem">Werte mindestens 6 aktive Sonderkarten i…</td><td style="font-size:.65rem;color:#607080">—</td></tr><tr><td style="font-weight:700;color:#b83040">19</td><td>Alles wechselt</td><td style="font-size:.68rem">Erreiche 60 Siegpunkte</td><td style="font-size:.65rem;color:#607080">Jeder Überfall mit Anführer C1…</td></tr><tr><td style="font-weight:700;color:#b83040">20</td><td>Reichtum und Ruhm</td><td style="font-size:.68rem">Endet mit mindestens 60 Siegpunkten UND …</td><td style="font-size:.65rem;color:#607080">—</td></tr><tr><td style="font-weight:700;color:#b83040">21</td><td>Die große Welle</td><td style="font-size:.68rem">Überstehe alle 4 Jahreszeiten</td><td style="font-size:.65rem;color:#607080">Jeder Überfall mit Anführer C4…</td></tr><tr><td style="font-weight:700;color:#b83040">22</td><td>Das Tribunal</td><td style="font-size:.68rem">Erreiche 80 Siegpunkte</td><td style="font-size:.65rem;color:#607080">Felder SO und SW nicht bebauba…</td></tr><tr><td style="font-weight:700;color:#b83040">23</td><td>Die Versicherungspolice</td><td style="font-size:.68rem">Werte 3 aktive Versicherungskarten gleic…</td><td style="font-size:.65rem;color:#607080">Alle drei müssen im gleichen S…</td></tr><tr><td style="font-weight:700;color:#b83040">24</td><td>Der ewige Winter</td><td style="font-size:.68rem">Erreiche 70 Siegpunkte</td><td style="font-size:.65rem;color:#607080">Jede Jahreszeit gilt als Winte…</td></tr><tr><td style="font-weight:700;color:#b83040">25</td><td>Ohne Schutz</td><td style="font-size:.68rem">Erreiche 65 Siegpunkte</td><td style="font-size:.65rem;color:#607080">Keine Türme, keine Barrieren ·…</td></tr><tr><td style="font-weight:700;color:#b83040">26</td><td>26 Jahre Talwacht</td><td style="font-size:.68rem">Erreiche mehr als 120 Siegpunkte</td><td style="font-size:.65rem;color:#607080">Alle Überfälle mit Anführer C9…</td></tr></tbody></table>'
+  +'<p style="margin-top:10px;font-size:.73rem;color:#506878">Die Kampagne kann solo oder kooperativ gespielt werden. Die interaktive Version: <a href="kampagne.html" style="color:#b83040;font-weight:600">kampagne.html ↗</a></p>';},
+ aside:function(a){return '<div class="aside-label">Schwierigkeit</div>'
+  +'<div class="icon-entry"><img src="icon-vp.png" onerror="this.style.opacity=.15"><div><div class="ie-name">● Einsteiger</div><div class="ie-desc">Kap. 1–5</div></div></div>'
+  +'<div class="icon-entry"><img src="icon-vp.png" onerror="this.style.opacity=.15"><div><div class="ie-name">●● Fortgeschr.</div><div class="ie-desc">Kap. 6–10</div></div></div>'
+  +'<div class="icon-entry"><img src="icon-vp.png" onerror="this.style.opacity=.15"><div><div class="ie-name">●●● Schwer</div><div class="ie-desc">Kap. 11–20</div></div></div>'
+  +'<div class="icon-entry"><img src="icon-vp.png" onerror="this.style.opacity=.15"><div><div class="ie-name">●●●● Legendär</div><div class="ie-desc">Kap. 21–26</div></div></div>';}
+},
+erweiterungen:{acc:'koop',prev:'kampagne',next:null,
+ main:function(a){return '<div class="ch-label" style="color:'+a+'">Optionale Module</div><div class="ch-title">Erweiterungen</div>'
+  +'<p>9 Mini-Erweiterungen — jede verändert einen Aspekt des Spiels. Einzeln oder kombiniert einsetzbar. Vollständige Version: <a href="erweiterungen.html" style="color:#2a3a70;font-weight:600">erweiterungen.html ↗</a></p>'
+  +'<div class="glos-simple-row"><span class="glos-t" style="min-width:30px;font-size:.5rem">C1</span><span class="glos-d"><strong>Das Jahr des Orakels</strong><br>Alle verborgenen Angriffsinformationen (🔵 Stärke der Horde, 🔴 Anführer) werden bereits vor der Rüstphase aufgedeckt. Man</span></div><div class="glos-simple-row"><span class="glos-t" style="min-width:30px;font-size:.5rem">C2</span><span class="glos-d"><strong>Das Jahr der rivalisierenden Siedlungen</strong><br>Geplünderte Punkte werden nicht vernichtet — sie gehen als Siegpunkte an den Nachbarn in Drafting-Richtung. Nur im Mehrs</span></div><div class="glos-simple-row"><span class="glos-t" style="min-width:30px;font-size:.5rem">C3</span><span class="glos-d"><strong>Das Jahr der Überschwemmung</strong><br>Die drei südlichen Felder (S, SO, SW) können nicht bebaut werden. Die Horde zieht darüber hinweg — jedes dieser Felder h</span></div><div class="glos-simple-row"><span class="glos-t" style="min-width:30px;font-size:.5rem">C4</span><span class="glos-d"><strong>Das Jahr der Handelsstraßen</strong><br>Ressourcen sind frei tauschbar: alles kostet 2:1 — egal welche Ressource für welche Verteidigung. 2 Holz = 1 Ritter. 2 N</span></div><div class="glos-simple-row"><span class="glos-t" style="min-width:30px;font-size:.5rem">C5</span><span class="glos-d"><strong>Das Jahr der langen Schatten</strong><br>Der gelbe Würfel (🟡 Überfallrichtung) bleibt das gesamte Spiel verborgen — er wird nie aufgedeckt, auch nicht beim Überf</span></div><div class="glos-simple-row"><span class="glos-t" style="min-width:30px;font-size:.5rem">C6</span><span class="glos-d"><strong>Das Jahr des Wiederaufbaus</strong><br>Geplünderte Karten produzieren in der nächsten Rüstphase doppelte Ressourcen. Ein Ansporn, Verluste hinzunehmen.</span></div><div class="glos-simple-row"><span class="glos-t" style="min-width:30px;font-size:.5rem">C7</span><span class="glos-d"><strong>Das Jahr der Stille</strong><br>Der Anführer-Pool wird ignoriert — es gibt keinen Anführer in diesem Jahr. Stattdessen wird die Stärke der Horde (🔵) ver</span></div><div class="glos-simple-row"><span class="glos-t" style="min-width:30px;font-size:.5rem">C8</span><span class="glos-d"><strong>Das Jahr des Wirbelsturms</strong><br>Alle Gebäudekarten aller Jahreszeiten und Sonderkarten werden zu einem einzigen Stapel gemischt. Jede Karte kann in jede</span></div><div class="glos-simple-row"><span class="glos-t" style="min-width:30px;font-size:.5rem">C9</span><span class="glos-d"><strong>Das Jahr der Fülle</strong><br>Beim Drafting wird die sechste Karte nicht abgeworfen — sie darf ebenfalls gebaut oder fürs Rathaus-Upgrade genutzt werd</span></div>';},
+ aside:function(a){return '<div style="font-size:.68rem;color:#506070;line-height:1.55">Jede Erweiterung ist modular und unabhängig kombinierbar.</div>';}
+}
+};
+
+var SC = {winter:'#8eb4c8',spring:'#7ab890',summer:'#c8a050',autumn:'#b87840',sonder:'#8a4abf',rathaus:'#d4820a'};
+var CA = {
+  winter:[
+    {id:'W1', n:'Holzf\u00e4ller',      p:'2',     d:1, c:3, res:true},
+    {id:'W4', n:'Kl. Lager',          p:'2',     d:1, c:3, res:true},
+    {id:'W7', n:'Glasschmelze',        p:'2',     d:1, c:3, res:true},
+    {id:'W10',n:'Ratskeller',          p:'4',     d:2, c:2},
+    {id:'W14',n:'Bibliothek',          p:'5',     d:0, c:2},
+    {id:'W18',n:'Sternwarte',          p:'6',     d:0, c:1},
+    {id:'W19',n:'Schmuckh\u00e4ndler', p:'7',     d:0, c:1},
+    {id:'W20',n:'Nachtw\u00e4chter',   p:'1',     d:3, c:2},
+    {id:'W22',n:'Nebeltarnung',        p:'2',     d:0, c:1, fr:true},
+    {id:'W23',n:'Stadttor',            p:'0',     d:0, c:1, fr:true}
+  ],
+  spring:[
+    {id:'F1', n:'Holzlager',           p:'3',     d:1, c:2, res:true},
+    {id:'F3', n:'Kl. M\u00fchle',      p:'3',     d:1, c:2, res:true},
+    {id:'F5', n:'Glasschmelze',        p:'2',     d:1, c:3, res:true},
+    {id:'F10',n:'Wachtstube',          p:'2',     d:3, c:1},
+    {id:'F12',n:'Wachturm',            p:'4',     d:3, c:1},
+    {id:'F15',n:'Diamanth\u00e4ndler', p:'7',     d:1, c:1},
+    {id:'F13',n:'Wunderheiler',        p:'Y+3',   d:0, c:1},
+    {id:'F17',n:'Nebeltarnung',        p:'2',     d:0, c:1, fr:true},
+    {id:'F19',n:'Uhrenturm \u21bb',    p:'\u2014', d:0, c:1, fr:true},
+    {id:'F20',n:'Turmuhr \u21ba',      p:'\u2014', d:0, c:1, fr:true}
+  ],
+  summer:[
+    {id:'SO1', n:'S\u00e4gem\u00fchle', p:'3',    d:2, c:2, res:true},
+    {id:'SO3', n:'G\u00e4rtnerei',      p:'4',    d:1, c:2, res:true},
+    {id:'SO6', n:'Wirtshaus',           p:'6',    d:2, c:1},
+    {id:'SO9', n:'Holzb\u00f6rse',      p:'H\u00d72', d:2, c:1},
+    {id:'SO11',n:'H\u00e4ndlergilde',   p:'5',    d:2, c:1},
+    {id:'SO12',n:'Juwelier',            p:'9',    d:0, c:1},
+    {id:'SO13',n:'Nebeltarnung',        p:'2',    d:0, c:1, fr:true},
+    {id:'SO15',n:'Uhrenturm',           p:'\u2014', d:0, c:1, fr:true}
+  ],
+  autumn:[
+    {id:'H1', n:'Vorratsfeste',         p:'6',    d:3, c:1},
+    {id:'H2', n:'Residenz',             p:'9',    d:2, c:1},
+    {id:'H3', n:'Burg',                 p:'5',    d:4, c:1},
+    {id:'H6', n:'Holzh\u00e4ndler',     p:'H\u00d73', d:2, c:1},
+    {id:'H9', n:'Schatzkammer',         p:'13',   d:0, c:1},
+    {id:'H4', n:'Tempel',               p:'Y+4',  d:1, c:1},
+    {id:'H10',n:'Nebeltarnung',         p:'2',    d:0, c:1, fr:true},
+    {id:'H11',n:'Uhrenturm',            p:'\u2014', d:0, c:1, fr:true}
+  ],
+sonder:[
+    {id:'Z1', n:'Holzfestung',           p:'6',           d:1, c:2, sk:true, info:'Beim Bau: +2 Barrieren sofort.'},
+    {id:'Z3', n:'Gezeiten-Kloster',      p:'0/4/8/12',    d:1, c:2, sk:true, info:'Punkte steigen mit jeder Jahreszeit.'},
+    {id:'Z4', n:'Brückenhinterhalt',p:'Σdef',   d:0, c:1, sk:true, fr:true, info:'Punkte = Summe aller Verteidigungswerte. Fragil.'},
+    {id:'Z5', n:'Treppe zum Himmel',     p:'Gpl.×3', d:1, c:1, sk:true, info:'3 Punkte pro geplündertem Gebäude.'},
+    {id:'Z6', n:'Ritterburg',            p:'6',           d:2, c:1, sk:true, info:'Beim Bau: +2 Ritter sofort.'},
+    {id:'Z7', n:'Stärkende Säulen',p:'4',      d:1, c:1, sk:true, info:'Fragile-Gebäude: def 2, werden nicht zerstört.'},
+    {id:'Z9', n:'Alchemisten-Halle',     p:'Glas×3', d:1, c:1, sk:true, info:'3 Punkte pro Glas-Produktion.'},
+    {id:'Z10',n:'Kristallpalast',        p:'15',          d:0, c:1, sk:true, fr:true, info:'15 Punkte — wird bei Plünderung zerstört.'},
+    {id:'Z11',n:'Versicherung',          p:'0 / +8',      d:2, c:2, sk:true, info:'0 wenn aktiv · +8 wenn geplündert.'},
+    {id:'Z13',n:'Rote Residenz',         p:'Rot+7',       d:3, c:1, sk:true, info:'Roter Würfel + 7 Punkte.'},
+    {id:'Z14',n:'Zitadelle',             p:'(B+G)×2',d:0, c:1, sk:true, info:'(Blauer + Gelber Würfel) × 2 Punkte.'},
+    {id:'Z15',n:'Immobilienhändler',p:'✶×2',d:1,c:1,sk:true, info:'2 Punkte pro Sondergebäude (auch geplünderte).'},
+    {id:'Z16',n:'Außenposten',      p:'7',           d:2, c:1, sk:true, info:'Kostenlos baubar — kein Slot-Verbrauch.'},
+    {id:'Z17',n:'Bogenwacht',            p:'4',           d:2, c:3, sk:true, info:'−2 Angreifer vor dem Überfall. (3×)'},
+    {id:'Z18',n:'Schildtor',             p:'3',           d:2, c:3, sk:true, info:'Nachbarn +2 Verteidigung. (3×)'},
+    {id:'Z19',n:'Luftschloss',           p:'7',           d:2, c:2, sk:true, info:'Kann nie geplündert werden. (2×)'},
+    {id:'Z21',n:'Fernkundschafter',      p:'Gelb×1', d:1, c:1, sk:true, fr:true, info:'Gelber Würfel immer sichtbar. Fragil.'},
+    {id:'Z22',n:'Zahlmeister',           p:'Blau×1', d:1, c:1, sk:true, fr:true, info:'Blauer Würfel immer sichtbar. Fragil.'},
+    {id:'Z23',n:'Münzprägung', p:'4',           d:1, c:2, sk:true, info:'Beim Bau: +2 Münzen sofort. (2×)'},
+    {id:'Z25',n:'Bankhaus',              p:'5',           d:1, c:1, sk:true, info:'Gibt Münzen je nach Jahreszeit beim Bau.'},
+    {id:'Z26',n:'Handelszentrum',        p:'Blau×3', d:1, c:1, sk:true, info:'3 Punkte pro blauem Würfelwert.'},
+    {id:'Z31',n:'Champion-Arena',        p:'Rot×3',  d:2, c:1, sk:true, info:'Roter Würfel × 3 Punkte.'},
+    {id:'Z32',n:'Schwarze Kathedrale',   p:'48',          d:0, c:1, sk:true, info:'48 Punkte — nur wenn einziges nicht-geplündertes Gebäude.'},
+    {id:'Z33',n:'Spiegelturm',           p:'3',           d:2, c:1, sk:true, info:'Verdoppelt VP aller direkten Nachbarn.'},
+    {id:'Z34',n:'Elfenbeinturm',         p:'Level×3',d:2, c:1, sk:true, info:'Rathaus-Level × 3 Punkte.'}
+  ],
+  rathaus:[
+    {id:'x1', n:'Rathaus I',   p:'0', d:0, c:1, info:'Startgeb\u00e4ude. Karte darunter \u2192 Level +1, +1 M\u00fcnze sofort.'},
+    {id:'x2', n:'Rathaus II',  p:'0', d:0, c:1, info:'Level 2 \u2014 max. 2 Sonderkarten auf dem Feld.'},
+    {id:'x3', n:'Rathaus III', p:'0', d:0, c:1, info:'Level 3 \u2014 Rabatt beim Kauf von Sonderkarten.'},
+    {id:'x4', n:'Rathaus IV',  p:'0', d:0, c:1, info:'Level 4\u20136 \u2014 starke Rabatte, viele Sonder-Slots.'}
+  ]
+};
+
+function showSeason(s, btn) {
+  document.querySelectorAll('.stab').forEach(function(b){ b.classList.remove('on'); b.style.borderBottomColor=''; b.style.color=''; });
+  if (btn) { btn.classList.add('on'); var col = SC[s]||'#1a4060'; btn.style.borderBottomColor=col; btn.style.color=col; }
+  var c = document.getElementById('cgc'); if(!c) return;
+  var cards = CA[s]||[];
+  var isSonder = (s === 'sonder' || s === 'rathaus');
+  var cols = isSonder ? 3 : 4;
+  var html = '<div class="cgrid" style="grid-template-columns:repeat('+cols+',1fr)">';
+  cards.forEach(function(card){
+    html += '<div class="ccard">'
+      +'<div class="ccard-img"><img src="'+card.id+'.png" alt="'+card.n+'" onerror="this.style.opacity=.05">'
+      +(card.c>1?'<div class="ccard-ct">×'+card.c+'</div>':'')
+      +'</div>'
+      +'<div class="ccard-info"><div class="ccard-name">'+card.n+(card.fr?' ⚡':'')+'</div>'
+      +'<div class="ccard-st"><span class="ccard-p">'+card.p+'</span><span class="ccard-d">&#128737;'+card.d+'</span></div>'
+      +(card.info?'<div style="font-size:.55rem;color:#607080;line-height:1.3;margin-top:2px">'+card.info+'</div>':'')
+      +'</div></div>';
+  });
+  c.innerHTML = html + '</div>';
+}
+
+</script>
+</body>
+</html>

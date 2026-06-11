@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Zwischental — Mini-Erweiterungen</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Pirata+One&family=Cinzel:wght@400;700&family=Barlow+Condensed:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --dark:   #1a0e06;
+  --ink:    #1a1208;
+  --paper:  #f5ede0;
+  --gold:   #c8920a;
+  --gold-lt:#f0c840;
+  --teal:   #2a7a6a;
+  --red:    #8a2010;
+}
+
+html, body {
+  min-height: 100%;
+  background: var(--dark);
+  color: var(--paper);
+  font-family: 'Crimson Text', serif;
+}
+
+/* ── HEADER ── */
+header {
+  background: var(--dark);
+  border-bottom: 1px solid rgba(200,146,10,0.2);
+  padding: 12px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 10;
+}
+.header-title {
+  font-family: 'Pirata One', cursive;
+  font-size: 1rem; color: var(--gold); letter-spacing: 0.1em;
+}
+.back-link {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.15em;
+  text-transform: uppercase; color: rgba(200,146,10,0.6);
+  text-decoration: none; padding: 5px 10px;
+  border: 1px solid rgba(200,146,10,0.2); border-radius: 12px;
+  transition: color 0.2s, border-color 0.2s;
+}
+.back-link:hover { color: var(--gold); border-color: rgba(200,146,10,0.5); }
+
+/* ── INTRO ── */
+.intro {
+  max-width: 600px; margin: 0 auto;
+  padding: 28px 20px 0;
+  text-align: center;
+}
+.intro h1 {
+  font-family: 'Pirata One', cursive;
+  font-size: 2rem; color: var(--gold); line-height: 1.1;
+  margin-bottom: 8px;
+}
+.intro p {
+  font-size: 1rem; line-height: 1.6;
+  color: rgba(245,237,224,0.65);
+  max-width: 440px; margin: 0 auto 24px;
+  font-style: italic;
+}
+.intro-divider {
+  width: 80px; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  margin: 0 auto 28px;
+}
+
+/* ── MODULE TABS ── */
+.module-tabs {
+  display: flex; justify-content: center; gap: 8px;
+  padding: 0 20px 24px;
+  max-width: 600px; margin: 0 auto;
+}
+.module-tab {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; padding: 7px 16px;
+  border-radius: 20px; border: 1.5px solid rgba(200,146,10,0.25);
+  background: transparent; color: rgba(245,237,224,0.5);
+  cursor: pointer; transition: all 0.2s;
+}
+.module-tab.active {
+  background: rgba(200,146,10,0.15);
+  border-color: var(--gold); color: var(--gold);
+}
+
+/* ── MODULE PANELS ── */
+.module-panel { display: none; max-width: 600px; margin: 0 auto; padding: 0 16px 80px; }
+.module-panel.active { display: block; }
+
+/* ── SECTION HEADER ── */
+.section-head {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 20px; padding-bottom: 10px;
+  border-bottom: 1px solid rgba(200,146,10,0.2);
+}
+.section-icon { font-size: 1.6rem; line-height: 1; }
+.section-title {
+  font-family: 'Pirata One', cursive;
+  font-size: 1.4rem; color: var(--gold); line-height: 1;
+}
+.section-sub {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.62rem; letter-spacing: 0.15em; text-transform: uppercase;
+  color: rgba(200,146,10,0.5); margin-top: 2px;
+}
+
+/* ── RULES BOX ── */
+.rules-box {
+  background: rgba(200,146,10,0.06);
+  border: 1px solid rgba(200,146,10,0.2);
+  border-radius: 8px; padding: 14px 16px;
+  margin-bottom: 20px;
+}
+.rules-box p {
+  font-size: 0.95rem; line-height: 1.6;
+  color: rgba(245,237,224,0.75);
+}
+.rules-box p + p { margin-top: 8px; }
+.rules-box strong { color: rgba(245,237,224,0.95); }
+
+/* ── CARD GRID ── */
+.card-grid {
+  display: flex; flex-direction: column; gap: 10px;
+  margin-bottom: 28px;
+}
+.exp-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(245,237,224,0.1);
+  border-radius: 8px; overflow: hidden;
+  transition: border-color 0.2s;
+}
+.exp-card:hover { border-color: rgba(200,146,10,0.35); }
+
+.exp-card-head {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px;
+  background: rgba(245,237,224,0.04);
+  border-bottom: 1px solid rgba(245,237,224,0.06);
+}
+.exp-card-num {
+  font-family: 'Pirata One', cursive;
+  font-size: 1.1rem; color: var(--gold);
+  width: 24px; text-align: center; flex-shrink: 0;
+}
+.exp-card-name {
+  font-family: 'Cinzel', serif;
+  font-size: 0.82rem; font-weight: 700;
+  color: rgba(245,237,224,0.9); flex: 1;
+}
+.exp-card-body {
+  padding: 10px 14px;
+}
+.exp-card-flavor {
+  font-style: italic; font-size: 0.82rem;
+  color: rgba(245,237,224,0.4); margin-bottom: 6px;
+  line-height: 1.4;
+}
+.exp-card-rule {
+  font-size: 0.9rem; line-height: 1.55;
+  color: rgba(245,237,224,0.78);
+}
+.exp-card-rule strong { color: rgba(245,237,224,0.95); }
+
+/* Moment cards — escalation table */
+.esc-table {
+  width: 100%; border-collapse: collapse;
+  margin-top: 8px; font-size: 0.82rem;
+}
+.esc-table td {
+  padding: 4px 8px; border-bottom: 1px solid rgba(245,237,224,0.06);
+  color: rgba(245,237,224,0.75); vertical-align: top;
+}
+.esc-table tr:last-child td { border-bottom: none; }
+.esc-sym {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; font-size: 0.75rem;
+  color: var(--gold); width: 60px; white-space: nowrap;
+}
+
+/* Faction legend */
+.faction-legend {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 8px; margin: 12px 0 20px;
+}
+.faction-item {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(245,237,224,0.08);
+  border-radius: 6px; padding: 8px 12px;
+  display: flex; align-items: flex-start; gap: 8px;
+}
+.faction-icon { font-size: 1.2rem; line-height: 1; flex-shrink: 0; margin-top: 1px; }
+.faction-name {
+  font-family: 'Cinzel', serif; font-size: 0.72rem;
+  font-weight: 700; color: var(--gold); margin-bottom: 2px;
+}
+.faction-desc {
+  font-size: 0.75rem; color: rgba(245,237,224,0.5);
+  line-height: 1.35;
+}
+
+/* Special M5 */
+.exp-card.special-card { border-color: rgba(42,122,106,0.4); }
+.exp-card.special-card .exp-card-head { background: rgba(42,122,106,0.08); }
+.exp-card.special-card .exp-card-name { color: #5acaaa; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-title">✦ Mini-Erweiterungen</div>
+  <a href="index.html" class="back-link">← Zum Spiel</a>
+</header>
+
+<div class="intro">
+  <h1>Mini-Erweiterungen</h1>
+  <p>Zwei optionale Module, die das Spiel um eine neue Ebene erweitern — ohne die Grundregeln zu verändern.</p>
+  <div class="intro-divider"></div>
+</div>
+
+<div class="module-tabs">
+  <button class="module-tab active" onclick="showModule('chroniken')">📖 Die Chroniken</button>
+  <button class="module-tab" onclick="showModule('moment')">⚔ Moment des Überfalls</button>
+</div>
+
+<!-- ══════════════════════════════════
+     MODUL A — DIE CHRONIKEN
+══════════════════════════════════ -->
+<div class="module-panel active" id="panel-chroniken">
+
+  <div class="section-head">
+    <div class="section-icon">📖</div>
+    <div>
+      <div class="section-title">Die Chroniken der Talwacht</div>
+      <div class="section-sub">9 Karten · Modul A · Beeinflusst das gesamte Spiel</div>
+    </div>
+  </div>
+
+  <div class="rules-box">
+    <p>Mische die 9 Chroniken-Karten und decke eine zufällig zu Spielbeginn auf — sie gilt für das <strong>gesamte Spiel</strong> in allen Varianten.</p>
+    <p>Die Chronik verändert eine einzelne Grundregel. Alle anderen Regeln bleiben unverändert.</p>
+    <p>Wenn eine Chronik-Karte und eine Moment-des-Überfalls-Karte denselben Effekt betreffen, <strong>überschreibt der Moment des Überfalls immer</strong>.</p>
+  </div>
+
+  <div class="card-grid">
+
+    <div class="exp-card">
+      <div class="exp-card-head">
+        <div class="exp-card-num">C1</div>
+        <div class="exp-card-name">Das Jahr des Orakels</div>
+      </div>
+      <div class="exp-card-body">
+        <div class="exp-card-flavor">»Die Murmeltiere lernten, die Zeichen zu lesen.«</div>
+        <div class="exp-card-rule">Alle verborgenen Angriffsinformationen (<strong>🔵 Stärke der Horde, 🔴 Anführer</strong>) werden bereits <strong>vor der Rüstphase</strong> aufgedeckt. Man rüstet mit vollständigem Wissen.</div>
+      </div>
+    </div>
+
+    <div class="exp-card">
+      <div class="exp-card-head">
+        <div class="exp-card-num">C2</div>
+        <div class="exp-card-name">Das Jahr der rivalisierenden Siedlungen</div>
+      </div>
+      <div class="exp-card-body">
+        <div class="exp-card-flavor">»Was eine Siedlung verliert, gewinnt die andere.«</div>
+        <div class="exp-card-rule">Geplünderte Punkte werden nicht vernichtet — sie gehen als Siegpunkte an den <strong>Nachbarn in Drafting-Richtung</strong>. Nur im Mehrspielerspiel aktiv.</div>
+      </div>
+    </div>
+
+    <div class="exp-card">
+      <div class="exp-card-head">
+        <div class="exp-card-num">C3</div>
+        <div class="exp-card-name">Das Jahr der Überschwemmung</div>
+      </div>
+      <div class="exp-card-body">
+        <div class="exp-card-flavor">»Das Tal stand unter Wasser. Die südlichen Felder versanken.«</div>
+        <div class="exp-card-rule">Die drei südlichen Felder (<strong>S, SO, SW</strong>) können nicht bebaut werden. Die Horde zieht darüber hinweg — jedes dieser Felder hat <strong>Verteidigung 2</strong> (die Flut bremst sie). Der Überfall kann nie von Süden starten.</div>
+      </div>
+    </div>
+
+    <div class="exp-card">
+      <div class="exp-card-head">
+        <div class="exp-card-num">C4</div>
+        <div class="exp-card-name">Das Jahr der Handelsstraßen</div>
+      </div>
+      <div class="exp-card-body">
+        <div class="exp-card-flavor">»Händler aus dem ganzen Reich zogen durchs Tal.«</div>
+        <div class="exp-card-rule">Ressourcen sind <strong>frei tauschbar: alles kostet 2:1</strong> — egal welche Ressource für welche Verteidigung. 2 Holz = 1 Ritter. 2 Nahrung = 1 Turm. 2 Glas = 1 Barriere. Münzen bleiben 2 Glas = 1 Münze.</div>
+      </div>
+    </div>
+
+    <div class="exp-card">
+      <div class="exp-card-head">
+        <div class="exp-card-num">C5</div>
+        <div class="exp-card-name">Das Jahr der langen Schatten</div>
+      </div>
+      <div class="exp-card-body">
+        <div class="exp-card-flavor">»Niemand wusste, woher sie als nächstes kommen würden.«</div>
+        <div class="exp-card-rule">Der gelbe Würfel (<strong>🟡 Überfallrichtung</strong>) bleibt das gesamte Spiel verborgen — er wird nie aufgedeckt, auch nicht beim Überfall. Nur Stadttor- und Windrose-Karten können Richtung und Startfeld beeinflussen.</div>
+      </div>
+    </div>
+
+    <div class="exp-card">
+      <div class="exp-card-head">
+        <div class="exp-card-num">C6</div>
+        <div class="exp-card-name">Das Jahr des Wiederaufbaus</div>
+      </div>
+      <div class="exp-card-body">
+        <div class="exp-card-flavor">»Was niedergebrannt war, wurde stärker neu errichtet.«</div>
+        <div class="exp-card-rule">Geplünderte Karten produzieren in der <strong>nächsten Rüstphase doppelte Ressourcen</strong>. Ein Ansporn, Verluste hinzunehmen.</div>
+      </div>
+    </div>
+
+    <div class="exp-card">
+      <div class="exp-card-head">
+        <div class="exp-card-num">C7</div>
+        <div class="exp-card-name">Das Jahr der Stille</div>
+      </div>
+      <div class="exp-card-body">
+        <div class="exp-card-flavor">»Kein Anführer führte die Horde. Aber sie kamen trotzdem.«</div>
+        <div class="exp-card-rule">Der Anführer-Pool wird ignoriert — es gibt <strong>keinen Anführer</strong> in diesem Jahr. Stattdessen wird die <strong>Stärke der Horde (🔵) verdoppelt</strong>.</div>
+      </div>
+    </div>
+
+    <div class="exp-card">
+      <div class="exp-card-head">
+        <div class="exp-card-num">C8</div>
+        <div class="exp-card-name">Das Jahr des Wirbelsturms</div>
+      </div>
+      <div class="exp-card-body">
+        <div class="exp-card-flavor">»Ein Sturm fegte durchs Tal und vermischte alle Baupläne.«</div>
+        <div class="exp-card-rule">Alle Gebäudekarten aller Jahreszeiten und Sonderkarten werden zu einem einzigen Stapel gemischt. <strong>Jede Karte kann in jeder Jahreszeit gebaut werden.</strong> Sonderkarten bleiben ans Rathaus-Level gekoppelt.</div>
+      </div>
+    </div>
+
+    <div class="exp-card">
+      <div class="exp-card-head">
+        <div class="exp-card-num">C9</div>
+        <div class="exp-card-name">Das Jahr der Fülle</div>
+      </div>
+      <div class="exp-card-body">
+        <div class="exp-card-flavor">»Die Vorratskammern waren so voll, dass niemand etwas wegwerfen musste.«</div>
+        <div class="exp-card-rule">Beim Drafting wird die sechste Karte <strong>nicht abgeworfen</strong> — sie darf ebenfalls gebaut oder fürs Rathaus-Upgrade genutzt werden.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     MODUL B — MOMENT DES ÜBERFALLS
+══════════════════════════════════ -->
+<div class="module-panel" id="panel-moment">
+
+  <div class="section-head">
+    <div class="section-icon">⚔</div>
+    <div>
+      <div class="section-title">Moment des Überfalls</div>
+      <div class="section-sub">5 Karten · Modul B · Aufgedeckt beim Überfall</div>
+    </div>
+  </div>
+
+  <div class="rules-box">
+    <p>Mische die 5 Moment-Karten und lege sie verdeckt neben das Spielfeld. Zu Beginn jedes Überfalls — nachdem alle Angriffskarten aufgedeckt sind — wird die <strong>oberste Moment-Karte aufgedeckt</strong>.</p>
+    <p>Zähle wie viele der drei Angriffskarten das abgebildete <strong>Fraktions-Symbol</strong> tragen und wende die entsprechende Eskalationsstufe an. Die Karte M5 gilt immer ohne Zählung.</p>
+    <p>Der Moment des Überfalls <strong>überschreibt im Konfliktfall alle anderen Regeln</strong> — auch Chroniken-Karten.</p>
+  </div>
+
+  <div class="faction-legend">
+    <div class="faction-item">
+      <div class="faction-icon">🌙</div>
+      <div>
+        <div class="faction-name">Nachtaktive</div>
+        <div class="faction-desc">Fledermäuse, Füchse, Eulen — stark in der Dunkelheit</div>
+      </div>
+    </div>
+    <div class="faction-item">
+      <div class="faction-icon">☀️</div>
+      <div>
+        <div class="faction-name">Tagaktive</div>
+        <div class="faction-desc">Adler, Hirsche, Wildschweine — direkt und unerschrocken</div>
+      </div>
+    </div>
+    <div class="faction-item">
+      <div class="faction-icon">🌧️</div>
+      <div>
+        <div class="faction-name">Wetterfeste</div>
+        <div class="faction-desc">Ratten, Krähen, Biber — unaufhaltbar bei jedem Wetter</div>
+      </div>
+    </div>
+    <div class="faction-item">
+      <div class="faction-icon">🌿</div>
+      <div>
+        <div class="faction-name">Waldläufer</div>
+        <div class="faction-desc">Wölfe, Eichhörnchen, Hirsche — kennen jeden Pfad</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-grid">
+
+    <div class="exp-card">
+      <div class="exp-card-head">
+        <div class="exp-card-num">M1</div>
+        <div class="exp-card-name">Mitten in der Nacht 🌙</div>
+      </div>
+      <div class="exp-card-body">
+        <div class="exp-card-flavor">»Die Horde greift im Schutz der Dunkelheit an.«</div>
+        <table class="esc-table">
+          <tr><td class="esc-sym">🌙 × 1</td><td>+2 Angreifer</td></tr>
+          <tr><td class="esc-sym">🌙 × 2</td><td>+4 Angreifer</td></tr>
+          <tr><td class="esc-sym">🌙 × 3</td><td>+4 Angreifer · Türme schützen diesen Überfall nicht</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="exp-card">
+      <div class="exp-card-head">
+        <div class="exp-card-num">M2</div>
+        <div class="exp-card-name">Heller Tag ☀️</div>
+      </div>
+      <div class="exp-card-body">
+        <div class="exp-card-flavor">»Die Horde marschiert offen und unverfroren.«</div>
+        <table class="esc-table">
+          <tr><td class="esc-sym">☀️ × 1</td><td>+1 Angreifer</td></tr>
+          <tr><td class="esc-sym">☀️ × 2</td><td>+2 Angreifer · Verteidigung aller Gebäude −1</td></tr>
+          <tr><td class="esc-sym">☀️ × 3</td><td>+3 Angreifer · Verteidigung −1 · Barrieren wirkungslos</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="exp-card">
+      <div class="exp-card-head">
+        <div class="exp-card-num">M3</div>
+        <div class="exp-card-name">Gewitter 🌧️</div>
+      </div>
+      <div class="exp-card-body">
+        <div class="exp-card-flavor">»Blitz und Donner — die Wetterfesten kennen keinen Rückzug.«</div>
+        <table class="esc-table">
+          <tr><td class="esc-sym">🌧️ × 1</td><td>Barrieren halten nur 1 Angreifer statt vollständig zu blockieren</td></tr>
+          <tr><td class="esc-sym">🌧️ × 2</td><td>Barrieren halten nur 1 Angreifer · +2 Angreifer</td></tr>
+          <tr><td class="esc-sym">🌧️ × 3</td><td>Barrieren wirkungslos · +3 Angreifer · Ritter geben nur +1 def</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="exp-card">
+      <div class="exp-card-head">
+        <div class="exp-card-num">M4</div>
+        <div class="exp-card-name">Morgengrauen 🌿</div>
+      </div>
+      <div class="exp-card-body">
+        <div class="exp-card-flavor">»Die Waldläufer kennen jeden verborgenen Pfad.«</div>
+        <table class="esc-table">
+          <tr><td class="esc-sym">🌿 × 1</td><td>Laufrichtung wird nach dem ersten Treffer umgekehrt</td></tr>
+          <tr><td class="esc-sym">🌿 × 2</td><td>Laufrichtung umgekehrt · +2 Angreifer</td></tr>
+          <tr><td class="esc-sym">🌿 × 3</td><td>Laufrichtung umgekehrt · +2 Angreifer · Startfeld verschiebt sich um 1 Feld in Laufrichtung</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="exp-card special-card">
+      <div class="exp-card-head">
+        <div class="exp-card-num">M5</div>
+        <div class="exp-card-name">Sonniger Markttag ☀️🌿</div>
+      </div>
+      <div class="exp-card-body">
+        <div class="exp-card-flavor">»Ein friedlicher Tag — die Horde zögert.«</div>
+        <div class="exp-card-rule">Keine Fraktion. Gilt immer unabhängig von den Symbolen der Angriffskarten.<br><br>Alle Spielenden dürfen vor dem Überfall noch <strong>eine zusätzliche Rüst-Aktion</strong> durchführen: eine Barriere setzen, einen Ritter platzieren oder einen Turm bauen. Dann läuft der Überfall normal.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function showModule(id) {
+  document.querySelectorAll('.module-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.module-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>
