@@ -316,17 +316,41 @@ strong { font-weight: 600; }
   flex-direction: column;
   gap: 6px;
 }
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(232,200,64,.5), 0 2px 12px rgba(0,0,0,.3); }
+  50% { box-shadow: 0 0 0 8px rgba(232,200,64,0), 0 4px 20px rgba(0,0,0,.4); }
+}
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
 .btn-p {
-  background: #1a4060;
+  background: linear-gradient(105deg, #1a4060 40%, #2d6090 50%, #1a4060 60%);
+  background-size: 200% auto;
   color: #e8c840;
-  border: none;
-  padding: 9px 14px;
+  border: 1px solid rgba(232,200,64,.4);
+  padding: 13px 18px;
   font-family: 'Cinzel', serif;
-  font-size: .58rem;
-  letter-spacing: .08em;
+  font-size: .78rem;
+  letter-spacing: .12em;
   text-transform: uppercase;
   cursor: pointer;
   width: 100%;
+  border-radius: 3px;
+  position: relative;
+  overflow: hidden;
+  animation: pulse 2s ease-in-out infinite, shimmer 3s linear infinite;
+  text-shadow: 0 0 12px rgba(232,200,64,.6);
+  transition: transform .15s;
+}
+.btn-p:hover { transform: scale(1.02); }
+.btn-p::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 60%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.12), transparent);
+  animation: shimmer 2.5s ease-in-out infinite;
 }
 .btn-s {
   background: none;
@@ -515,8 +539,8 @@ strong { font-weight: 600; }
 .cgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 10px 0; }
 .ccard { border: 1px solid #e8eef0; display: flex; flex-direction: column; }
 .ccard-img { aspect-ratio: 5/7; background: #f6f8fa; overflow: hidden; position: relative; }
-.ccard-land { border: 1px solid #e8eef0; display: flex; flex-direction: column; }
-.ccard-land .ccard-img { aspect-ratio: 7/5; }
+.ccard-land { border: 1px solid #e8eef0; border-radius: 4px; overflow: hidden; margin-bottom: 12px; }
+.ccard-land-img { width: 100%; display: block; }
 .ccard-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .ccard-ct { position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,.45); color: white; font-size: .5rem; font-weight: 700; padding: 1px 3px; }
 .ccard-info { padding: 3px 4px; }
@@ -695,7 +719,13 @@ var ST = [
         +'<p>Jede:r w\u00e4hlt ein <strong>Rathaus</strong> und legt sie vor sich als Zentrum der Siedlung. Sortiert alle Karten nach Rückseite, mischt die einzelnen Stapel kräftig:</p>'
         +'<div class="phases">'
         +'<div class="phase"><span class="ph-n" style="color:'+a+'">1</span><div><div class="ph-t" style="color:'+a+'">Gebäudekarten</div><div class="ph-d">4 Jahreszeitstapel + 1 Sonderkartenstapel bereitlegen.</div></div></div>'
-        +'<div class="phase"><span class="ph-n" style="color:'+a+'">2</span><div><div class="ph-t" style="color:'+a+'">Überfallkarten &amp; W\u00fcrfel</div><div class="ph-d">Die 3 Überfallkartenstapel (gelb, blau, rot) verdeckt in die Mitte legen. Den passenden W\u00fcrfel neben jeden Stapel legen.</div></div></div>'
+        +'<div class="phase"><span class="ph-n" style="color:'+a+'">2</span><div><div class="ph-t" style="color:'+a+'">Überfallkarten &amp; W\u00fcrfel</div><div class="ph-d">Die 3 Überfallkartenstapel (gelb, blau, rot) verdeckt in die Mitte legen. Den passenden W\u00fcrfel neben jeden Stapel legen.</div>'
+        +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px">'
+        +'<div style="text-align:center"><img src="back-R1.png" style="width:100%;border-radius:3px;display:block" onerror="this.style.opacity=.1"><div style="font-size:.52rem;color:#d4a820;font-weight:700;margin-top:3px">🟡 Startfeld</div></div>'
+        +'<div style="text-align:center"><img src="back-A1.png" style="width:100%;border-radius:3px;display:block" onerror="this.style.opacity=.1"><div style="font-size:.52rem;color:#2d7aaa;font-weight:700;margin-top:3px">🔵 Stärke</div></div>'
+        +'<div style="text-align:center"><img src="back-C1.png" style="width:100%;border-radius:3px;display:block" onerror="this.style.opacity=.1"><div style="font-size:.52rem;color:#b83040;font-weight:700;margin-top:3px">🔴 Anführer</div></div>'
+        +'</div>'
+        +'</div></div>'
         +'<div class="phase"><span class="ph-n" style="color:'+a+'">3</span><div><div class="ph-t" style="color:'+a+'">Token &amp; M\u00fcnzen</div><div class="ph-d">Ritter, Barrieren, T\u00fcrme und M\u00fcnzen als gemeinsamen Vorrat bereithalten.</div></div></div>'
         +'</div>'
         +'<p style="margin-top:10px"><strong>Drafting:</strong> Jede Jahreszeit beginnt mit einem Drafting. Vorbereitung: Für jeden Spielenden 6 Karten verdeckt ziehen als Starthand, bestehend aus (Jahreszeitkarten + Sonderkarten je nach Jahreszeit).</p>'
@@ -809,6 +839,13 @@ var ST = [
       return '<div class="ch-label" style="color:'+a+'">Kapitel VII</div>'
         +'<div class="ch-title">Der \u00dcberfall</div>'
         +'<p>Deckt zuerst die noch verdeckten \u00dcberfallkarten auf. Alle Details des \u00dcberfalls sind jetzt klar: Startfeld (gelbe Karte) und Laufrichtung (gelber W\u00fcrfel), Anzahl der Pl\u00fcnderer (blau) und der Anf\u00fchrer-Effekt (rot).</p>'
+        +'<div style="margin-top:12px;margin-bottom:4px;font-size:.58rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:'+a+'">Beispiel</div>'
+        +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px">'
+        +'<div style="border:2px solid #d4a820;border-radius:4px;overflow:hidden"><div style="background:#f0ebe0;aspect-ratio:5/7"><img src="R1.png" style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.style.opacity=.1"></div><div style="padding:4px 5px;background:#fff9ec"><div style="font-size:.52rem;font-weight:700;color:#d4a820;letter-spacing:.05em">STARTFELD</div><div style="font-size:.6rem;font-weight:700;color:#304050">Nordwesten</div></div></div>'
+        +'<div style="border:2px solid #2d7aaa;border-radius:4px;overflow:hidden"><div style="background:#f0ebe0;aspect-ratio:5/7"><img src="A5.png" style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.style.opacity=.1"></div><div style="padding:4px 5px;background:#eef6fb"><div style="font-size:.52rem;font-weight:700;color:#2d7aaa;letter-spacing:.05em">ST\u00c4RKE</div><div style="font-size:.6rem;font-weight:700;color:#304050">Moosbach-Diebe</div><div style="font-size:.55rem;color:#506070">Blau + 3</div></div></div>'
+        +'<div style="border:2px solid #b83040;border-radius:4px;overflow:hidden"><div style="background:#f0ebe0;aspect-ratio:5/7"><img src="C2.png" style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.style.opacity=.1"></div><div style="padding:4px 5px;background:#fdf0f2"><div style="font-size:.52rem;font-weight:700;color:#b83040;letter-spacing:.05em">ANFÜHRER</div><div style="font-size:.6rem;font-weight:700;color:#304050">Nordische Ninja</div><div style="font-size:.55rem;color:#506070">Gegenüberl. Startfeld</div></div></div>'
+        +'</div>'
+        +'<div class="note" style="margin-bottom:12px">Die Horde kommt eigentlich aus dem <strong>Nordwesten</strong>. Der blaue W\u00fcrfel zeigt z.B. eine 4 \u2014 das ergibt <strong>7 Pl\u00fcnderer</strong> (4+3). Die Nordische Ninja verschiebt jedoch den Startpunkt auf die <strong>gegen\u00fcberliegende Seite</strong>: der Angriff beginnt stattdessen im <strong>S\u00fcdosten</strong>.</div>'
         +'<p style="margin-top:10px">Nimm dir eine Z\u00e4hlscheibe und stelle sie auf die Anzahl der Pl\u00fcnderer. Sie hilft dir zu z\u00e4hlen, wie weit die R\u00e4uber kommen.</p>'
         +'<p style="margin-top:10px">Beginnend mit dem Startfeld zieht die diebische Horde Feld f\u00fcr Feld in Laufrichtung um das Rathaus durch deine Siedlung. Bei jedem Feld:</p>'
         +'<div class="phases" style="margin-top:8px">'
@@ -1111,10 +1148,9 @@ kampagne:{acc:'score',prev:'solo',next:'erweiterungen',
 erweiterungen:{acc:'koop',prev:'kampagne',next:null,
  main:function(a){
   function lcard(id,file,title,flavor,rule){
-    return '<div class="ccard-land" style="margin-bottom:12px">'
-      +'<div class="ccard-img" style="background:#f0ebe0"><img src="'+file+'" style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.style.opacity=.15">'
-      +'<div class="ccard-ct">'+id+'</div></div>'
-      +'<div class="ccard-info" style="padding:6px 8px">'
+    return '<div class="ccard-land">'
+      +'<img class="ccard-land-img" src="'+file+'" onerror="this.style.display=\'none\'">'
+      +'<div style="padding:6px 8px;border-top:1px solid #e8eef0">'
       +'<div class="ccard-name" style="font-size:.62rem;margin-bottom:3px">'+title+'</div>'
       +(flavor?'<div style="font-size:.55rem;font-style:italic;color:#708090;margin-bottom:3px">'+flavor+'</div>':'')
       +'<div style="font-size:.58rem;line-height:1.45;color:#304050">'+rule+'</div>'
@@ -1128,15 +1164,15 @@ erweiterungen:{acc:'koop',prev:'kampagne',next:null,
   +'<div style="font-family:\'Cinzel\',serif;font-size:.88rem;font-weight:700;color:#1a4060;margin-bottom:6px">\uD83D\uDCD6 Die Chroniken der Talwacht</div>'
   +'</div>'
   +'<div class="note" style="margin-top:10px;margin-bottom:12px">Mische die 9 Chroniken-Karten und decke eine zuf\u00e4llig zu Spielbeginn auf \u2014 sie gilt f\u00fcr das <strong>gesamte Spiel</strong>. Die Chronik ver\u00e4ndert eine einzelne Grundregel, alle anderen Regeln bleiben unver\u00e4ndert. Wenn eine Chronik-Karte und eine Moment-Karte denselben Effekt betreffen, <strong>\u00fcberschreibt der Moment des \u00dcberfalls immer</strong>.</div>'
-  +lcard('C1','J1.png','Das Jahr des Orakels','\u00bbDie Murmeltiere lernten, die Zeichen zu lesen.\u00ab','Alle verborgenen Angriffsinformationen (\uD83D\uDD35 St\u00e4rke der Horde, \uD83D\uDD34 Anf\u00fchrer) werden bereits <strong>vor der R\u00fcstphase</strong> aufgedeckt. Man r\u00fcstet mit vollst\u00e4ndigem Wissen.')
-  +lcard('C2','J2.png','Das Jahr der rivalisierenden Siedlungen','\u00bbWas eine Siedlung verliert, gewinnt die andere.\u00ab','Gepl\u00fcnderte Punkte werden nicht vernichtet \u2014 sie gehen als Siegpunkte an den <strong>Nachbarn in Drafting-Richtung</strong>. Nur im Mehrspielerspiel aktiv.')
-  +lcard('C3','J3.png','Das Jahr der \u00dcberschwemmung','\u00bbDas Tal stand unter Wasser. Die s\u00fcdlichen Felder versanken.\u00ab','Die drei s\u00fcdlichen Felder (<strong>S, SO, SW</strong>) k\u00f6nnen nicht bebaut werden. Die Horde zieht dar\u00fcber hinweg \u2014 jedes dieser Felder hat <strong>Verteidigung 2</strong>. Der \u00dcberfall kann nie von S\u00fcden starten.')
-  +lcard('C4','J4.png','Das Jahr der Handelsstra\u00dfen','\u00bbH\u00e4ndler aus dem ganzen Reich zogen durchs Tal.\u00ab','Ressourcen sind <strong>frei tauschbar: alles kostet 2:1</strong> \u2014 egal welche Ressource f\u00fcr welche Verteidigung. 2 Holz = 1 Ritter. 2 Nahrung = 1 Turm. 2 Glas = 1 Barriere. M\u00fcnzen bleiben 2 Glas = 1 M\u00fcnze.')
-  +lcard('C5','J5.png','Das Jahr der langen Schatten','\u00bbNiemand wusste, woher sie als n\u00e4chstes kommen w\u00fcrden.\u00ab','Der gelbe W\u00fcrfel (\uD83D\uDFE1 \u00dcberfallrichtung) bleibt das gesamte Spiel verborgen \u2014 er wird nie aufgedeckt, auch nicht beim \u00dcberfall. Nur Stadttor- und Windrose-Karten k\u00f6nnen Richtung und Startfeld beeinflussen.')
-  +lcard('C6','J6.png','Das Jahr des Wiederaufbaus','\u00bbWas niedergebrannt war, wurde st\u00e4rker neu errichtet.\u00ab','Gepl\u00fcnderte Karten produzieren in der <strong>n\u00e4chsten R\u00fcstphase doppelte Ressourcen</strong>. Ein Ansporn, Verluste hinzunehmen.')
-  +lcard('C7','J7.png','Das Jahr der Stille','\u00bbKein Anf\u00fchrer f\u00fchrte die Horde. Aber sie kamen trotzdem.\u00ab','Der Anf\u00fchrer-Pool wird ignoriert \u2014 es gibt <strong>keinen Anf\u00fchrer</strong> in diesem Jahr. Stattdessen wird die <strong>St\u00e4rke der Horde (\uD83D\uDD35) verdoppelt</strong>.')
-  +lcard('C8','J8.png','Das Jahr des Wirbelsturms','\u00bbEin Sturm fegte durchs Tal und vermischte alle Baupl\u00e4ne.\u00ab','Alle Geb\u00e4udekarten aller Jahreszeiten und Sonderkarten werden zu einem einzigen Stapel gemischt. <strong>Jede Karte kann in jeder Jahreszeit gebaut werden.</strong> Sonderkarten bleiben ans Rathaus-Level gekoppelt.')
-  +lcard('C9','J9.png','Das Jahr der F\u00fclle','\u00bbDie Vorratskammern waren so voll, dass niemand etwas wegwerfen musste.\u00ab','Beim Drafting wird die sechste Karte <strong>nicht abgeworfen</strong> \u2014 sie darf ebenfalls gebaut oder f\u00fcrs Rathaus-Upgrade genutzt werden.')
+  +lcard('C1','T1.png','Das Jahr des Orakels','\u00bbDie Murmeltiere lernten, die Zeichen zu lesen.\u00ab','Alle verborgenen Angriffsinformationen (\uD83D\uDD35 St\u00e4rke der Horde, \uD83D\uDD34 Anf\u00fchrer) werden bereits <strong>vor der R\u00fcstphase</strong> aufgedeckt. Man r\u00fcstet mit vollst\u00e4ndigem Wissen.')
+  +lcard('C2','T2.png','Das Jahr der rivalisierenden Siedlungen','\u00bbWas eine Siedlung verliert, gewinnt die andere.\u00ab','Gepl\u00fcnderte Punkte werden nicht vernichtet \u2014 sie gehen als Siegpunkte an den <strong>Nachbarn in Drafting-Richtung</strong>. Nur im Mehrspielerspiel aktiv.')
+  +lcard('C3','T3.png','Das Jahr der \u00dcberschwemmung','\u00bbDas Tal stand unter Wasser. Die s\u00fcdlichen Felder versanken.\u00ab','Die drei s\u00fcdlichen Felder (<strong>S, SO, SW</strong>) k\u00f6nnen nicht bebaut werden. Die Horde zieht dar\u00fcber hinweg \u2014 jedes dieser Felder hat <strong>Verteidigung 2</strong>. Der \u00dcberfall kann nie von S\u00fcden starten.')
+  +lcard('C4','T4.png','Das Jahr der Handelsstra\u00dfen','\u00bbH\u00e4ndler aus dem ganzen Reich zogen durchs Tal.\u00ab','Ressourcen sind <strong>frei tauschbar: alles kostet 2:1</strong> \u2014 egal welche Ressource f\u00fcr welche Verteidigung. 2 Holz = 1 Ritter. 2 Nahrung = 1 Turm. 2 Glas = 1 Barriere. M\u00fcnzen bleiben 2 Glas = 1 M\u00fcnze.')
+  +lcard('C5','T5.png','Das Jahr der langen Schatten','\u00bbNiemand wusste, woher sie als n\u00e4chstes kommen w\u00fcrden.\u00ab','Der gelbe W\u00fcrfel (\uD83D\uDFE1 \u00dcberfallrichtung) bleibt das gesamte Spiel verborgen \u2014 er wird nie aufgedeckt, auch nicht beim \u00dcberfall. Nur Stadttor- und Windrose-Karten k\u00f6nnen Richtung und Startfeld beeinflussen.')
+  +lcard('C6','T6.png','Das Jahr des Wiederaufbaus','\u00bbWas niedergebrannt war, wurde st\u00e4rker neu errichtet.\u00ab','Gepl\u00fcnderte Karten produzieren in der <strong>n\u00e4chsten R\u00fcstphase doppelte Ressourcen</strong>. Ein Ansporn, Verluste hinzunehmen.')
+  +lcard('C7','T7.png','Das Jahr der Stille','\u00bbKein Anf\u00fchrer f\u00fchrte die Horde. Aber sie kamen trotzdem.\u00ab','Der Anf\u00fchrer-Pool wird ignoriert \u2014 es gibt <strong>keinen Anf\u00fchrer</strong> in diesem Jahr. Stattdessen wird die <strong>St\u00e4rke der Horde (\uD83D\uDD35) verdoppelt</strong>.')
+  +lcard('C8','T8.png','Das Jahr des Wirbelsturms','\u00bbEin Sturm fegte durchs Tal und vermischte alle Baupl\u00e4ne.\u00ab','Alle Geb\u00e4udekarten aller Jahreszeiten und Sonderkarten werden zu einem einzigen Stapel gemischt. <strong>Jede Karte kann in jeder Jahreszeit gebaut werden.</strong> Sonderkarten bleiben ans Rathaus-Level gekoppelt.')
+  +lcard('C9','T9.png','Das Jahr der F\u00fclle','\u00bbDie Vorratskammern waren so voll, dass niemand etwas wegwerfen musste.\u00ab','Beim Drafting wird die sechste Karte <strong>nicht abgeworfen</strong> \u2014 sie darf ebenfalls gebaut oder f\u00fcrs Rathaus-Upgrade genutzt werden.')
   +'<div style="margin-top:20px;padding-bottom:6px;border-bottom:1px solid rgba(0,0,0,.12)">'
   +'<div class="ch-label" style="color:'+a+';font-size:.54rem;margin-bottom:2px">Modul B \u00b7 5 Karten</div>'
   +'<div style="font-family:\'Cinzel\',serif;font-size:.88rem;font-weight:700;color:#1a4060;margin-bottom:6px">\u2694 Moment des \u00dcberfalls</div>'
