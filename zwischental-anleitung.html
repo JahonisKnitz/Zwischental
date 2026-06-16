@@ -556,7 +556,7 @@ strong { font-weight: 600; }
 <div class="bar">
   <div class="bar-logo" onclick="go('home')">Talwacht</div>
   <nav class="bar-nav" id="nav"></nav>
-  <a class="bar-demo" href="index.html">Demo &#9654;</a>
+  <button id="lang-btn" onclick="toggleLang()" style="font-family:'Cinzel',serif;font-size:.46rem;letter-spacing:.08em;text-transform:uppercase;background:none;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.45);padding:4px 10px;cursor:pointer;margin-left:10px;border-radius:2px">EN</button><a class="bar-demo" href="index.html">Demo &#9654;</a>
 </div>
 
 <!-- HOME -->
@@ -626,14 +626,14 @@ strong { font-weight: 600; }
 <div class="page" id="page-ref">
   <div class="accent" style="background:#3a9aca"></div>
   <div class="ref-index">
-    <div class="ch-label">Solo/Koop/Glossar</div>
-    <div class="ch-title" style="margin-bottom:16px">Kartenübersicht & Spielmodi</div>
+    <div class="ch-label" id="ref-label">Solo/Koop/Glossar</div>
+    <div class="ch-title" id="ref-subtitle" style="margin-bottom:16px">Kartenübersicht & Spielmodi</div>
     <div class="ref-items" id="ref-items"></div>
   </div>
   <div class="foot">
-    <div class="foot-pg">Solo/Koop/Glossar</div>
+    <div class="foot-pg" id="ref-foot-pg">Solo/Koop/Glossar</div>
     <div class="foot-nav">
-      <button class="foot-btn" onclick="go('guided')">&larr; Spielanleitung</button>
+      <button class="foot-btn" onclick="go('guided')" id="ref-back-btn">&larr; Spielanleitung</button>
     </div>
   </div>
 </div>
@@ -658,7 +658,73 @@ strong { font-weight: 600; }
 <script>
 var PG = ['home','guided','ref','ref-detail'];
 var cs = 0;
-var TABS = [{id:'home',l:'Material'},{id:'guided',l:'Spielanleitung'},{id:'ref',l:'Solo/Koop/Glossar'}];
+var lang = 'de';
+
+function toggleLang() {
+  lang = (lang === 'de') ? 'en' : 'de';
+  document.getElementById('lang-btn').textContent = (lang === 'de') ? 'EN' : 'DE';
+  var active = null;
+  ['home','guided','ref','ref-detail'].forEach(function(p){
+    if (document.getElementById('page-'+p).classList.contains('on')) active = p;
+  });
+  if (active === 'guided') gGo(cs);
+  if (active === 'ref') buildRef();
+  if (active === 'home') renderHome();
+  if (active === 'ref-detail') { var pg = document.getElementById('rd-pg'); if(pg && pg._rdId) showRD(pg._rdId); }
+  renderNav(active === 'ref-detail' ? 'ref' : (active || 'home'));
+}
+
+function t(key) {
+  var T = {
+    de: {
+      tab_material:'Material', tab_rules:'Spielanleitung', tab_ref:'Solo/Koop/Glossar',
+      home_components:'Spielmaterial', home_cards:'Karten', home_knights:'Ritter (graue Kl\u00f6tzchen)',
+      home_barriers:'Barrieren (Holzst\u00e4bchen)', home_towers:'T\u00fcrme (schwarze Zylinder)',
+      home_coins:'Pappm\u00fcnzen', home_counters:'Z\u00e4hlscheiben', home_dice:'W\u00fcrfel (gelb, blau, rot)',
+      home_cta_rules:'Spielanleitung \u2192', home_cta_ref:'Solo / Koop / Kampagne & Karten\u00fcbersicht',
+      home_dice_label:'W\u00fcrfel', home_dice_dir:'Richtung', home_dice_horde:'Horde (Anzahl)', home_dice_leader:'Anf\u00fchrer',
+      home_seasons:'Jahreszeiten',
+      next_btn:'Weiter \u2192', ref_btn:'Referenz \u2192', page_of:'Seite', of:'von',
+      ref_title:'Solo/Koop/Glossar', ref_subtitle:'Karten\u00fcbersicht & Spielmodi',
+      ref_variants:'Spielvarianten', overview_btn:'\u00dcbersicht', back_rules:'\u2190 Spielanleitung'
+    },
+    en: {
+      tab_material:'Contents', tab_rules:'Rules', tab_ref:'Solo/Coop/Glossary',
+      home_components:'Components', home_cards:'Cards', home_knights:'Knights (grey cubes)',
+      home_barriers:'Barriers (wooden sticks)', home_towers:'Towers (black cylinders)',
+      home_coins:'Cardboard coins', home_counters:'Score dials', home_dice:'Dice (yellow, blue, red)',
+      home_cta_rules:'Read the Rules \u2192', home_cta_ref:'Solo / Coop / Campaign & Card overview',
+      home_dice_label:'Dice', home_dice_dir:'Direction', home_dice_horde:'Horde (count)', home_dice_leader:'Leader',
+      home_seasons:'Seasons',
+      next_btn:'Next \u2192', ref_btn:'Reference \u2192', page_of:'Page', of:'of',
+      ref_title:'Solo/Coop/Glossary', ref_subtitle:'Card Overview & Game Modes',
+      ref_variants:'Game Variants', overview_btn:'Overview', back_rules:'\u2190 Rules'
+    }
+  };
+  return (T[lang] && T[lang][key] !== undefined) ? T[lang][key] : (T.de[key] || key);
+}
+
+function renderHome() {
+  var m = document.querySelector('.mat-head'); if(m) m.textContent = t('home_components');
+  var ns = ['home_cards','home_knights','home_barriers','home_towers','home_coins','home_counters','home_dice'];
+  document.querySelectorAll('.mat-row').forEach(function(r,i){
+    if(!ns[i]) return;
+    var n = r.querySelector('.mat-n');
+    if(n){ var v=n.textContent; r.innerHTML='<span class="mat-n">'+v+'</span>'+t(ns[i]); }
+  });
+  var cp = document.querySelector('.btn-p'); if(cp) cp.textContent = t('home_cta_rules');
+  var cs2 = document.querySelector('.btn-s'); if(cs2) cs2.textContent = t('home_cta_ref');
+  var heads = document.querySelectorAll('.ib-head');
+  if(heads[0]) heads[0].textContent = t('home_dice_label');
+  if(heads[1]) heads[1].textContent = t('home_seasons');
+  var rows = document.querySelectorAll('.ib-row');
+  var dl=[t('home_dice_dir'),t('home_dice_horde'),t('home_dice_leader')];
+  rows.forEach(function(r,i){ if(dl[i]){ var dot=r.querySelector('.dot'); r.innerHTML=''; if(dot) r.appendChild(dot); r.appendChild(document.createTextNode(dl[i])); }});
+}
+
+function getTABS(){return [{id:'home',l:t('tab_material')},{id:'guided',l:t('tab_rules')},{id:'ref',l:t('tab_ref')}];}
+
+
 var AC = {intro:'#1a4060',build:'#2d7aaa',raid:'#1a4878',score:'#b83040',ref:'#1a7aaa',koop:'#2a3a70'};
 
 function go(p, a) {
@@ -671,6 +737,7 @@ function go(p, a) {
 
 function renderNav(active) {
   var nav = document.getElementById('nav');
+  var TABS = getTABS();
   nav.innerHTML = TABS.map(function(t) {
     return '<div class="bar-tab'+(t.id===active?' on':'')+'" data-page="'+t.id+'">'+t.l+'</div>';
   }).join('');
@@ -912,23 +979,64 @@ var ST = [
 ];
 
 
+
+/* EN Chapters */
+var EN_ST=[
+{name:'The Valley',acc:'intro',
+main:function(a){return'<div class="ch-label" style="color:'+a+'">Chapter I</div><div class="ch-title">The Between-Valley</div><p style="font-style:italic;color:#506878;border-left:2px solid '+a+';padding:6px 12px;margin-bottom:12px">Welcome to the Valley Watch. Four kingdoms have feuded for centuries and the fertile Between-Valley sits right in the middle. You protect a small settlement and grow it into a thriving city. Build wisely \u2014 raiders from all directions regularly sweep through the valley.</p><p>Your settlement is a <strong>3\u00d73 grid</strong>. The <strong>Town Hall</strong> stands in the centre. On the eight surrounding spaces you can build, upgrade, or defend valuable buildings.</p><p>Over four seasons you each play 5 cards to develop your settlement. At the end of every season your buildings score points. Watch out: roaming raiders will try to plunder your settlement. Every \u201cplundered\u201d building scores no points in the following season scoring \u2014 only smart builders are truly prepared.</p><div class="note"><strong>Objective:</strong> The player with the most victory points after four seasons wins.</div>';},
+aside:function(a){return'<div class="aside-label">Symbols</div><div class="icon-entry"><img src="icon-vp.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Victory Points</div><div class="ie-desc">scored at end of each season</div></div></div><div class="icon-entry"><img src="icon-defense.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Defense</div><div class="ie-desc">stops raiders</div></div></div><div class="icon-entry"><img src="icon-plundered.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Plundered</div><div class="ie-desc">scores 0 VP this season; scores normally next season</div></div></div>';}
+},
+{name:'Setup',acc:'intro',
+main:function(a){return'<div class="ch-label" style="color:'+a+'">Chapter II</div><div class="ch-title">Setup</div><p>Each player takes a <strong>Town Hall</strong> and places it as the centre of their settlement. Sort all cards by their backs and shuffle each deck:</p><div class="phases"><div class="phase"><span class="ph-n" style="color:'+a+'">1</span><div><div class="ph-t" style="color:'+a+'">Building Cards</div><div class="ph-d">Prepare 4 season decks + 1 special card deck.</div></div></div><div class="phase"><span class="ph-n" style="color:'+a+'">2</span><div><div class="ph-t" style="color:'+a+'">Raid Cards &amp; Dice</div><div class="ph-d">Place the 3 raid card decks (yellow, blue, red) face-down in the centre. Put the matching die beside each deck.</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px"><div style="text-align:center"><img src="back-R1.png" style="width:100%;border-radius:3px;display:block" onerror="this.style.opacity=.1"><div style="font-size:.52rem;color:#d4a820;font-weight:700;margin-top:3px">\uD83D\uDFE1 Start Space</div></div><div style="text-align:center"><img src="back-A1.png" style="width:100%;border-radius:3px;display:block" onerror="this.style.opacity=.1"><div style="font-size:.52rem;color:#2d7aaa;font-weight:700;margin-top:3px">\uD83D\uDD35 Strength</div></div><div style="text-align:center"><img src="back-C1.png" style="width:100%;border-radius:3px;display:block" onerror="this.style.opacity=.1"><div style="font-size:.52rem;color:#b83040;font-weight:700;margin-top:3px">\uD83D\uDD34 Leader</div></div></div></div></div><div class="phase"><span class="ph-n" style="color:'+a+'">3</span><div><div class="ph-t" style="color:'+a+'">Tokens &amp; Coins</div><div class="ph-d">Keep knights, barriers, towers and coins in a shared supply.</div></div></div></div><p style="margin-top:10px"><strong>Drafting:</strong> Each season begins with a draft. Draw 6 cards face-down as a starting hand for each player (season cards + special cards depending on the season).</p><table class="tbl"><thead style="background:'+a+'"><tr><th></th><th>Season</th><th>Special</th><th>Draft Direction</th></tr></thead><tbody><tr><td><img src="icon-season-winter.png" width="14" height="14" style="object-fit:contain"> Winter</td><td>6</td><td>0</td><td>\u21bb always</td></tr><tr><td><img src="icon-season-fr\u00fchling.png" width="14" height="14" style="object-fit:contain"> Spring</td><td>5</td><td>1</td><td>\u21bb / \u21ba by Yellow</td></tr><tr><td><img src="icon-season-sommer.png" width="14" height="14" style="object-fit:contain"> Summer</td><td>4</td><td>2</td><td>\u21bb / \u21ba by Yellow</td></tr><tr><td><img src="icon-season-herbst.png" width="14" height="14" style="object-fit:contain"> Autumn</td><td>3</td><td>3</td><td>\u21bb / \u21ba by Yellow</td></tr></tbody></table><p style="font-size:.74rem;color:#607080">Draft direction from Spring: Yellow die <strong>even</strong> \u2192 \u21bb, Yellow die <strong>odd</strong> \u2192 \u21ba.</p>';},
+aside:function(a){return'<div class="aside-label">Seasons</div><div class="icon-entry"><img src="icon-season-winter.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Winter</div><div class="ie-desc">no raid</div></div></div><div class="icon-entry"><img src="icon-season-fr\u00fchling.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Spring</div><div class="ie-desc">first raid</div></div></div><div class="icon-entry"><img src="icon-season-sommer.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Summer</div><div class="ie-desc">second raid</div></div></div><div class="icon-entry"><img src="icon-season-herbst.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Autumn</div><div class="ie-desc">third raid &amp; final scoring: VP + coins</div></div></div>';}
+},
+{name:'Season Flow',acc:'intro',
+main:function(a){return'<div class="ch-label" style="color:'+a+'">Chapter III</div><div class="ch-title">Season Flow</div><p>Each season runs in phases. In <strong>Winter</strong> there are no Rumours (1) and no Raid (4).</p><div class="phases"><div class="phase"><span class="ph-n" style="color:'+a+'">1</span><div><div class="ph-t" style="color:'+a+'">Rumours</div><div class="ph-d">Roll the dice, reveal raid cards. The card with the highest die remains secret.</div></div></div><div class="phase"><span class="ph-n" style="color:'+a+'">2</span><div><div class="ph-t" style="color:'+a+'">Draft &amp; Build</div><div class="ph-d">Each player drafts and plays five cards from a rotating selection.</div></div></div><div class="phase"><span class="ph-n" style="color:'+a+'">3</span><div><div class="ph-t" style="color:'+a+'">Arm</div><div class="ph-d">Green buildings produce resources. Reinforce your defences.</div></div></div><div class="phase"><span class="ph-n" style="color:#1a4878">4</span><div><div class="ph-t" style="color:#1a4878">Raid</div><div class="ph-d">Reveal any still face-down raid cards, then carry out the raid.</div></div></div><div class="phase"><span class="ph-n" style="color:#b83040">5</span><div><div class="ph-t" style="color:#b83040">Scoring</div><div class="ph-d">Total the points on all unplundered buildings and record them as victory points.</div></div></div></div>';},
+aside:function(a){return'<div class="aside-label">Arm 2:1</div><div class="icon-entry"><img src="res-holz.png" onerror="this.style.opacity=.15"><div><div class="ie-name">2 Wood</div><div class="ie-desc">= 1 Barrier</div></div></div><div class="icon-entry"><img src="res-nahrung.png" onerror="this.style.opacity=.15"><div><div class="ie-name">2 Food</div><div class="ie-desc">= 1 Knight</div></div></div><div class="icon-entry"><img src="res-glas.png" onerror="this.style.opacity=.15"><div><div class="ie-name">2 Glass</div><div class="ie-desc">= 1 Coin</div></div></div><div class="icon-entry"><img src="res-muenze.png" onerror="this.style.opacity=.15"><div><div class="ie-name">2 Coins</div><div class="ie-desc">= 1 Tower</div></div></div>';}
+},
+{name:'Rumours & Raid',acc:'build',
+main:function(a){return'<div class="ch-label" style="color:'+a+'">Chapter IV</div><div class="ch-title">Rumours</div><p>At the start of each season, roll all three dice.</p><div class="note">The top raid card of each deck (yellow, blue, red) is revealed, <strong>except the colour with the highest die value.</strong> That colour stays face-down until the raid. If multiple dice share the highest value, all those colours remain hidden.</div><p>The <strong>colours</strong>:</p><div class="phases"><div class="phase"><span class="ph-n" style="color:#d4b800">\u25a0</span><div><div class="ph-t" style="color:#9a7800">Yellow \u2014 Raid Start &amp; Direction</div><div class="ph-d">The yellow card reveals which space the raid enters from. Even number \u2192 \u21bb raiders move clockwise. Odd number \u2192 \u21ba the mob moves counter-clockwise.</div></div></div><div class="phase"><span class="ph-n" style="color:#1a5cb8">\u25a0</span><div><div class="ph-t" style="color:#1a5cb8">Blue \u2014 Horde Size</div><div class="ph-d">How many raiders sweep through the settlement.</div></div></div><div class="phase"><span class="ph-n" style="color:#c41820">\u25a0</span><div><div class="ph-t" style="color:#c41820">Red \u2014 Leader</div><div class="ph-d">A special ability makes the raid even more challenging.</div></div></div></div><div style="margin-top:14px;margin-bottom:4px;font-size:.58rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:'+a+'">Example Rumour Phase</div><div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><div style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:6px;background:#d4b800;font-family:Cinzel,serif;font-size:1rem;font-weight:700;color:#fff;flex-shrink:0">3</div><div style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:6px;background:#1a5cb8;font-family:Cinzel,serif;font-size:1rem;font-weight:700;color:#fff;flex-shrink:0">2</div><div style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:6px;background:#c41820;font-family:Cinzel,serif;font-size:1rem;font-weight:700;color:#fff;flex-shrink:0">5</div><div style="font-size:.66rem;color:#506070;line-height:1.4;flex:1">Red shows the highest value \u2014 the Leader stays <strong>hidden</strong>.</div></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px"><div style="border:2px solid #d4a820;border-radius:4px;overflow:hidden"><div style="background:#f0ebe0;aspect-ratio:5/7"><img src="R1.png" style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.style.opacity=.1"></div><div style="padding:4px 5px;background:#fff9ec"><div style="font-size:.52rem;font-weight:700;color:#d4a820;letter-spacing:.05em">START SPACE</div><div style="font-size:.6rem;font-weight:700;color:#304050">Revealed</div></div></div><div style="border:2px solid #2d7aaa;border-radius:4px;overflow:hidden"><div style="background:#f0ebe0;aspect-ratio:5/7"><img src="A5.png" style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.style.opacity=.1"></div><div style="padding:4px 5px;background:#eef6fb"><div style="font-size:.52rem;font-weight:700;color:#2d7aaa;letter-spacing:.05em">STRENGTH</div><div style="font-size:.6rem;font-weight:700;color:#304050">Revealed</div></div></div><div style="border:2px solid #b83040;border-radius:4px;overflow:hidden"><div style="background:#e8d0d4;aspect-ratio:5/7"><img src="back-c1.png" style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.style.opacity=.1"></div><div style="padding:4px 5px;background:#fdf0f2"><div style="font-size:.52rem;font-weight:700;color:#b83040;letter-spacing:.05em">LEADER</div><div style="font-size:.6rem;font-weight:700;color:#304050">Hidden \uD83D\uDD12</div></div></div></div>';},
+aside:function(a){return'<div class="aside-label">The Secret</div><div class="icon-entry"><img src="icon-raid-start.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Start Space</div><div class="ie-desc"></div></div></div><div class="icon-entry"><img src="icon-raid-dir.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Direction</div><div class="ie-desc">even \u21bb / odd \u21ba</div></div></div><div class="aside-label" style="margin-top:10px">Simulator</div><a href="angriff-simulation.html" target="_blank" style="display:block;font-family:Cinzel,serif;font-size:.48rem;letter-spacing:.08em;text-transform:uppercase;color:#506070;border:1px solid #a0a8b0;padding:5px 8px;text-align:center;text-decoration:none;margin-top:4px">Raid Simulator</a><div style="font-size:.64rem;color:#708090;line-height:1.45;margin-top:5px">Follow the link and try it out.</div>';}
+},
+{name:'Draft & Build',acc:'build',
+main:function(a){return'<div class="ch-label" style="color:'+a+'">Chapter V</div><div class="ch-title">Drafting &amp; Build Phase</div><p>Prepare a face-down starting hand of <strong>6 cards</strong> for each player (season cards + special cards). Choose one card from your hand and pass the rest in the draft direction. The chosen card is played immediately.</p><img src="kartenaufbau.png" alt="Card anatomy" style="width:100%;aspect-ratio:1/1;display:block;margin-top:14px;border-radius:4px"><p style="font-size:.72rem;color:#7090a0;text-align:center;margin-top:6px;font-style:italic">Card anatomy</p><p style="margin-top:12px"><strong>Each card has 4 options:</strong></p><div class="phases" style="margin-top:8px"><div class="phase"><span class="ph-n" style="color:'+a+'">1</span><div><div class="ph-t" style="color:'+a+'">Build</div><div class="ph-d">Place the card on an empty space.</div></div></div><div class="phase"><span class="ph-n" style="color:'+a+'">2</span><div><div class="ph-t" style="color:'+a+'">Demolish &amp; Build</div><div class="ph-d">Place the card on an occupied space \u2014 the old building is removed and discarded.</div></div></div><div class="phase"><span class="ph-n" style="color:'+a+'">3</span><div><div class="ph-t" style="color:'+a+'">Stack (green cards only)</div><div class="ph-d">Stack resource-producing cards of the same type if they have the stack icon. That space produces as many resources as there are cards in the stack.</div></div></div><div class="phase"><span class="ph-n" style="color:'+a+'">4</span><div><div class="ph-t" style="color:'+a+'">Upgrade Settlement</div><div class="ph-d">Slide the card under the Town Hall \u2192 settlement level +1 and +1 coin immediately. Max. level 6.</div></div></div></div><p style="margin-top:14px">Choose a card, pass the rest, build \u2014 repeat until everyone has used their fifth card. The sixth card is discarded and the build phase ends.</p><div class="note" style="margin-top:14px"><strong>Important:</strong> Every card must be played or slid under the Town Hall immediately.<br><br><strong>Special Buildings:</strong> The settlement level determines how many special cards may be on the board. You start at level 1 \u2014 one special building may be built.</div>';},
+aside:function(a){return'<div class="aside-label">Building Types</div><div class="icon-entry"><img src="icon-vp.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Green</div><div class="ie-desc">Resources, only stackable type</div></div></div><div class="icon-entry"><img src="icon-defense.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Blue</div><div class="ie-desc">Points, often low defense</div></div></div><div class="icon-entry"><img src="icon-fragile.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Yellow \u26a1</div><div class="ie-desc">Defense, fragile \u2014 removed after raid</div></div></div><div class="icon-entry"><img src="icon-special.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Purple</div><div class="ie-desc">Special card, build limit (settlement level)</div></div></div><div class="aside-label" style="margin-top:8px">Settlement</div><div class="icon-entry"><img src="icon-rathaus-level.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Level 1\u20136</div><div class="ie-desc">= max. specials &amp; coins</div></div></div>';}
+},
+{name:'Arming Phase',acc:'build',
+main:function(a){return'<div class="ch-label" style="color:'+a+'">Chapter VI</div><div class="ch-title">The Arming Phase</div><p>All buildings produce their depicted resources (wood, food or glass). Stacked resources produce as many units as there are cards in the stack.</p><p style="margin-top:10px">Count your resources, convert them 2:1 into defences and take the matching tokens:</p><div class="phases"><div class="phase"><span class="ph-n" style="color:'+a+'"><img src="def-ritter.png" width="18" height="18" style="object-fit:contain"></span><div><div class="ph-t" style="color:'+a+'">Knight</div><div class="ph-d">2 Food \u2192 1 Knight. Place on a building: +2 defense while the card remains. If the card is removed, the knight goes with it.</div></div></div><div class="phase"><span class="ph-n" style="color:'+a+'"><img src="def-barriere.png" width="18" height="18" style="object-fit:contain"></span><div><div class="ph-t" style="color:'+a+'">Barrier</div><div class="ph-d">2 Wood \u2192 1 Barrier. Place on the outer edge of a space \u2014 that space is permanently protected from being a raid start point. The raid starts at the next unprotected space instead.<br>Barriers persist even if the card they protect is replaced.<br>If all spaces are barricaded (12 barriers), the settlement cannot be raided.<br><em>Note: Corner spaces need two barriers for full protection.</em></div></div></div><div class="phase"><span class="ph-n" style="color:'+a+'"><img src="def-turm.png" width="18" height="18" style="object-fit:contain"></span><div><div class="ph-t" style="color:'+a+'">Tower</div><div class="ph-d">2 Coins \u2192 1 Tower. A building with a tower is permanently impregnable.</div></div></div></div><p style="margin-top:14px">You may place defences anywhere in your settlement during the arming phase, or keep them in your personal supply for later.</p>';},
+aside:function(a){return'<div class="aside-label">Conversion</div><div class="icon-entry"><img src="res-holz.png" onerror="this.style.opacity=.15"><div><div class="ie-name">2 Wood</div><div class="ie-desc">= Barrier</div></div></div><div class="icon-entry"><img src="res-nahrung.png" onerror="this.style.opacity=.15"><div><div class="ie-name">2 Food</div><div class="ie-desc">= Knight</div></div></div><div class="icon-entry"><img src="res-glas.png" onerror="this.style.opacity=.15"><div><div class="ie-name">2 Glass</div><div class="ie-desc">= Coin</div></div></div><div class="icon-entry"><img src="res-muenze.png" onerror="this.style.opacity=.15"><div><div class="ie-name">2 Coins</div><div class="ie-desc">= Tower</div></div></div>';}
+},
+{name:'The Raid',acc:'raid',
+main:function(a){return'<div class="ch-label" style="color:'+a+'">Chapter VII</div><div class="ch-title">The Raid</div><p>First reveal any still face-down raid cards. All raid details are now clear: start space (yellow card) and direction (yellow die), number of raiders (blue) and the leader effect (red).</p><div style="margin-top:12px;margin-bottom:4px;font-size:.58rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:'+a+'">Example</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px"><div style="border:2px solid #d4a820;border-radius:4px;overflow:hidden"><div style="background:#f0ebe0;aspect-ratio:5/7"><img src="R1.png" style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.style.opacity=.1"></div><div style="padding:4px 5px;background:#fff9ec"><div style="font-size:.52rem;font-weight:700;color:#d4a820;letter-spacing:.05em">START SPACE</div><div style="font-size:.6rem;font-weight:700;color:#304050">Northwest</div></div></div><div style="border:2px solid #2d7aaa;border-radius:4px;overflow:hidden"><div style="background:#f0ebe0;aspect-ratio:5/7"><img src="A5.png" style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.style.opacity=.1"></div><div style="padding:4px 5px;background:#eef6fb"><div style="font-size:.52rem;font-weight:700;color:#2d7aaa;letter-spacing:.05em">STRENGTH</div><div style="font-size:.6rem;font-weight:700;color:#304050">Moosbach Thieves</div><div style="font-size:.55rem;color:#506070">Blue + 3</div></div></div><div style="border:2px solid #b83040;border-radius:4px;overflow:hidden"><div style="background:#f0ebe0;aspect-ratio:5/7"><img src="C2.png" style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.style.opacity=.1"></div><div style="padding:4px 5px;background:#fdf0f2"><div style="font-size:.52rem;font-weight:700;color:#b83040;letter-spacing:.05em">LEADER</div><div style="font-size:.6rem;font-weight:700;color:#304050">Nordic Ninja</div><div style="font-size:.55rem;color:#506070">Opposite start space</div></div></div></div><div class="note" style="margin-bottom:12px">The horde would normally enter from the <strong>Northwest</strong>. The blue die shows e.g. 4 \u2014 that gives <strong>7 raiders</strong> (4+3). The Nordic Ninja shifts the start to the <strong>opposite side</strong>: the attack begins in the <strong>Southeast</strong> instead.</div><p style="margin-top:10px">Take a score dial and set it to the number of raiders. It tracks how far the raiders reach.</p><p style="margin-top:10px">Starting from the start space the horde moves space by space in the chosen direction. At each space:</p><div class="phases" style="margin-top:8px"><div class="phase"><span class="ph-n" style="color:'+a+'">1</span><div><div class="ph-t" style="color:'+a+'">Check Defense</div><div class="ph-d">\u2192 Does the building have defense equal to or greater than the remaining raiders? It holds \u2014 no further space is hit.<br>\u2192 Does the building have less defense than the remaining attackers? It is plundered. Reduce the dial by the defense value. Rotate the card 45\u00b0 to show it is ignored in the next scoring. (Resources and special abilities remain fully active.)</div></div></div><div class="phase"><span class="ph-n" style="color:'+a+'">2</span><div><div class="ph-t" style="color:'+a+'">Next Space</div><div class="ph-d">The remaining raiders move on to the next space in the direction of movement.</div></div></div></div><p style="margin-top:12px">Repeat all steps until your dial reaches 0 and no raiders remain.</p><div class="note" style="margin-top:14px"><strong>Reminder:</strong> If all outer edges of a space are protected by barriers, the attack skips to the next unprotected space. If the horde has already broken through elsewhere, barriers have no effect.</div>';},
+aside:function(a){return'<div class="aside-label">Defense</div><div class="icon-entry"><img src="def-barriere.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Barrier</div><div class="ie-desc">outer edge</div></div></div><div class="icon-entry"><img src="def-ritter.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Knight</div><div class="ie-desc">+2 def</div></div></div><div class="icon-entry"><img src="def-turm.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Tower</div><div class="ie-desc">impregnable</div></div></div>';}
+},
+{name:'Scoring',acc:'score',
+main:function(a){return'<div class="ch-label" style="color:'+a+'">Chapter VIII</div><div class="ch-title">Scoring</div><p>After the raid: count the points on all still active buildings and record them.</p><p style="margin-top:10px">Then: all plundered buildings are active again \u2014 the next season begins.</p><img src="wertung-beispiel-winter.png" alt="Example: Winter scoring \u2014 14 points" style="width:100%;aspect-ratio:2020/1854;display:block;margin-top:14px;border-radius:4px"><p style="font-size:.72rem;color:#7090a0;text-align:center;margin-top:6px;font-style:italic">Example winter scoring with 14 points</p>';},
+aside:function(a){return'<div class="aside-label">Examples</div><div class="icon-entry"><img src="icon-vp.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Treasure Chamber</div><div class="ie-desc">13 VP</div></div></div><div class="icon-entry"><img src="icon-vp.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Residence</div><div class="ie-desc">9 VP</div></div></div><div class="icon-entry"><img src="res-muenze.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Coins</div><div class="ie-desc">1 VP each (Autumn)</div></div></div>';}
+},
+{name:'End of Game',acc:'score',last:true,
+main:function(a){return'<div class="ch-label" style="color:'+a+'">Chapter IX</div><div class="ch-title">End of Game</div><p><strong>Autumn is the final season.</strong> The game ends immediately after the autumn scoring.</p><div class="note">In Autumn, all remaining coins also count 1:1 as victory points. Plan your coins carefully!</div><p>Whoever has the most total victory points across all four seasons after the final raid and autumn scoring <strong>wins the game</strong>.</p><p style="margin-top:14px;font-style:italic;color:#506878">Ready for the full reference? Cards, glossary, special rules and all game variants are in the Reference tab above.</p>';},
+aside:function(a){return'<div class="aside-label">4 Seasons</div><div class="icon-entry"><img src="icon-season-winter.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Winter</div><div class="ie-desc">no raid</div></div></div><div class="icon-entry"><img src="icon-season-fr\u00fchling.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Spring</div></div></div><div class="icon-entry"><img src="icon-season-sommer.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Summer</div></div></div><div class="icon-entry"><img src="icon-season-herbst.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Autumn</div><div class="ie-desc">Final + Coins = VP</div></div></div>';}
+}
+];
+
 function gGo(n) {
   cs = n;
-  var s = ST[n];
+  var s = (lang === 'en' && EN_ST[n]) ? EN_ST[n] : ST[n];
   var a = AC[s.acc] || AC.intro;
   document.getElementById('g-acc').style.background = a;
   document.getElementById('g-main').innerHTML = s.main(a);
   var aside = document.getElementById('g-aside');
   aside.style.background = '#f6f9fb';
   aside.innerHTML = s.aside(a);
-  document.getElementById('g-pg').textContent = 'Seite '+(n+1)+' von '+ST.length;
+  document.getElementById('g-pg').textContent = t('page_of')+' '+(n+1)+' '+t('of')+' '+ST.length;
   document.getElementById('g-pips').innerHTML = ST.map(function(_,i) {
     return '<div class="pip'+(i===n?' on':'')+'" onclick="gGo('+i+')"></div>';
   }).join('');
   document.getElementById('g-prev').disabled = (n===0);
   var nxt = document.getElementById('g-nxt');
-  if (s.last) { nxt.textContent = 'Referenz →'; nxt.onclick = function(){ go('ref'); }; }
-  else { nxt.textContent = 'Weiter →'; nxt.onclick = function(){ gStep(1); }; }
+  if (s.last) { nxt.textContent = t('ref_btn'); nxt.onclick = function(){ go('ref'); }; }
+  else { nxt.textContent = t('next_btn'); nxt.onclick = function(){ gStep(1); }; }
 }
 function gStep(d) { var n=cs+d; if(n>=0&&n<ST.length) gGo(n); }
 
@@ -949,6 +1057,10 @@ var REFS = [
 
 function buildRef() {
   var el = document.getElementById('ref-items');
+  var rl=document.getElementById('ref-label'); if(rl) rl.textContent=t('ref_title');
+  var rs=document.getElementById('ref-subtitle'); if(rs) rs.textContent=t('ref_subtitle');
+  var rf=document.getElementById('ref-foot-pg'); if(rf) rf.textContent=t('ref_title');
+  var rb=document.getElementById('ref-back-btn'); if(rb) rb.innerHTML='&larr; '+t('tab_rules');
   var special_started = false;
   el.innerHTML = REFS.map(function(r) {
     var divider = '';
@@ -1018,7 +1130,7 @@ function showRD(id) {
   var nxt  = document.getElementById('rd-nxt');
   prev.style.display = d.prev ? '' : 'none';
   if (d.prev) { prev.textContent = '\u2190'; prev.onclick = function(){ go('ref-detail', d.prev); }; }
-  nxt.textContent = d.next ? 'Weiter \u2192' : '\u00dcbersicht';
+  nxt.textContent = d.next ? t('next_btn') : t('overview_btn');
   nxt.style.background = d.next ? a : '#1a4060';
   nxt.style.borderColor = d.next ? a : '#1a4060';
   nxt.onclick = d.next ? function(){ go('ref-detail', d.next); } : function(){ go('ref'); };
