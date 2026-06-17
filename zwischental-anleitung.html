@@ -1043,6 +1043,23 @@ function gStep(d) { var n=cs+d; if(n>=0&&n<ST.length) gGo(n); }
 /* ══════════════════════════════
    REFERENCE
 ══════════════════════════════ */
+function getREFS() {
+  if (lang === 'en') {
+    return [
+      {id:'karten',    icon:'icon-special.png',      title:'Buildings',   desc:'Standard &amp; Special Buildings',          acc:'intro'},
+      {id:'sonder',    icon:'icon-rathaus-level.png', title:'Special Cards',         desc:'32 Cards &amp; Mechanics',          acc:'ref'},
+      {id:'anfuehrer', icon:'icon-plundered.png',     title:'Raid Cards',  desc:'Leader, Attackers, Direction',  acc:'raid'},
+      {id:'glossar',   icon:'icon-defense.png',       title:'Glossary',              desc:'All Terms',                      acc:'intro'},
+      {id:'faq',       icon:'icon-neighbor.png',      title:'Rules Q&amp;A',          desc:'Special &amp; Edge Cases', acc:'build'},
+      {id:'solo',      icon:'icon-vp.png',            title:'Solo Mode',           desc:'Play Alone',                    acc:'score', special:true},
+      {id:'koop',      icon:'icon-free-build.png',    title:'Co-op Variant',        desc:'Play Cooperatively',                 acc:'koop',  special:true},
+      {id:'kampagne',  icon:'icon-rathaus-level.png', title:'Solo Campaign',        desc:'26 Chapters, Unlock System',          acc:'score', special:true},
+      {id:'erweiterungen', icon:'icon-special.png',   title:'Expansions',        desc:'Mini-Expansions',                 acc:'koop'}
+    ];
+  }
+  return REFS;
+}
+
 var REFS = [
   {id:'karten',    icon:'icon-special.png',      title:'Standardgebäude',   desc:'Standardgebäude &amp; Sondergebäude',          acc:'intro'},
   {id:'sonder',    icon:'icon-rathaus-level.png', title:'Sonderkarten',         desc:'32 Karten &amp; Mechaniken',          acc:'ref'},
@@ -1062,7 +1079,7 @@ function buildRef() {
   var rf=document.getElementById('ref-foot-pg'); if(rf) rf.textContent=t('ref_title');
   var rb=document.getElementById('ref-back-btn'); if(rb) rb.innerHTML='&larr; '+t('tab_rules');
   var special_started = false;
-  el.innerHTML = REFS.map(function(r) {
+  el.innerHTML = getREFS().map(function(r) {
     var divider = '';
     if (r.special && !special_started) {
       special_started = true;
@@ -1089,10 +1106,213 @@ function shade(hex,p){
   return '#'+((r<<16)|(g<<8)|b).toString(16).padStart(6,'0');
 }
 
+var EN_RD = {
+symbole:{acc:'intro',prev:null,next:'ressourcen',
+ main:function(a){return '<div class="ch-label" style="color:'+a+'">Symbols</div><div class="ch-title">All Symbols</div>'
+  +'<div class="glos-section">Gameplay</div>'
+  +'<div class="glos-icon-row">'+img('icon-vp.png',28)+'<div><div class="glos-term">Victory Points</div><div class="glos-def">Added up from all active buildings at the end of each season.</div></div></div>'
+  +'<div class="glos-icon-row">'+img('icon-defense.png',28)+'<div><div class="glos-term">Defense</div><div class="glos-def">How many attackers a building can stop.</div></div></div>'
+  +'<div class="glos-icon-row">'+img('icon-plundered.png',28)+'<div><div class="glos-term">Plundered</div><div class="glos-def">Overrun. No VP \u2014 function and resources stay active.</div></div></div>'
+  +'<div class="glos-icon-row">'+img('icon-fragile.png',28)+'<div><div class="glos-term">Fragile &#x26A1;</div><div class="glos-def">One-time effect. Removed automatically after the raid.</div></div></div>'
+  +'<div class="glos-icon-row">'+img('icon-special.png',28)+'<div><div class="glos-term">Special Building</div><div class="glos-def">Unique abilities. Cost coins to build.</div></div></div>'
+  +'<div class="glos-section">Town Hall &amp; Building</div>'
+  +'<div class="glos-icon-row">'+img('icon-rathaus-level.png',28)+'<div><div class="glos-term">Town Hall Level</div><div class="glos-def">Level 1\u20136. Slide a card under the Town Hall \u2192 +1 Level, +1 coin immediately.</div></div></div>'
+  +'<div class="glos-icon-row">'+img('icon-free-build.png',28)+'<div><div class="glos-term">Free to Build</div><div class="glos-def">Doesn\u2019t use one of the 5 build slots.</div></div></div>'
+  +'<div class="glos-icon-row">'+img('icon-neighbor.png',28)+'<div><div class="glos-term">Neighbouring Space</div><div class="glos-def">Directly adjacent \u2014 horizontal and vertical. Diagonal doesn\u2019t count.</div></div></div>'
+  +'<div class="glos-section">Raid</div>'
+  +'<div class="glos-icon-row">'+img('icon-raid-start.png',28)+'<div><div class="glos-term">Start Space</div><div class="glos-def">Outer space where the raid begins. Determined by the yellow die.</div></div></div>'
+  +'<div class="glos-icon-row">'+img('icon-raid-dir.png',28)+'<div><div class="glos-term">Raid Direction</div><div class="glos-def">Direction of the horde. Yellow die even = \u21bb, odd = \u21ba.</div></div></div>'
+  +'<div class="glos-icon-row">'+img('icon-def-sum.png',28)+'<div><div class="glos-term">\u03a3 Defense</div><div class="glos-def">Total defense of all buildings in the settlement.</div></div></div>';},
+ aside:function(a){return '<div class="aside-label">Seasons</div>'
+  +'<div class="glos-icon-row">'+img('icon-season-winter.png',22)+'<div><div class="glos-term" style="font-size:.5rem">Winter</div><div class="ie-desc">no raid</div></div></div>'
+  +'<div class="glos-icon-row">'+img('icon-season-fr\u00fchling.png',22)+'<div><div class="glos-term" style="font-size:.5rem">Spring</div><div class="ie-desc">first raid</div></div></div>'
+  +'<div class="glos-icon-row">'+img('icon-season-sommer.png',22)+'<div><div class="glos-term" style="font-size:.5rem">Summer</div><div class="ie-desc">full round</div></div></div>'
+  +'<div class="glos-icon-row">'+img('icon-season-herbst.png',22)+'<div><div class="glos-term" style="font-size:.5rem">Autumn</div><div class="ie-desc">coins = VP</div></div></div>';}
+},
+ressourcen:{acc:'build',prev:'symbole',next:'karten',
+ main:function(a){return '<div class="ch-label" style="color:'+a+'">Resources</div><div class="ch-title">Resources</div>'
+  +'<div class="glos-section">Raw Materials \u2192 Defense (2:1)</div>'
+  +'<div class="glos-icon-row">'+img('res-holz.png',28)+'<div><div class="glos-term">Wood</div><div class="glos-def">2 Wood \u2192 1 Barrier. Protects an outer edge. Permanent.</div></div></div>'
+  +'<div class="glos-icon-row">'+img('res-nahrung.png',28)+'<div><div class="glos-term">Food</div><div class="glos-def">2 Food \u2192 1 Knight. +2 defense on a building.</div></div></div>'
+  +'<div class="glos-icon-row">'+img('res-glas.png',28)+'<div><div class="glos-term">Glass</div><div class="glos-def">2 Glass \u2192 1 Coin (currency).</div></div></div>'
+  +'<div class="glos-icon-row">'+img('res-muenze.png',28)+'<div><div class="glos-term">Coin</div><div class="glos-def">2 Coins \u2192 1 Tower. In Autumn each coin counts as 1 VP.</div></div></div>'
+  +'<div class="glos-section">Defense Units</div>'
+  +'<div class="glos-icon-row">'+img('def-barriere.png',28)+'<div><div class="glos-term">Barrier</div><div class="glos-def">Wooden wall on an outer edge. All edges barricaded \u2192 raid is diverted. Permanent.</div></div></div>'
+  +'<div class="glos-icon-row">'+img('def-ritter.png',28)+'<div><div class="glos-term">Knight</div><div class="glos-def">+2 defense on a building. Stays as long as the card remains.</div></div></div>'
+  +'<div class="glos-icon-row">'+img('def-turm.png',28)+'<div><div class="glos-term">Tower</div><div class="glos-def">Building permanently impregnable. 2 coins during the arming phase.</div></div></div>';},
+ aside:function(a){return '<div class="aside-label">Settlement</div>'
+  +iconEntry('icon-rathaus-level.png','Level +1','card underneath')
+  +iconEntry('res-muenze.png','+1 Coin','immediately')
+  +'<div style="font-size:.68rem;color:#7090a0;line-height:1.5;margin-top:8px">Level = max. special cards &amp; discount.</div>';}
+},
+karten:{acc:'intro',prev:'ressourcen',next:'sonder',
+ main:function(a){return '<div class="ch-label" style="color:'+a+'">Cards</div><div class="ch-title">Standard &amp; Special Buildings</div>'
+  +'<div class="stabs" id="stabs">'
+  +'<div class="stab on" data-season="winter">Winter</div>'
+  +'<div class="stab" data-season="spring">Spring</div>'
+  +'<div class="stab" data-season="summer">Summer</div>'
+  +'<div class="stab" data-season="autumn">Autumn</div>'
+  +'<div class="stab" data-season="sonder" style="border-bottom-color:#8a4abf;color:#8a4abf">Special</div>'
+  +'<div class="stab" data-season="rathaus" style="border-bottom-color:#d4820a;color:#d4820a">Settlement</div>'
+  +'</div>'
+  +'<div id="cgc"></div>';},
+ aside:function(a){return '<div class="aside-label">Building Types</div>'
+  +'<div class="icon-entry"><img src="icon-vp.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Green</div><div class="ie-desc">Resource, stackable</div></div></div>'
+  +'<div class="icon-entry"><img src="icon-defense.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Blue</div><div class="ie-desc">Points + Defense</div></div></div>'
+  +'<div class="icon-entry"><img src="icon-fragile.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Yellow \u26a1</div><div class="ie-desc">Fragile, one-time</div></div></div>'
+  +'<div class="icon-entry"><img src="icon-special.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Purple \u2731</div><div class="ie-desc">Special card</div></div></div>';}
+},
+sonder:{acc:'ref',prev:'karten',next:'anfuehrer',
+ main:function(a){return '<div class="ch-label" style="color:'+a+'">Special Buildings</div><div class="ch-title">Special Buildings</div>'
+  +'<p>32 cards from a shared pool. Price = die value \u2212 Town Hall level.</p>'
+  +'<table class="tbl"><thead style="background:'+a+'"><tr><th>Name</th><th>VP</th><th>Mechanic</th></tr></thead><tbody>'
+  +'<tr><td>Mirror Tower</td><td>3</td><td>Neighbours \u00d72</td></tr>'
+  +'<tr><td>Ivory Tower</td><td>Lv\u00d73</td><td>Town Hall Level</td></tr>'
+  +'<tr><td>Real Estate Agent</td><td>\u2731\u00d72</td><td>All special cards</td></tr>'
+  +'<tr><td>Watch Bastion</td><td>3</td><td>\u22122 attackers / card</td></tr>'
+  +'<tr><td>Castle in the Sky</td><td>7</td><td>Cannot be plundered</td></tr>'
+  +'<tr><td>Insurance</td><td>0 / +8</td><td>+8 if plundered</td></tr>'
+  +'<tr><td>Outpost</td><td>7</td><td>Uses no slot</td></tr>'
+  +'<tr><td>Black Cathedral</td><td>48</td><td>Only active alone</td></tr>'
+  +'</tbody></table>';},
+ aside:function(a){return iconEntry('icon-special.png','Special Card','purple border')+iconEntry('icon-free-build.png','Outpost','no slot')+iconEntry('icon-fragile.png','Fragile \u26a1','one-time');}
+},
+anfuehrer:{acc:'raid',prev:'sonder',next:'glossar',
+ main:function(a){return '<div class="ch-label" style="color:'+a+'">Raid Cards</div><div class="ch-title">Raid Cards</div>'
+  +'<div class="glos-section" style="margin-top:0">&#x1F535; Blue Cards \u2014 Horde Strength (blue die determines which)</div>'
+  +'<div class="cgrid" style="grid-template-columns:repeat(3,1fr);margin-top:8px"><div class="ccard"><div class="ccard-img"><img src="A1.png" alt="Raider Pack" onerror="this.style.opacity=.08"></div><div class="ccard-info"><div class="ccard-name">Raider Pack</div><div class="ccard-st"><span class="ccard-p">7</span></div><div style="font-size:.55rem;color:#607080;margin-top:1px">7 attackers \u2014 always.</div></div></div><div class="ccard"><div class="ccard-img"><img src="A2.png" alt="Bullheads" onerror="this.style.opacity=.08"></div><div class="ccard-info"><div class="ccard-name">Bullheads</div><div class="ccard-st"><span class="ccard-p">5 + Max</span></div><div style="font-size:.55rem;color:#607080;margin-top:1px">5 + highest die value (Yellow/Blue/Red).</div></div></div><div class="ccard"><div class="ccard-img"><img src="A3.png" alt="Night Sneaks" onerror="this.style.opacity=.08"></div><div class="ccard-info"><div class="ccard-name">Night Sneaks</div><div class="ccard-st"><span class="ccard-p">Season + Blue</span></div><div style="font-size:.55rem;color:#607080;margin-top:1px">(Season 1\u20134) + blue die value.</div></div></div><div class="ccard"><div class="ccard-img"><img src="A4.png" alt="Shadow Beaks" onerror="this.style.opacity=.08"></div><div class="ccard-info"><div class="ccard-name">Shadow Beaks</div><div class="ccard-st"><span class="ccard-p">6 + Town Hall Lv</span></div><div style="font-size:.55rem;color:#607080;margin-top:1px">6 + current Town Hall level.</div></div></div><div class="ccard"><div class="ccard-img"><img src="A5.png" alt="Moosbach Thieves" onerror="this.style.opacity=.08"></div><div class="ccard-info"><div class="ccard-name">Moosbach Thieves</div><div class="ccard-st"><span class="ccard-p">Blue + 3</span></div><div style="font-size:.55rem;color:#607080;margin-top:1px">Blue die value + 3.</div></div></div><div class="ccard"><div class="ccard-img"><img src="A6.png" alt="Truffle Raiders" onerror="this.style.opacity=.08"></div><div class="ccard-info"><div class="ccard-name">Truffle Raiders</div><div class="ccard-st"><span class="ccard-p">4 + Special</span></div><div style="font-size:.55rem;color:#607080;margin-top:1px">4 + number of active special buildings on the board.</div></div></div><div class="ccard"><div class="ccard-img"><img src="A7.png" alt="Backfield Horde" onerror="this.style.opacity=.08"></div><div class="ccard-info"><div class="ccard-name">Backfield Horde</div><div class="ccard-st"><span class="ccard-p">Blue + Yellow</span></div><div style="font-size:.55rem;color:#607080;margin-top:1px">Blue + yellow die value added.</div></div></div><div class="ccard"><div class="ccard-img"><img src="A8.png" alt="Family Gang" onerror="this.style.opacity=.08"></div><div class="ccard-info"><div class="ccard-name">Family Gang</div><div class="ccard-st"><span class="ccard-p">6</span></div><div style="font-size:.55rem;color:#607080;margin-top:1px">6 attackers \u2014 always.</div></div></div></div>'
+  +'<div class="glos-section">&#x1F534; Red Cards \u2014 Leader (red die determines which)</div>'
+  +'<div class="cgrid" style="grid-template-columns:repeat(3,1fr);margin-top:8px"><div class="ccard"><div class="ccard-img"><img src="C1.png" onerror="this.style.opacity=.08"></div><div class="ccard-info"><div class="ccard-name">Enforcer</div><div class="ccard-st"><span class="ccard-p">+Blue</span></div><div style="font-size:.55rem;color:#607080;margin-top:1px">Blue value as bonus.</div></div></div><div class="ccard"><div class="ccard-img"><img src="C2.png" onerror="this.style.opacity=.08"></div><div class="ccard-info"><div class="ccard-name">Nordic Ninja</div><div class="ccard-st"><span class="ccard-p">Opposite side</span></div></div></div><div class="ccard"><div class="ccard-img"><img src="C3.png" onerror="this.style.opacity=.08"></div><div class="ccard-info"><div class="ccard-name">Fickle One</div><div class="ccard-st"><span class="ccard-p">\u21bb\u21ba swap</span></div></div></div><div class="ccard"><div class="ccard-img"><img src="C4.png" onerror="this.style.opacity=.08"></div><div class="ccard-info"><div class="ccard-name">Berserker</div><div class="ccard-st"><span class="ccard-p">Yellow+Blue=6</span></div></div></div><div class="ccard"><div class="ccard-img"><img src="C5.png" onerror="this.style.opacity=.08"></div><div class="ccard-info"><div class="ccard-name">Ole Ochsenberg</div><div class="ccard-st"><span class="ccard-p">Barriers gone</span></div></div></div><div class="ccard"><div class="ccard-img"><img src="C6.png" onerror="this.style.opacity=.08"></div><div class="ccard-info"><div class="ccard-name">No Leader</div><div class="ccard-st"><span class="ccard-p">No effect</span></div></div></div><div class="ccard"><div class="ccard-img"><img src="C7.png" onerror="this.style.opacity=.08"></div><div class="ccard-info"><div class="ccard-name">Konan</div><div class="ccard-st"><span class="ccard-p">Blue/Yellow swap</span></div></div></div><div class="ccard"><div class="ccard-img"><img src="C8.png" onerror="this.style.opacity=.08"></div><div class="ccard-info"><div class="ccard-name">Migratory Bird</div><div class="ccard-st"><span class="ccard-p">Season-dependent</span></div></div></div><div class="ccard"><div class="ccard-img"><img src="C9.png" onerror="this.style.opacity=.08"></div><div class="ccard-info"><div class="ccard-name">Arsonist</div><div class="ccard-st"><span class="ccard-p">Start card becomes fragile</span></div></div></div></div>';},
+ aside:function(a){return '<div class="aside-label">Dice</div>'
+  +'<div class="icon-entry"><img src="icon-horde.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Blue</div><div class="ie-desc">Horde strength</div></div></div>'
+  +'<div class="icon-entry"><img src="icon-plundered.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Red</div><div class="ie-desc">Leader effect</div></div></div>';}
+},
+glossar:{acc:'intro',prev:'anfuehrer',next:'faq',
+ main:function(a){return '<div class="ch-label" style="color:'+a+'">Terms</div><div class="ch-title">Glossary</div>'
+  +'<div class="glos-section" style="margin-top:0">Symbols &amp; Icons</div>'
+  +'<div class="glos-icon-row"><img src="res-holz.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Wood</div><div class="glos-def">2 Wood \u2192 1 Barrier during the arming phase.</div></div></div><div class="glos-icon-row"><img src="res-nahrung.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Food</div><div class="glos-def">2 Food \u2192 1 Knight. Converted 1:1 into coins during the arming phase.</div></div></div><div class="glos-icon-row"><img src="res-glas.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Glass</div><div class="glos-def">2 Glass \u2192 1 Coin during the arming phase.</div></div></div><div class="glos-icon-row"><img src="def-barriere.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Barrier</div><div class="glos-def">Wooden wall on the outer edge of an edge space. Prevents a raid from starting there.</div></div></div><div class="glos-icon-row"><img src="def-ritter.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Knight</div><div class="glos-def">Defender on a building. +2 defense while the card remains.</div></div></div><div class="glos-icon-row"><img src="res-muenze.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Coin</div><div class="glos-def">Currency for towers (2 coins) and special cards.</div></div></div><div class="glos-icon-row"><img src="def-turm.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Tower</div><div class="glos-def">Permanent fortification. A space with a tower can never be plundered.</div></div></div><div class="glos-icon-row"><img src="icon-defense.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Defense</div><div class="glos-def">Indicates how many attackers a building can stop.</div></div></div><div class="glos-icon-row"><img src="icon-vp.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Victory Points</div><div class="glos-def">Added up from all active buildings at the end of each season.</div></div></div><div class="glos-icon-row"><img src="icon-def-sum.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Sum of Defense</div><div class="glos-def">Total defense of all buildings in the settlement.</div></div></div><div class="glos-icon-row"><img src="icon-special.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Special Building</div><div class="glos-def">Cards with unique abilities. Cost coins to build.</div></div></div><div class="glos-icon-row"><img src="icon-fragile.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Fragile \u26a1</div><div class="glos-def">One-time effect. Fragile cards are automatically removed after the raid.</div></div></div><div class="glos-icon-row"><img src="icon-rathaus-level.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Town Hall Level</div><div class="glos-def">Level 1\u20136. Slide a card under the Town Hall \u2192 +1 Level, +1 coin immediately.</div></div></div><div class="glos-icon-row"><img src="icon-free-build.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Free to Build</div><div class="glos-def">Doesn\u2019t use one of the season\u2019s 5 build slots.</div></div></div><div class="glos-icon-row"><img src="icon-neighbor.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Neighbouring Building</div><div class="glos-def">Directly adjacent \u2014 horizontal and vertical. Diagonal doesn\u2019t count.</div></div></div><div class="glos-icon-row"><img src="icon-plundered.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Plundered Building</div><div class="glos-def">Was overrun. No VP \u2014 stays on the board until rebuilt.</div></div></div><div class="glos-icon-row"><img src="icon-horde.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Horde</div><div class="glos-def">Number of raiders during the raid. Determined by the blue die.</div></div></div><div class="glos-icon-row"><img src="icon-raid-start.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Raid Start</div><div class="glos-def">Outer space where the raid begins. Determined by the yellow die.</div></div></div><div class="glos-icon-row"><img src="icon-raid-dir.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Raid Direction</div><div class="glos-def">Direction of the horde. Yellow die even = \u21bb, odd = \u21ba.</div></div></div><div class="glos-icon-row"><img src="icon-season-winter.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Winter</div><div class="glos-def">Season 1. Only building, arming and scoring \u2014 no raid.</div></div></div><div class="glos-icon-row"><img src="icon-season-fr\u00fchling.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Spring</div><div class="glos-def">Season 2. First full round with rumours and a raid.</div></div></div><div class="glos-icon-row"><img src="icon-season-sommer.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Summer</div><div class="glos-def">Raids get more intense.</div></div></div><div class="glos-icon-row"><img src="icon-season-herbst.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Autumn</div><div class="glos-def">Final season. Coins are converted into victory points at the end.</div></div></div>'
+  +'<div class="glos-section">Terms</div>'
+  +'<div class="glos-simple-row"><span class="glos-t">Barrier</span><span class="glos-d">Wooden wall on the outer edge of an edge space. If ALL outer edges are barricaded, the attack is diverted.</span></div><div class="glos-simple-row"><span class="glos-t">Knight</span><span class="glos-d">Defender. +2 defense. Stays as long as the card remains.</span></div><div class="glos-simple-row"><span class="glos-t">Coin</span><span class="glos-d">Currency. For towers (2) and special cards. Persists across seasons.</span></div><div class="glos-simple-row"><span class="glos-t">Tower</span><span class="glos-d">Permanent fortification (2 coins). Space impregnable.</span></div><div class="glos-simple-row"><span class="glos-t">Town Hall</span><span class="glos-d">The fixed building in the centre. Slide a card under it \u2192 Level +1, +1 coin immediately. Max. Level 6.</span></div><div class="glos-simple-row"><span class="glos-t">Town Hall Level</span><span class="glos-d">Level 1\u20136. Determines max. special cards on the board and purchase discount.</span></div><div class="glos-simple-row"><span class="glos-t">Raw Materials</span><span class="glos-d">Wood, food and glass. Converted 2:1 into defense during the arming phase.</span></div><div class="glos-simple-row"><span class="glos-t">Fragile \u26a1</span><span class="glos-d">One-time effect. Fragile cards automatically removed after the raid.</span></div><div class="glos-simple-row"><span class="glos-t">Decoy</span><span class="glos-d">Special type of fragile card. Draws attackers to itself \u2014 the rest of the path stays untouched.</span></div><div class="glos-simple-row"><span class="glos-t">Plundering</span><span class="glos-d">A building that has been overrun. No VP \u2014 function and resources stay active.</span></div><div class="glos-simple-row"><span class="glos-t">Victory Points</span><span class="glos-d">Added up at the end of each season. After 4 seasons the total score is your result.</span></div><div class="glos-simple-row"><span class="glos-t">Leader</span><span class="glos-d">The red die determines a special ability for the horde \u2014 always a surprise.</span></div><div class="glos-simple-row"><span class="glos-t">Raid Direction</span><span class="glos-d">The yellow die. Start space + direction of movement (even = \u21bb, odd = \u21ba).</span></div><div class="glos-simple-row"><span class="glos-t">Upgrade</span><span class="glos-d">Same resource card onto an existing building (max. 6). Increases production.</span></div><div class="glos-simple-row"><span class="glos-t">Reinforcing Pillars</span><span class="glos-d">While active: all fragile buildings get def 2 and are not destroyed.</span></div>';},
+ aside:function(a){return '';}
+},
+faq:{acc:'build',prev:'glossar',next:'koop',
+ main:function(a){return '<div class="ch-label" style="color:'+a+'">Edge Cases</div><div class="ch-title">Rules Q&amp;A</div>'
+  +'<div class="faq-row" data-faq="1"><div class="faq-q">Do plundered buildings still produce?</div><div class="faq-a">Yes. Only victory points are lost. Resources and all abilities remain fully active.</div></div>'
+  +'<div class="faq-row" data-faq="1"><div class="faq-q">When do coins count as VP?</div><div class="faq-a">Only in Autumn, at the end of the scoring phase.</div></div>'
+  +'<div class="faq-row" data-faq="1"><div class="faq-q">What counts for the Real Estate Agent?</div><div class="faq-a">All special cards \u2014 active and plundered. It counts itself too.</div></div>'
+  +'<div class="faq-row" data-faq="1"><div class="faq-q">All start spaces barricaded?</div><div class="faq-a">The attack begins at the next unprotected space in the direction of movement.</div></div>'
+  +'<div class="faq-row" data-faq="1"><div class="faq-q">Reinforcing Pillars plundered?</div><div class="faq-a">Plundered cards keep all abilities. The Pillars keep protecting.</div></div>'
+  +'<div class="faq-row" data-faq="1"><div class="faq-q">Solo drafting?</div><div class="faq-a">4 decks of 6 cards. Draw 4 each time, play 1, discard 3.</div></div>';},
+ aside:function(a){return '<div class="aside-label">Key Rule</div><div style="font-size:.72rem;color:#404840;line-height:1.6;font-style:italic">Plundered buildings lose victory points \u2014 not their function.</div>';}
+},
+koop:{acc:'koop',prev:'faq',next:'solo',
+ main:function(a){return '<div class="ch-label" style="color:'+a+'">Game Variant</div><div class="ch-title">Co-op Variant</div>'
+  +'<p style="font-style:italic;color:#506878;border-left:2px solid '+a+';padding:6px 12px">Everyone against the horde. Three pillars: escalation ladder \u00b7 shared cities \u00b7 vulnerability tokens</p>'
+  +'<p><strong>Shared Cities:</strong> Each player manages not one but <strong>two half-cities</strong>. You share one city with your left neighbour and one with your right. With every card you decide: build it in the left or the right city? Coordination is everything.</p>'
+  +'<p><strong>Resources</strong> flow into a shared pool. A single die roll applies to all settlements simultaneously.</p>'
+  +'<div class="note"><strong>Vulnerability Tokens:</strong> If a settlement drops to 0 VP \u2192 place a token on a die colour. All 3 colours covered = the horde is unstoppable. The game ends immediately.</div>'
+  +'<p><strong>Objective:</strong> Protect more total points than the horde steals. Win together or lose together.</p>'
+  +'<table class="tbl" style="margin-top:10px"><thead style="background:'+a+'"><tr><th>Players</th><th>Normal</th><th>Hard</th></tr></thead><tbody>'
+  +'<tr><td>2</td><td>40</td><td>60</td></tr>'
+  +'<tr><td>3</td><td>60</td><td>90</td></tr>'
+  +'<tr><td>4</td><td>80</td><td>120</td></tr>'
+  +'</tbody></table>';},
+ aside:function(a){return '<div class="aside-label">Escalation</div>'
+  +'<div style="font-size:.68rem;color:#506070;line-height:1.55">From 15 plundered points: min. 5 attackers.<br>From 30: no coin bonus.<br>From 50: towers cost 3 coins.</div>';}
+},
+solo:{acc:'score',prev:'koop',next:'kampagne',
+ main:function(a){return '<div class="ch-label" style="color:'+a+'">Game Variant</div><div class="ch-title">Solo Mode</div>'
+  +'<p style="font-style:italic;color:#506878;border-left:2px solid '+a+';padding:6px 12px">Alone against the horde. The Between-Valley belongs to you \u2014 and you alone. No fellow player helps. Only your skill counts.</p>'
+  +'<p>All rules apply as in the multiplayer game \u2014 with one difference: <strong>drafting works differently.</strong></p>'
+  +'<p><strong>Solo Drafting:</strong> Build 4 decks of 6 cards. Pick up one hand at a time, <strong>draw 4 cards, play 1, discard 3</strong>. Repeat five times. This builds 5 buildings per season.</p>'
+  +'<div class="note"><strong>Objective:</strong> Protect more points than the horde steals from you. You play against the game itself. Track plundered points at the end of each season \u2014 whoever has more unplundered than plundered points after the autumn scoring wins.</div>'
+  +'<p style="margin-top:10px;font-size:.78rem;color:#506878">No shared resource pool, no drafting with neighbours \u2014 you alone plan and build. A meditative, intense experience.</p>';},
+ aside:function(a){return '';}
+},
+kampagne:{acc:'score',prev:'solo',next:'erweiterungen',
+ main:function(a){return '<div class="ch-label" style="color:'+a+'">Game Variant</div><div class="ch-title">Solo Campaign</div>'
+  +'<p>26 chapters of rising difficulty. Every group of 5 chapters unlocks a <strong>permanent upgrade</strong> \u2014 your next game starts stronger.</p>'
+  +'<div class="glos-section" style="margin-top:8px">Groups &amp; Rewards</div>'
+  +'<div class="glos-simple-row"><span class="glos-t">Chapter I</span><span class="glos-d">Reward: <strong>Town Hall Level 2</strong> \u2014 Start every game with Town Hall Level 2.</span></div><div class="glos-simple-row"><span class="glos-t">Chapter II</span><span class="glos-d">Reward: <strong>Town Hall Level 3</strong> \u2014 Start every game with Town Hall Level 3.</span></div><div class="glos-simple-row"><span class="glos-t">Chapter III</span><span class="glos-d">Reward: <strong>Town Hall Level 4</strong> \u2014 Start every game with Town Hall Level 4.</span></div><div class="glos-simple-row"><span class="glos-t">Chapter IV</span><span class="glos-d">Reward: <strong>Town Hall Level 5</strong> \u2014 Start every game with Town Hall Level 5.</span></div><div class="glos-simple-row"><span class="glos-t">Chapter V</span><span class="glos-d">Reward: <strong>Town Hall Level 6</strong> \u2014 Start every game with Town Hall Level 6.</span></div><div class="glos-simple-row"><span class="glos-t">\u2694 Finale</span><span class="glos-d">Reward: <strong>Golden Town Hall Fortress</strong> \u2014 The Town Hall permanently starts at Level 6.</span></div>'
+  +'<div class="glos-section">All 26 Chapters</div>'
+  +'<table class="tbl"><thead style="background:#b83040"><tr><th>#</th><th>Name</th><th>Goal</th><th>Mod.</th></tr></thead><tbody><tr><td style="font-weight:700;color:#b83040">1</td><td>The First Stones</td><td style="font-size:.68rem">Reach 40 victory points</td><td style="font-size:.65rem;color:#607080">\u2014</td></tr><tr><td style="font-weight:700;color:#b83040">2</td><td>The Tired Merchant</td><td style="font-size:.68rem">Build at least 5 resource cards and reach\u2026</td><td style="font-size:.65rem;color:#607080">Start each season with 2 g\u2026</td></tr><tr><td style="font-weight:700;color:#b83040">3</td><td>Peaceful Years</td><td style="font-size:.68rem">Reach 45 victory points</td><td style="font-size:.65rem;color:#607080">Play only Winter and Spring\u2026</td></tr><tr><td style="font-weight:700;color:#b83040">4</td><td>The Town Gate</td><td style="font-size:.68rem">Build a gate or one each season\u2026</td><td style="font-size:.65rem;color:#607080">\u2014</td></tr><tr><td style="font-weight:700;color:#b83040">5</td><td>No Leader</td><td style="font-size:.68rem">Reach 75 victory points</td><td style="font-size:.65rem;color:#607080">Every raid has Leader C6\u2026</td></tr><tr><td style="font-weight:700;color:#b83040">6</td><td>The Scribe</td><td style="font-size:.68rem">Reach 40 victory points and end with at least\u2026</td><td style="font-size:.65rem;color:#607080">Taxes: 2 glass per season\u2026</td></tr><tr><td style="font-weight:700;color:#b83040">7</td><td>Always from the South</td><td style="font-size:.68rem">Survive all 4 seasons without a single\u2026</td><td style="font-size:.65rem;color:#607080">Every raid starts from S (\u2026</td></tr><tr><td style="font-weight:700;color:#b83040">8</td><td>The Real Estate Agent Arrives</td><td style="font-size:.68rem">Score at least 4 special cards in the autumn\u2026</td><td style="font-size:.65rem;color:#607080">\u2014</td></tr><tr><td style="font-weight:700;color:#b83040">9</td><td>City Wall</td><td style="font-size:.68rem">Reach 50 victory points</td><td style="font-size:.65rem;color:#607080">Barricade all 8 outer edges\u2026</td></tr><tr><td style="font-weight:700;color:#b83040">10</td><td>By the Shore</td><td style="font-size:.68rem">Reach 55 victory points</td><td style="font-size:.65rem;color:#607080">Spaces S, SE and SW (lower ed\u2026</td></tr><tr><td style="font-weight:700;color:#b83040">11</td><td>Winter Raid</td><td style="font-size:.68rem">Survive all 4 seasons incl. Winter\u2026</td><td style="font-size:.65rem;color:#607080">A raid also occurs in Winter\u2026</td></tr><tr><td style="font-weight:700;color:#b83040">12</td><td>The Relentless Berserker</td><td style="font-size:.68rem">Reach 50 victory points</td><td style="font-size:.65rem;color:#607080">Leader C9 (Arsonist) appea\u2026</td></tr><tr><td style="font-weight:700;color:#b83040">13</td><td>The Ivory Year</td><td style="font-size:.68rem">Build the Ivory Tower and reach Level\u2026</td><td style="font-size:.65rem;color:#607080">\u2014</td></tr><tr><td style="font-weight:700;color:#b83040">14</td><td>The Mirror</td><td style="font-size:.68rem">Score the Mirror Tower with at least 4 neigh\u2026</td><td style="font-size:.65rem;color:#607080">The Mirror Tower must be in the c\u2026</td></tr><tr><td style="font-weight:700;color:#b83040">15</td><td>The Black Cathedral</td><td style="font-size:.68rem">The Black Cathedral must be in the autu\u2026</td><td style="font-size:.65rem;color:#607080">No towers available</td></tr><tr><td style="font-weight:700;color:#b83040">16</td><td>The Fragile Town Hall</td><td style="font-size:.68rem">End the game with an active Town Hall</td><td style="font-size:.65rem;color:#607080">The Town Hall counts as fragile \u2014\u2026</td></tr><tr><td style="font-weight:700;color:#b83040">17</td><td>Hands off the Well</td><td style="font-size:.68rem">The card on the top-left space may never be plund\u2026</td><td style="font-size:.65rem;color:#607080">No towers available \u2014 only ba\u2026</td></tr><tr><td style="font-weight:700;color:#b83040">18</td><td>Six Special Cards in Autumn</td><td style="font-size:.68rem">Score at least 6 active special cards i\u2026</td><td style="font-size:.65rem;color:#607080">\u2014</td></tr><tr><td style="font-weight:700;color:#b83040">19</td><td>Everything Changes</td><td style="font-size:.68rem">Reach 60 victory points</td><td style="font-size:.65rem;color:#607080">Every raid has Leader C1\u2026</td></tr><tr><td style="font-weight:700;color:#b83040">20</td><td>Wealth and Glory</td><td style="font-size:.68rem">End with at least 60 victory points AND\u2026</td><td style="font-size:.65rem;color:#607080">\u2014</td></tr><tr><td style="font-weight:700;color:#b83040">21</td><td>The Great Wave</td><td style="font-size:.68rem">Survive all 4 seasons</td><td style="font-size:.65rem;color:#607080">Every raid has Leader C4\u2026</td></tr><tr><td style="font-weight:700;color:#b83040">22</td><td>The Tribunal</td><td style="font-size:.68rem">Reach 80 victory points</td><td style="font-size:.65rem;color:#607080">Spaces SE and SW cannot be bu\u2026</td></tr><tr><td style="font-weight:700;color:#b83040">23</td><td>The Insurance Policy</td><td style="font-size:.68rem">Score 3 active Insurance cards simul\u2026</td><td style="font-size:.65rem;color:#607080">All three must be in the same s\u2026</td></tr><tr><td style="font-weight:700;color:#b83040">24</td><td>The Eternal Winter</td><td style="font-size:.68rem">Reach 70 victory points</td><td style="font-size:.65rem;color:#607080">Every season counts as Wint\u2026</td></tr><tr><td style="font-weight:700;color:#b83040">25</td><td>No Protection</td><td style="font-size:.68rem">Reach 65 victory points</td><td style="font-size:.65rem;color:#607080">No towers, no barriers \u00b7\u2026</td></tr><tr><td style="font-weight:700;color:#b83040">26</td><td>26 Years of Valley Watch</td><td style="font-size:.68rem">Reach more than 120 victory points</td><td style="font-size:.65rem;color:#607080">All raids have Leader C9\u2026</td></tr></tbody></table>'
+  +'<p style="margin-top:10px;font-size:.73rem;color:#506878">The campaign can be played solo or cooperatively. Interactive version: <a href="kampagne.html" style="color:#b83040;font-weight:600">kampagne.html \u2197</a></p>';},
+ aside:function(a){return '<div class="aside-label">Difficulty</div>'
+  +'<div class="icon-entry"><img src="icon-vp.png" onerror="this.style.opacity=.15"><div><div class="ie-name">\u25cf Beginner</div><div class="ie-desc">Ch. 1\u20135</div></div></div>'
+  +'<div class="icon-entry"><img src="icon-vp.png" onerror="this.style.opacity=.15"><div><div class="ie-name">\u25cf\u25cf Intermediate</div><div class="ie-desc">Ch. 6\u201310</div></div></div>'
+  +'<div class="icon-entry"><img src="icon-vp.png" onerror="this.style.opacity=.15"><div><div class="ie-name">\u25cf\u25cf\u25cf Hard</div><div class="ie-desc">Ch. 11\u201320</div></div></div>'
+  +'<div class="icon-entry"><img src="icon-vp.png" onerror="this.style.opacity=.15"><div><div class="ie-name">\u25cf\u25cf\u25cf\u25cf Legendary</div><div class="ie-desc">Ch. 21\u201326</div></div></div>';}
+},
+erweiterungen:{acc:'koop',prev:'kampagne',next:null,
+ main:function(a){
+  function lcard(id,file,title,flavor,rule){
+    return '<div class="ccard-land">'
+      +'<img class="ccard-land-img" src="'+file+'" onerror="this.style.display=\'none\'">'
+      +'<div style="padding:6px 8px;border-top:1px solid #e8eef0">'
+      +'<div class="ccard-name" style="font-size:.62rem;margin-bottom:3px">'+title+'</div>'
+      +(flavor?'<div style="font-size:.55rem;font-style:italic;color:#708090;margin-bottom:3px">'+flavor+'</div>':'')
+      +'<div style="font-size:.58rem;line-height:1.45;color:#304050">'+rule+'</div>'
+      +'</div></div>';
+  }
+  return '<div class="ch-label" style="color:'+a+'">Optional Modules</div><div class="ch-title">Expansions</div>'
+  +'<p>Four optional modules that add new layers to the game \u2014 without changing the core rules.</p>'
+  +'<div class="note" style="margin-bottom:14px"><strong>All expansions can be freely combined</strong> \u2014 each module is independent and can be used alone or in any combination.</div>'
+  +'<div style="margin-top:16px;padding-bottom:6px;border-bottom:1px solid rgba(0,0,0,.12)">'
+  +'<div class="ch-label" style="color:'+a+';font-size:.54rem;margin-bottom:2px">Module A \u00b7 9 Cards</div>'
+  +'<div style="font-family:\'Cinzel\',serif;font-size:.88rem;font-weight:700;color:#1a4060;margin-bottom:6px">\uD83D\uDCD6 Chronicles of the Valley Watch</div>'
+  +'</div>'
+  +'<div class="note" style="margin-top:10px;margin-bottom:12px">Shuffle the 9 Chronicle cards and reveal one at random at the start of the game \u2014 it applies for the <strong>entire game</strong>. The Chronicle changes a single core rule, all other rules remain unchanged. If a Chronicle card and a Moment card affect the same effect, <strong>the Moment of the Raid always takes priority</strong>.</div>'
+  +lcard('C1','T1.png','The Year of the Oracle','\u00bbThe marmots learned to read the signs.\u00ab','All hidden raid information is revealed <strong>before the arming phase</strong>. You arm with complete knowledge.')
+  +lcard('C2','T2.png','The Year of Rival Settlements','\u00bbWhat one settlement loses, another gains.\u00ab','Plundered points are not destroyed \u2014 they go as victory points to the <strong>neighbour in draft direction</strong>. Only active in multiplayer.')
+  +lcard('C3','T3.png','The Year of the Flood','\u00bbThe valley was underwater. The southern spaces sank.\u00ab','The three southern spaces (<strong>S, SE, SW</strong>) cannot be built on. The horde passes over them \u2014 each of these spaces has <strong>Defense 2</strong>. The raid can never start from the South.')
+  +lcard('C4','T4.png','The Year of the Travelling Merchants','\u00bbMerchants from across the realm passed through the valley.\u00ab','Resources are <strong>freely exchangeable: everything costs 2:1</strong> \u2014 regardless of which resource for which defense. 2 Wood = 1 Knight. 2 Food = 1 Tower. 2 Glass = 1 Barrier.')
+  +lcard('C5','T5.png','The Year of Long Shadows','\u00bbNo one knew where they would come from next.\u00ab','The yellow card (\uD83D\uDFE1 raid direction) stays hidden until the raid, no matter what the dice show.')
+  +lcard('C6','T6.png','The Year of Rebuilding','\u00bbWhat had burned down was rebuilt stronger.\u00ab','Plundered cards produce <strong>double resources during the next arming phase</strong>. An incentive to accept losses.')
+  +lcard('C7','T7.png','The Year of Silence','\u00bbNo leader led the horde. But they came anyway.\u00ab','The leader pool is ignored \u2014 there is <strong>no leader</strong> this year.')
+  +lcard('C8','T8.png','The Year of the Whirlwind','\u00bbA storm swept through the valley and scrambled all building plans.\u00ab','All building cards from every season and all special cards are shuffled into a single deck. <strong>Any card can be built in any season.</strong> Special cards remain tied to the settlement level.')
+  +lcard('C9','T9.png','The Year of the Architects','\u00bbThe storehouses were so full that no one had to throw anything away.\u00ab','During drafting the sixth card is <strong>not discarded</strong> \u2014 it may also be built or used for the settlement upgrade.')
+  +'<div style="margin-top:20px;padding-bottom:6px;border-bottom:1px solid rgba(0,0,0,.12)">'
+  +'<div class="ch-label" style="color:'+a+';font-size:.54rem;margin-bottom:2px">Module B \u00b7 5 Cards</div>'
+  +'<div style="font-family:\'Cinzel\',serif;font-size:.88rem;font-weight:700;color:#1a4060;margin-bottom:6px">\u2694 Moment of the Raid</div>'
+  +'</div>'
+  +'<div class="note" style="margin-top:10px;margin-bottom:12px">Shuffle the 5 Moment cards and place them face-down beside the board. At the start of each raid \u2014 after all raid cards are revealed \u2014 the <strong>top Moment card is revealed</strong>. Count how many of the three raid cards bear the depicted <strong>faction symbol</strong> and apply the matching escalation tier. The Moment of the Raid <strong>overrides all other rules in case of conflict</strong> \u2014 including Chronicle cards.</div>'
+  +lcard('M1','M1.png','Night Active','\u00bbThe horde attacks under cover of darkness.\u00ab','\u00d71 \u2192 active special cards give \u22121 point at scoring<br>\u00d72 \u2192 active special cards give \u22122 points at scoring<br>\u00d73 \u2192 active special cards give \u22124 points at scoring')
+  +lcard('M2','M2.png','Zenith of Day','\u00bbThe horde is plainly visible and easy to defend against.\u00ab','\u00d71 \u2192 \u22121 raider<br>\u00d72 \u2192 \u22122 raiders<br>\u00d73 \u2192 \u22124 raiders')
+  +lcard('M3','M3.png','Twilight','\u00bbThieves steal supplies in the twilight.\u00ab','\u00d72 \u2192 active green cards give \u22121 point at scoring<br>\u00d73 \u2192 active green cards give \u22122 points at scoring')
+  +lcard('M4','M4.png','Storm Season','\u00bbThunder and lightning \u2014 the weather-hardened know no retreat.\u00ab','\u00d72 \u2192 Knights give only 1 defense<br>\u00d73 \u2192 Knights are fragile')
+  +lcard('M5','M5.png','Dense Fog','\u00bbThe fog obscures information once thought certain.\u00ab','Under certain conditions specific dice are re-rolled right before the raid.')
+  +'<div style="margin-top:20px;padding-bottom:6px;border-bottom:1px solid rgba(0,0,0,.12)">'
+  +'<div class="ch-label" style="color:'+a+';font-size:.54rem;margin-bottom:2px">Module C \u00b7 In Development</div>'
+  +'<div style="font-family:\'Cinzel\',serif;font-size:.88rem;font-weight:700;color:#1a4060;margin-bottom:6px">\uD83D\uDEE1 The Siege</div>'
+  +'</div>'
+  +'<div style="margin-top:10px;padding:12px 14px;background:#fff8ee;border:1px dashed #c8a050;border-radius:6px;margin-bottom:16px">'
+  +'<div style="font-size:.58rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#c8a050;margin-bottom:6px">\u26a0 In Development</div>'
+  +'<p style="font-size:.68rem;line-height:1.55;color:#304050">What if, after a raid, not all raiders withdraw \u2014 and some besiege your settlement instead? Face new challenges and turn <em>the Siege</em> to your advantage.</p>'
+  +'<p style="font-size:.62rem;color:#906830;margin-top:6px;font-style:italic">7 new leader and building cards</p>'
+  +'</div>'
+  +'<div style="padding-bottom:6px;border-bottom:1px solid rgba(0,0,0,.12)">'
+  +'<div class="ch-label" style="color:'+a+';font-size:.54rem;margin-bottom:2px">Module D \u00b7 In Development</div>'
+  +'<div style="font-family:\'Cinzel\',serif;font-size:.88rem;font-weight:700;color:#1a4060;margin-bottom:6px">\u2697 The Alchemists</div>'
+  +'</div>'
+  +'<div style="margin-top:10px;padding:12px 14px;background:#fff8ee;border:1px dashed #c8a050;border-radius:6px">'
+  +'<div style="font-size:.58rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#c8a050;margin-bottom:6px">\u26a0 In Development</div>'
+  +'<p style="font-size:.68rem;line-height:1.55;color:#304050">The discovery of the new resource Black Powder gives you entirely new defensive options \u2014 but be careful where you store it, or there could be an explosive surprise.</p>'
+  +'<p style="font-size:.62rem;color:#906830;margin-top:6px;font-style:italic">11 new cards: new resource cards \u00bbBlack Powder\u00ab and new card type \u00bbalchemical\u00ab</p>'
+  +'</div>';},
+ aside:function(a){return '<div style="font-size:.68rem;color:#506070;line-height:1.7">'
+  +'<strong>Module A:</strong> Reveal 1 card at game start \u2014 applies the whole game.<br><br>'
+  +'<strong>Module B:</strong> Deck beside the board \u2014 reveal 1 card per raid.<br><br>'
+  +'<strong>Module C+D:</strong> In development.'
+  +'</div>';}
+}
+};
+
+function getRD(id) { return (lang==='en' && EN_RD[id]) ? EN_RD[id] : RD[id]; }
+
 function showRD(id) {
-  var d = RD[id]; if (!d) return;
+  var d = getRD(id); if (!d) return;
   var a = AC[d.acc] || AC.intro;
-  var r = REFS.find(function(x){ return x.id===id; });
+  var r = getREFS().find(function(x){ return x.id===id; });
   document.getElementById('rd-acc').style.background = a;
   document.getElementById('rd-pg').textContent = r ? r.title.replace(/&amp;/g,'&').replace(/&#x\w+;/g,'') : '';
   document.getElementById('rd-main').innerHTML = d.main(a);
@@ -1419,11 +1639,93 @@ sonder:[
   ]
 };
 
+var EN_CA = {
+  winter:[
+    {id:'W1', n:'Lumberjack',      p:'2',     d:1, c:3, res:true},
+    {id:'W4', n:'Small Storehouse',p:'2',     d:1, c:3, res:true},
+    {id:'W7', n:'Glassworks',      p:'2',     d:1, c:3, res:true},
+    {id:'W10',n:'Council Cellar',  p:'4',     d:2, c:2},
+    {id:'W14',n:'Library',         p:'5',     d:0, c:2},
+    {id:'W18',n:'Observatory',     p:'6',     d:0, c:1},
+    {id:'W19',n:'Jeweller',        p:'7',     d:0, c:1},
+    {id:'W20',n:'Night Watchman',  p:'1',     d:3, c:2},
+    {id:'W22',n:'Fog Cover',       p:'2',     d:0, c:1, fr:true},
+    {id:'W23',n:'Town Gate',       p:'0',     d:0, c:1, fr:true}
+  ],
+  spring:[
+    {id:'F1', n:'Wood Store',      p:'3',     d:1, c:2, res:true},
+    {id:'F3', n:'Small Mill',      p:'3',     d:1, c:2, res:true},
+    {id:'F5', n:'Glassworks',      p:'2',     d:1, c:3, res:true},
+    {id:'F10',n:'Guardroom',       p:'2',     d:3, c:1},
+    {id:'F12',n:'Watchtower',      p:'4',     d:3, c:1},
+    {id:'F15',n:'Diamond Trader',  p:'7',     d:1, c:1},
+    {id:'F13',n:'Miracle Healer',  p:'Y+3',   d:0, c:1},
+    {id:'F17',n:'Fog Cover',       p:'2',     d:0, c:1, fr:true},
+    {id:'F19',n:'Clock Tower \u21bb', p:'\u2014', d:0, c:1, fr:true},
+    {id:'F20',n:'Tower Clock \u21ba',  p:'\u2014', d:0, c:1, fr:true}
+  ],
+  summer:[
+    {id:'SO1', n:'Sawmill',         p:'3',    d:2, c:2, res:true},
+    {id:'SO3', n:'Nursery',         p:'4',    d:1, c:2, res:true},
+    {id:'SO6', n:'Tavern',          p:'6',    d:2, c:1},
+    {id:'SO9', n:'Timber Exchange', p:'W\u00d72', d:2, c:1},
+    {id:'SO11',n:'Merchant Guild',  p:'5',    d:2, c:1},
+    {id:'SO12',n:'Jeweller',        p:'9',    d:0, c:1},
+    {id:'SO13',n:'Fog Cover',       p:'2',    d:0, c:1, fr:true},
+    {id:'SO15',n:'Clock Tower',     p:'\u2014', d:0, c:1, fr:true}
+  ],
+  autumn:[
+    {id:'H1', n:'Granary Keep',     p:'6',    d:3, c:1},
+    {id:'H2', n:'Residence',        p:'9',    d:2, c:1},
+    {id:'H3', n:'Castle',           p:'5',    d:4, c:1},
+    {id:'H6', n:'Timber Merchant',  p:'W\u00d73', d:2, c:1},
+    {id:'H9', n:'Treasure Chamber', p:'13',   d:0, c:1},
+    {id:'H4', n:'Temple',           p:'Y+4',  d:1, c:1},
+    {id:'H10',n:'Fog Cover',        p:'2',    d:0, c:1, fr:true},
+    {id:'H11',n:'Clock Tower',      p:'\u2014', d:0, c:1, fr:true}
+  ],
+  sonder:[
+    {id:'Z1', n:'Timber Fortress',     p:'6',           d:1, c:2, sk:true, info:'On build: +2 Barriers immediately.'},
+    {id:'Z3', n:'Tidal Monastery',     p:'0/4/8/12',    d:1, c:2, sk:true, info:'Points increase each season.'},
+    {id:'Z4', n:'Bridge Ambush',       p:'\u03a3def',   d:0, c:1, sk:true, fr:true, info:'Points = sum of all defense values. Fragile.'},
+    {id:'Z5', n:'Stairway to Heaven',  p:'Plund.\u00d73', d:1, c:1, sk:true, info:'3 points per plundered building.'},
+    {id:'Z6', n:'Knight\u2019s Castle',p:'6',           d:2, c:1, sk:true, info:'On build: +2 Knights immediately.'},
+    {id:'Z7', n:'Reinforcing Pillars', p:'4',      d:1, c:1, sk:true, info:'Fragile buildings: def 2, never destroyed.'},
+    {id:'Z9', n:'Alchemist Hall',      p:'Glass\u00d73', d:1, c:1, sk:true, info:'3 points per glass production.'},
+    {id:'Z10',n:'Crystal Palace',      p:'15',          d:0, c:1, sk:true, fr:true, info:'15 points \u2014 destroyed if plundered.'},
+    {id:'Z11',n:'Insurance',           p:'0 / +8',      d:2, c:2, sk:true, info:'0 while active \u00b7 +8 if plundered.'},
+    {id:'Z13',n:'Red Residence',       p:'Red+7',       d:3, c:1, sk:true, info:'Red die value + 7 points.'},
+    {id:'Z14',n:'Citadel',             p:'(B+Y)\u00d72',d:0, c:1, sk:true, info:'(Blue + Yellow die) \u00d7 2 points.'},
+    {id:'Z15',n:'Real Estate Agent',   p:'\u2731\u00d72',d:1,c:1,sk:true, info:'2 points per special building (even plundered).'},
+    {id:'Z16',n:'Outpost',             p:'7',           d:2, c:1, sk:true, info:'Free to build \u2014 uses no slot.'},
+    {id:'Z17',n:'Watch Bastion',       p:'4',           d:2, c:3, sk:true, info:'\u22122 attackers before raid. (3\u00d7)'},
+    {id:'Z18',n:'Shield Gate',         p:'3',           d:2, c:3, sk:true, info:'Neighbours +2 defense. (3\u00d7)'},
+    {id:'Z19',n:'Castle in the Sky',   p:'7',           d:2, c:2, sk:true, info:'Can never be plundered. (2\u00d7)'},
+    {id:'Z21',n:'Far Scout',           p:'Yellow\u00d71', d:1, c:1, sk:true, fr:true, info:'Yellow die always visible. Fragile.'},
+    {id:'Z22',n:'Paymaster',           p:'Blue\u00d71', d:1, c:1, sk:true, fr:true, info:'Blue die always visible. Fragile.'},
+    {id:'Z23',n:'Mint',                p:'4',           d:1, c:2, sk:true, info:'On build: +2 coins immediately. (2\u00d7)'},
+    {id:'Z25',n:'Bank House',          p:'5',           d:1, c:1, sk:true, info:'Grants coins on build depending on season.'},
+    {id:'Z26',n:'Trade Center',        p:'Blue\u00d73', d:1, c:1, sk:true, info:'3 points per blue die value.'},
+    {id:'Z31',n:'Champion Arena',      p:'Red\u00d73',  d:2, c:1, sk:true, info:'Red die value \u00d7 3 points.'},
+    {id:'Z32',n:'Black Cathedral',     p:'48',          d:0, c:1, sk:true, info:'48 points \u2014 only if sole unplundered building.'},
+    {id:'Z33',n:'Mirror Tower',        p:'3',           d:2, c:1, sk:true, info:'Doubles VP of all direct neighbours.'},
+    {id:'Z34',n:'Ivory Tower',         p:'Level\u00d73',d:2, c:1, sk:true, info:'Town Hall level \u00d7 3 points.'}
+  ],
+  rathaus:[
+    {id:'x1', n:'Town Hall I',   p:'0', d:0, c:1, info:'Starting building. Slide a card under \u2192 Level +1, +1 coin immediately.'},
+    {id:'x2', n:'Town Hall II',  p:'0', d:0, c:1, info:'Level 2 \u2014 max. 2 special cards on the board.'},
+    {id:'x3', n:'Town Hall III', p:'0', d:0, c:1, info:'Level 3 \u2014 discount on special cards.'},
+    {id:'x4', n:'Town Hall IV',  p:'0', d:0, c:1, info:'Level 4\u20136 \u2014 strong discounts, more special slots.'}
+  ]
+};
+
+
 function showSeason(s, btn) {
   document.querySelectorAll('.stab').forEach(function(b){ b.classList.remove('on'); b.style.borderBottomColor=''; b.style.color=''; });
   if (btn) { btn.classList.add('on'); var col = SC[s]||'#1a4060'; btn.style.borderBottomColor=col; btn.style.color=col; }
   var c = document.getElementById('cgc'); if(!c) return;
-  var cards = CA[s]||[];
+  var src = (lang==='en' && EN_CA[s]) ? EN_CA[s] : (CA[s]||[]);
+  var cards = src;
   var isSonder = (s === 'sonder' || s === 'rathaus');
   var cols = isSonder ? 3 : 4;
   var html = '<div class="cgrid" style="grid-template-columns:repeat('+cols+',1fr)">';
