@@ -513,15 +513,15 @@ const CARD_DESC_FALLBACK = {
   free_build:         'Kostenlos bauen — zählt nicht zum Baulimit.',
 };
 const CARD_DESC_BY_ID = {
-  Z1:  'Punkte = roter Würfel × 3.',
-  Z3:  'Punkte = Rathaus-Level × 3.',
+  Z31: 'Punkte = roter Würfel × 3.',
+  Z34: 'Punkte = Rathaus-Level × 3.',
   Z4:  'Punkte = Summe aller Verteidigungswerte in der Siedlung.',
   Z5:  'Punkte = Anzahl geplünderter Gebäude × 3.',
   Z9:  'Punkte = Glas-Produktion × 3.',
   Z13: 'Punkte = roter Würfel + 7.',
   Z14: 'Punkte = (blauer + gelber Würfel) × 2.',
   Z26: 'Punkte = Anzahl aktiver Rohstoffgebäude × 2.',
-  Z33: '48 Punkte — aber nur wenn als einziges Gebäude nicht geplündert.',
+  Z32: '48 Punkte — aber nur wenn als einziges Gebäude nicht geplündert.',
 };
 
 // ══════════════════════════════════════════════════════
