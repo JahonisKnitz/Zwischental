@@ -565,7 +565,7 @@ strong { font-weight: 600; }
     <img src="splash.png" alt="" onload="this.classList.add('on')">
     <div class="splash-over">
       <div class="splash-title">Talwacht</div>
-      <div class="splash-sub">Bauen &middot; Pl&uuml;ndern &middot; Bauen</div>
+      <div class="splash-sub">1 Siedlung, 20 Karten, 7200 Gefahren</div>
       <a href="index.html" style="display:inline-block;margin-top:10px;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.45);border:1px solid rgba(255,255,255,.2);padding:4px 12px;text-decoration:none;border-radius:20px">&#9654; Demo spielen</a>
     </div>
   </div>
@@ -585,18 +585,18 @@ strong { font-weight: 600; }
         <button class="btn-p" onclick="go('guided')">Spielanleitung &rarr;</button>
         <button class="btn-s" onclick="go('ref')">Solo / Koop / Kampagne &amp; Karten&uuml;bersicht</button>
       </div>
-      <div class="version">v0.9.63 &middot; Johannes Zirm</div>
+      <div class="version">v0.9.72 &middot; Johannes Zirm</div>
     </div>
     <div class="home-aside">
       <div class="info-b">
         <div class="ib-head">W&uuml;rfel</div>
-        <div class="ib-row"><span class="dot" style="background:#d4b800"></span>Richtung</div>
+        <div class="ib-row"><span class="dot" style="background:#d4b800"></span>Start & Richtung</div>
         <div class="ib-row"><span class="dot" style="background:#1a5cb8"></span>Horde (Anzahl)</div>
-        <div class="ib-row"><span class="dot" style="background:#c41820"></span>Anf&uuml;hrer</div>
+        <div class="ib-row"><span class="dot" style="background:#c41820"></span>Anf&uuml;hrer (Sonderfähigkeit)</div>
       </div>
       <div class="info-b">
         <div class="ib-head">Jahreszeiten</div>
-        <div class="ib-row"><span class="dot" style="background:#8eb4c8"></span>Winter</div>
+        <div class="ib-row"><span class="dot" style="background:#8eb4c8"></span>Winter (ohne Angriff)</div>
         <div class="ib-row"><span class="dot" style="background:#7ab890"></span>Fr&uuml;hling</div>
         <div class="ib-row"><span class="dot" style="background:#c8a050"></span>Sommer</div>
         <div class="ib-row"><span class="dot" style="background:#b87840"></span>Herbst</div>
@@ -694,7 +694,7 @@ function t(key) {
       home_barriers:'Barriers (wooden sticks)', home_towers:'Towers (black cylinders)',
       home_coins:'Cardboard coins', home_counters:'Score dials', home_dice:'Dice (yellow, blue, red)',
       home_cta_rules:'Read the Rules \u2192', home_cta_ref:'Solo / Coop / Campaign & Card overview',
-      home_dice_label:'Dice', home_dice_dir:'Direction', home_dice_horde:'Horde (count)', home_dice_leader:'Leader',
+      home_dice_label:'Dice', home_dice_dir:'Start & Direction', home_dice_horde:'Horde (count)', home_dice_leader:'Leader (special ability)',
       home_seasons:'Seasons',
       next_btn:'Next \u2192', ref_btn:'Reference \u2192', page_of:'Page', of:'of',
       ref_title:'Solo/Coop/Glossary', ref_subtitle:'Card Overview & Game Modes',
@@ -783,10 +783,10 @@ var ST = [
     main: function(a) {
       return '<div class="ch-label" style="color:'+a+'">Kapitel II</div>'
         +'<div class="ch-title">Spielaufbau</div>'
-        +'<p>Jede:r w\u00e4hlt ein <strong>Rathaus</strong> und legt sie vor sich als Zentrum der Siedlung. Sortiert alle Karten nach Rückseite, mischt die einzelnen Stapel kräftig:</p>'
+        +'<p>Jede:r w\u00e4hlt ein <strong>Rathaus</strong> und legt es vor sich als Zentrum der Siedlung. Sortiert alle Karten nach Rückseite, mischt die einzelnen Stapel kräftig:</p>'
         +'<div class="phases">'
         +'<div class="phase"><span class="ph-n" style="color:'+a+'">1</span><div><div class="ph-t" style="color:'+a+'">Gebäudekarten</div><div class="ph-d">4 Jahreszeitstapel + 1 Sonderkartenstapel bereitlegen.</div></div></div>'
-        +'<div class="phase"><span class="ph-n" style="color:'+a+'">2</span><div><div class="ph-t" style="color:'+a+'">Überfallkarten &amp; W\u00fcrfel</div><div class="ph-d">Die 3 Überfallkartenstapel (gelb, blau, rot) verdeckt in die Mitte legen. Den passenden W\u00fcrfel neben jeden Stapel legen.</div>'
+        +'<div class="phase"><span class="ph-n" style="color:'+a+'">2</span><div><div class="ph-t" style="color:'+a+'">Überfallkarten &amp; W\u00fcrfel</div><div class="ph-d">Die 3 Überfallkartenstapel (gelb, blau, rot) verdeckt in die Mitte legen. Den passenden W\u00fcrfel unter jeden Stapel legen.</div>'
         +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px">'
         +'<div style="text-align:center"><img src="back-R1.png" style="width:100%;border-radius:3px;display:block" onerror="this.style.opacity=.1"><div style="font-size:.52rem;color:#d4a820;font-weight:700;margin-top:3px">🟡 Startfeld</div></div>'
         +'<div style="text-align:center"><img src="back-A1.png" style="width:100%;border-radius:3px;display:block" onerror="this.style.opacity=.1"><div style="font-size:.52rem;color:#2d7aaa;font-weight:700;margin-top:3px">🔵 Stärke</div></div>'
@@ -795,7 +795,8 @@ var ST = [
         +'</div></div>'
         +'<div class="phase"><span class="ph-n" style="color:'+a+'">3</span><div><div class="ph-t" style="color:'+a+'">Token &amp; M\u00fcnzen</div><div class="ph-d">Ritter, Barrieren, T\u00fcrme und M\u00fcnzen als gemeinsamen Vorrat bereithalten.</div></div></div>'
         +'</div>'
-        +'<p style="margin-top:10px"><strong>Drafting:</strong> Jede Jahreszeit beginnt mit einem Drafting. Vorbereitung: Für jeden Spielenden 6 Karten verdeckt ziehen als Starthand, bestehend aus (Jahreszeitkarten + Sonderkarten je nach Jahreszeit).</p>'
+        +'<div class="ch-title">Drafting vorbereiten</div>'
+        +'<p style="margin-top:10px">Jede Jahreszeit beginnt mit einem Drafting. Vorbereitung: Für jeden Spielenden jeweils 6 Karten verdeckt ziehen als Starthand, bestehend aus Jahreszeitkarten + Sonderkarten (je nach Jahreszeit - siehe Tabelle).</p>'
         +'<table class="tbl"><thead style="background:'+a+'"><tr><th> </th><th>Jahreszeit</th><th>Sonder</th><th>Drafting-Richtung</th></tr></thead><tbody>'
         +'<tr><td>'+img('icon-season-winter.png',14)+' Winter</td><td>6</td><td>0</td><td>\u21bb immer</td></tr>'
         +'<tr><td>'+img('icon-season-fr\u00fchling.png',14)+' Fr\u00fchling</td><td>5</td><td>1</td><td>\u21bb / \u21ba per Gelb</td></tr>'
@@ -820,8 +821,8 @@ var ST = [
         +'<div class="phases">'
         +'<div class="phase"><span class="ph-n" style="color:'+a+'">1</span><div><div class="ph-t" style="color:'+a+'">Ger\u00fcchte</div><div class="ph-d">W\u00fcrfel werfen, Überfallkarten aufdecken. Die Karte mit dem höchsten Würfel bleibt ein Geheimnis.</div></div></div>'
         +'<div class="phase"><span class="ph-n" style="color:'+a+'">2</span><div><div class="ph-t" style="color:'+a+'">Drafting & Bauen</div><div class="ph-d">Jede:r zieht und baut f\u00fcnf Karten aus einer rotierenden Auswahl.</div></div></div>'
-        +'<div class="phase"><span class="ph-n" style="color:'+a+'">3</span><div><div class="ph-t" style="color:'+a+'">R\u00fcsten</div><div class="ph-d">Grüne Geb\u00e4ude produzieren Ressourcen. Stärke damit deine Verteidigung.</div></div></div>'
-        +'<div class="phase"><span class="ph-n" style="color:#1a4878">4</span><div><div class="ph-t" style="color:#1a4878">\u00dcberfall</div><div class="ph-d">Die bisher noch verdeckt gebliebenen Überfallkarten aufdecken, dann den \u00dcberfall durchf\u00fchren.</div></div></div>'
+        +'<div class="phase"><span class="ph-n" style="color:'+a+'">3</span><div><div class="ph-t" style="color:'+a+'">R\u00fcsten</div><div class="ph-d">Grüne Geb\u00e4ude produzieren Rohstoffe. Stärke damit deine Verteidigung.</div></div></div>'
+        +'<div class="phase"><span class="ph-n" style="color:#1a4878">4</span><div><div class="ph-t" style="color:#1a4878">\u00dcberfall</div><div class="ph-d">Verdeckte Überfallkarte(n) aufdecken, dann \u00dcberfall durchf\u00fchren.</div></div></div>'
         +'<div class="phase"><span class="ph-n" style="color:#b83040">5</span><div><div class="ph-t" style="color:#b83040">Wertung</div><div class="ph-d">Punkte der nicht geplünderten Geb\u00e4ude zusammenz\u00e4hlen und als Siegpunkte notieren.</div></div></div>'
         +'</div>';
     },
@@ -841,9 +842,9 @@ var ST = [
         +'<div class="note">Die oberste Überfallkarte von jedem Stapel (gelb, blau, rot) wird aufgedeckt,<strong> außer die Farbe mit dem h\u00f6chsten W\u00fcrfelwert.</strong> Diese Farbe bleibt verdeckt bis zum Überfall. Zeigen mehrere W\u00fcrfel denselben H\u00f6chstwert, bleiben alle diese verborgen.</div>'
         +'<p>Die <strong>Farben</strong>:</p>'
         +'<div class="phases">'
-        +'<div class="phase"><span class="ph-n" style="color:#d4b800">\u25a0</span><div><div class="ph-t" style="color:#9a7800">Gelb \u2014 Startpunkt des Überfalls &amp; Laufrichtung</div><div class="ph-d">Die gelbe Karte verrät, auf welchem Feld der Überfall beginnt. Bei gerader Zahl \u2192 \u21bb die Räuber laufen im Uhrzeigersinn. Bei ungerader Zahl \u2192 \u21ba die diebische Meute läuft gegen den Uhrzeigersinn durch die Siedlung.</div></div></div>'
-        +'<div class="phase"><span class="ph-n" style="color:#1a5cb8">\u25a0</span><div><div class="ph-t" style="color:#1a5cb8">Blau \u2014 Anzahl der Pl\u00fcnderer</div><div class="ph-d">Wie viele Übeltäter durch die Siedlung ziehen.</div></div></div>'
-        +'<div class="phase"><span class="ph-n" style="color:#c41820">\u25a0</span><div><div class="ph-t" style="color:#c41820">Rot \u2014 Anf\u00fchrer</div><div class="ph-d">Eine Sonderf\u00e4higkeit macht den Überfall noch herausfordernder.</div></div></div>'
+        +'<div class="phase"><span class="ph-n" style="color:#d4b800">\u25a0</span><div><div class="ph-t" style="color:#9a7800">Gelb \u2014 Startpunkt des Überfalls &amp; Laufrichtung</div><div class="ph-d">Gelbe verrät, auf welchem der 8 Außenfelder der Siedlung der Überfall beginnt. Bei gerader Zahl \u2192 \u21bb Räuber laufen im Uhrzeigersinn. Bei ungerader Zahl \u2192 \u21ba diebische Meute läuft gegen Uhrzeigersinn durch Siedlung.</div></div></div>'
+        +'<div class="phase"><span class="ph-n" style="color:#1a5cb8">\u25a0</span><div><div class="ph-t" style="color:#1a5cb8">Blau \u2014 Anzahl der Pl\u00fcnderer</div><div class="ph-d">Blau zeigt, wieviele Übeltäter durch Siedlung ziehen.</div></div></div>'
+        +'<div class="phase"><span class="ph-n" style="color:#c41820">\u25a0</span><div><div class="ph-t" style="color:#c41820">Rot \u2014 Anf\u00fchrer</div><div class="ph-d">Rot zeigt Sonderf\u00e4higkeit der Plünderer und macht den Überfall noch herausfordernder.</div></div></div>'
         +'</div>'
         +'<div style="margin-top:14px;margin-bottom:4px;font-size:.58rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:'+a+'">Beispiel Ger\u00fcchtephase</div>'
         +'<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">'
@@ -871,25 +872,25 @@ var ST = [
     main: function(a) {
       return '<div class="ch-label" style="color:'+a+'">Kapitel V</div>'
         +'<div class="ch-title">Drafting & Bauphase</div>'
-        +'<p>Bereitet die verdeckte Starthand für jeden Spielenden vor, bestehend aus <strong>6 Karten</strong> (Saisonkarten + Sonderkarten). Jetzt kann das Kartenziehen und Bauen beginnen. Wähle eine Karte aus deiner Starthand und gib die restlichen Karten in Drafting-Richtung weiter. Die gewählte Karte wird sofort gespielt.</p>'
+        +'<p>Bereitet die verdeckte Starthand für jeden Spielenden vor, bestehend aus <strong>6 Karten</strong> (Jahreszeitenkarten + Sonderkarten). Das Kartenziehen und Bauen kann beginnen. Wähle eine Karte aus deiner Starthand und gib die restlichen Karten in Drafting-Richtung weiter. Deine gewählte Karte wird sofort gespielt.</p>'
 +'<img src="kartenaufbau.png" alt="Aufbau einer Karte" style="width:100%;aspect-ratio:1/1;display:block;margin-top:14px;border-radius:4px">'
 +'<p style="font-size:.72rem;color:#7090a0;text-align:center;margin-top:6px;font-style:italic">Aufbau einer Karte</p>'
-        +'<p style="margin-top:12px"><strong>Mit jeder Karte gibt es 4 M\u00f6glichkeiten:</strong></p>'
+        +'<p style="margin-top:12px"><strong>Mit jeder Karte gibt es bis zu 4 M\u00f6glichkeiten:</strong></p>'
         +'<div class="phases" style="margin-top:8px">'
-        +'<div class="phase"><span class="ph-n" style="color:'+a+'">1</span><div><div class="ph-t" style="color:'+a+'">Bauen</div><div class="ph-d">Karte auf ein leeres Feld legen.</div></div></div>'
+        +'<div class="phase"><span class="ph-n" style="color:'+a+'">1</span><div><div class="ph-t" style="color:'+a+'">Bauen</div><div class="ph-d">Karte auf ein leeres Feld legen rund um dein Rathaus.</div></div></div>'
         +'<div class="phase"><span class="ph-n" style="color:'+a+'">2</span><div><div class="ph-t" style="color:'+a+'">Abreissen &amp; Bauen</div><div class="ph-d">Karte auf ein belegtes Feld legen \u2014 das alte Geb\u00e4ude wird entfernt und abgeworfen.</div></div></div>'
-        +'<div class="phase"><span class="ph-n" style="color:'+a+'">3</span><div><div class="ph-t" style="color:'+a+'">Upgraden (nur grüne Karten)</div><div class="ph-d">Karten, welche eine Ressource produzieren (Holz, Nahrung, Glas) aufeinander stapeln (nur wenn Stapel-Icon vorhanden und bei gleicher Ressource). Dieses Feld produziert soviele Einheiten der Ressource, wie Karten in diesem Stapel liegen.</div></div></div>'
-        +'<div class="phase"><span class="ph-n" style="color:'+a+'">4</span><div><div class="ph-t" style="color:'+a+'">Siedlung upgraden</div><div class="ph-d">Karte ungenutzt unter das Rathaus schieben \u2192 das Level der Siedlung steigt +1 und +1 M\u00fcnze sofort. Das Siedlungs-Level entspricht der Höhe des Stapels inklusive Rathaus (Max. Level 6).</div></div></div>'
+        +'<div class="phase"><span class="ph-n" style="color:'+a+'">3</span><div><div class="ph-t" style="color:'+a+'">Upgraden (nur grüne Karten)</div><div class="ph-d">Karten, welche einen Rohstoff produzieren (Holz, Nahrung, Glas) aufeinander stapeln (nur wenn Stapel-Icon vorhanden und gleicher Rohstoff). Dieses Feld produziert soviele Einheiten des Rohstoffs, wie Karten in dem Stapel sind.</div></div></div>'
+        +'<div class="phase"><span class="ph-n" style="color:'+a+'">4</span><div><div class="ph-t" style="color:'+a+'">Siedlung upgraden</div><div class="ph-d">Karte ungenutzt unter Rathaus schieben \u2192 das Level der Siedlung steigt +1 und du erhältst 1 M\u00fcnze sofort. Das Siedlungs-Level entspricht der Höhe des Stapels inklusive Rathaus (Max. Level 6).</div></div></div>'
         +'</div>'
-        +'<p style="margin-top:14px">Eine Karte wählen, Rest weitergeben, gewählte Karte bauen — wiederholt die Schritte bis jede:r die fünfte Karte genutzt hat. Die sechste Karte wird abgeworfen und die Bauphase ist beendet.</p>'
-        +'<div class="note" style="margin-top:14px"><strong>Wichtig:</strong> Jede Karte muss sofort gespielt oder unters Rathaus geschoben werden. Erst wenn die aktuelle Karte gebaut ist, darf die nächste Kartensammlung aufgenommen werden.<br><br><strong>Sondergebäude:</strong> Das Siedlungs-Level gibt vor, wieviele Sonderkarten in der Siedlung sein dürfen. Man startet mit Level 1 — ein Sondergebäude darf gebaut werden.</div>';
+        +'<p style="margin-top:14px">Eine Karte wählen, Rest weitergeben, gewählte Karte spielen — wiederholt Schritte bis jede:r die fünfte Karte genutzt hat. Die sechste Karte wird abgeworfen und die Bauphase ist beendet.</p>'
+        +'<div class="note" style="margin-top:14px"><strong>Wichtig:</strong> Jede Karte muss sofort gespielt werden wie oben beschrieben. Erst wenn die aktuelle Karte gespielt ist, darf die nächste Kartensammlung aufgenommen werden.<br><br><strong>Sondergebäude:</strong> Das Siedlungs-Level gibt vor, wieviele Sondergebäude (lila) in deiner Siedlung sein dürfen. Du startest mit Level 1 — ein Sondergebäude darf gebaut werden.</div>';
     },
     aside: function(a) {
       return '<div class="aside-label">Gebäudetypen</div>'
         +'<div class="icon-entry"><img src="icon-vp.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Gr\u00fcn</div><div class="ie-desc">Rohstoffe, einzige stapelbare Kartenart (siehe Icon)</div></div></div>'
         +'<div class="icon-entry"><img src="icon-defense.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Blau</div><div class="ie-desc">Punkte, ertragreiche Kartenart, häufig schwache Verteidigung</div></div></div>'
         +'<div class="icon-entry"><img src="icon-fragile.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Gelb \u26a1</div><div class="ie-desc">Verteidgung, einzige fragile Kartenart - fragil = Karte wird noch Plünderung entfernt</div></div></div>'
-        +'<div class="icon-entry"><img src="icon-special.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Lila</div><div class="ie-desc">Sonderkarte, einzige Kartenart mit Baubeschränkung (Siedlungs-Level), spektakuläre Effekte und Punkte</div></div></div>'
+        +'<div class="icon-entry"><img src="icon-special.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Lila</div><div class="ie-desc">Sondergebäude, einzige Art mit Bau-Limit (= Siedlungs-Level), starke Effekte und Punkte</div></div></div>'
         +'<div class="aside-label" style="margin-top:8px">Siedlung</div>'
         +'<div class="icon-entry"><img src="icon-rathaus-level.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Level 1\u20136</div><div class="ie-desc">= max. Mehr Sonderkarten bauen &amp; Münzen</div></div></div>';
     }
@@ -898,12 +899,12 @@ var ST = [
     main: function(a) {
       return '<div class="ch-label" style="color:'+a+'">Kapitel VI</div>'
         +'<div class="ch-title">Die R\u00fcstphase</div>'
-        +'<p>Alle Geb\u00e4ude produzieren ihre abgebildeten Ressourcen (Holz, Nahrung oder Glas). Gestapelte Ressourcen produzieren so viele wie Karten im Stapel sind.</p>'
-        +'<p style="margin-top:10px">Z\u00e4hle die Ressourcen in deiner Stadt, wandle sie 2:1 in Verteidigungen um und nimm dir die entsprechenden Token (Barrieren, Ritter, M\u00fcnzen):</p>'
+        +'<p>Alle Geb\u00e4ude produzieren ihre abgebildeten Rohstoffe (Holz, Nahrung oder Glas). Gestapelte Rohstoffe produzieren so viele wie Karten im Stapel sind.</p>'
+        +'<p style="margin-top:10px">Z\u00e4hle Rohstoffe in deiner Siedlung, wandle sie 2:1 in Verteidigungen um und nimm dir entsprechende Token (Barrieren, Ritter, M\u00fcnzen):</p>'
         +'<div class="phases">'
         +'<div class="phase"><span class="ph-n" style="color:'+a+'"><img src="def-ritter.png" width="18" height="18" style="object-fit:contain"></span><div><div class="ph-t" style="color:'+a+'">Ritter</div><div class="ph-d">2 Nahrung \u2192 1 Ritter. Legt einen Ritter auf ein Geb\u00e4ude: +2 Verteidigung solange die Karte liegt. Wird die Karte entfernt, verschwindet auch der Ritter.</div></div></div>'
         +'<div class="phase"><span class="ph-n" style="color:'+a+'"><img src="def-barriere.png" width="18" height="18" style="object-fit:contain"></span><div><div class="ph-t" style="color:'+a+'">Barriere</div><div class="ph-d">2 Holz \u2192 1 Barriere. Lege eine Barriere an die Au\u00dfenkante eines Feldes \u2014 dieses Feld ist permanent davor gesch\u00fctzt, der Start eines \u00dcberfalls zu sein. Der \u00dcberfall startet stattdessen auf dem n\u00e4chsten Feld in Laufrichtung.<br>Barrieren werden nicht entfernt und bleiben erhalten, auch wenn die Karte entfernt wird, die sie sch\u00fctzen.<br>Sind alle Felder verbarrikadiert (12 Barrieren), kann die Siedlung nicht mehr \u00fcberfallen werden.<br><em>Hinweis: Eckfelder ben\u00f6tigen zwei Barrieren f\u00fcr einen vollst\u00e4ndigen Schutz.</em></div></div></div>'
-        +'<div class="phase"><span class="ph-n" style="color:'+a+'"><img src="def-turm.png" width="18" height="18" style="object-fit:contain"></span><div><div class="ph-t" style="color:'+a+'">Turm</div><div class="ph-d">2 M\u00fcnzen \u2192 1 Turm. Ein Geb\u00e4ude mit Turm ist permanent uneinnehmbar \u2014 egal wie viele Angreifer kommen.</div></div></div>'
+        +'<div class="phase"><span class="ph-n" style="color:'+a+'"><img src="def-turm.png" width="18" height="18" style="object-fit:contain"></span><div><div class="ph-t" style="color:'+a+'">Turm</div><div class="ph-d">2 M\u00fcnzen \u2192 1 Turm. Platziere den Turm auf einem Gebäude deiner Wahl. Ein Geb\u00e4ude mit Turm ist permanent unplünderbar - während des Angriffs wird das Gebäude normal behandelt, allerdings zählen die Siegpunkte in der folgenden Wertung so, als wäre das Gebäude nicht geplündert wurden. Die Verteidigung des Gebäudes gilt weiterhin. Wird die Karte entfernt, wird auch der Turm entfernt</div></div></div>'
         +'</div>'
         +'<p style="margin-top:14px">Verteidigungen (Ritter, Barrieren, T\u00fcrme) kannst du jederzeit in der R\u00fcstphase in deiner Siedlung platzieren oder in deinem pers\u00f6nlichen Vorrat f\u00fcr sp\u00e4ter aufheben.</p>';
     },
@@ -930,7 +931,7 @@ var ST = [
         +'<p style="margin-top:10px">Nimm dir eine Z\u00e4hlscheibe und stelle sie auf die Anzahl der Pl\u00fcnderer. Sie hilft dir zu z\u00e4hlen, wie weit die R\u00e4uber kommen.</p>'
         +'<p style="margin-top:10px">Beginnend mit dem Startfeld zieht die diebische Horde Feld f\u00fcr Feld in Laufrichtung um das Rathaus durch deine Siedlung. Bei jedem Feld:</p>'
         +'<div class="phases" style="margin-top:8px">'
-        +'<div class="phase"><span class="ph-n" style="color:'+a+'">1</span><div><div class="ph-t" style="color:'+a+'">Verteidigung pr\u00fcfen</div><div class="ph-d">\u2192 Hat das Geb\u00e4ude gleich oder mehr Verteidigung als noch R\u00e4uber \u00fcbrig sind? Es h\u00e4lt stand, kein weiteres Feld wird getroffen.<br>\u2192 Hat das Geb\u00e4ude weniger Verteidigung als noch Angreifer \u00fcbrig sind? Es wird gepl\u00fcndert. Reduziere die Z\u00e4hlscheibe um den Verteidigungswert. Das Geb\u00e4ude wird gepl\u00fcndert \u2014 seine Siegpunkte z\u00e4hlen diese Runde nicht. Drehe die Karte um 45\u00b0 um zu zeigen, dass sie in der n\u00e4chsten Wertung ignoriert wird. (Ressourcen und Spezialf\u00e4higkeiten bleiben vollst\u00e4ndig aktiv.)</div></div></div>'
+        +'<div class="phase"><span class="ph-n" style="color:'+a+'">1</span><div><div class="ph-t" style="color:'+a+'">Verteidigung pr\u00fcfen</div><div class="ph-d">\u2192 Hat das Geb\u00e4ude gleich oder mehr Verteidigung als noch R\u00e4uber \u00fcbrig sind? Es h\u00e4lt stand, kein weiteres Feld wird getroffen, denn die Räber sind besiegt.<br>\u2192 Hat das Geb\u00e4ude weniger Verteidigung als noch Angreifer \u00fcbrig sind? Es wird gepl\u00fcndert - seine Siegpunkte z\u00e4hlen diese Runde nicht. Schiebe die Karte etwas weg vom Rathaus, um zu zeigen, dass sie in der n\u00e4chsten Wertung ignoriert wird. (Rohstoffe und Spezialf\u00e4higkeiten bleiben vollst\u00e4ndig aktiv). Reduziere die Zählscheibe um den Verteidigungswert.</div></div></div>'
         +'<div class="phase"><span class="ph-n" style="color:'+a+'">2</span><div><div class="ph-t" style="color:'+a+'">N\u00e4chstes Feld</div><div class="ph-d">Die restlichen Pl\u00fcnderer ziehen weiter zum n\u00e4chsten Feld in Laufrichtung.</div></div></div>'
         +'</div>'
         +'<p style="margin-top:12px">Wiederhole alle Schritte, bis deine Z\u00e4hlscheibe 0 zeigt und somit keine Pl\u00fcnderer mehr \u00fcbrig sind.</p>'
@@ -952,12 +953,7 @@ var ST = [
         +'<img src="wertung-beispiel-winter.png" alt="Beispiel: Wertung nach dem Winter \u2014 14 Punkte" style="width:100%;aspect-ratio:2020/1854;display:block;margin-top:14px;border-radius:4px">'
         +'<p style="font-size:.72rem;color:#7090a0;text-align:center;margin-top:6px;font-style:italic">Beispiel Winterwertung mit 14 Punkten</p>';
     },
-    aside: function(a) {
-      return '<div class="aside-label">Beispiele</div>'
-        +'<div class="icon-entry"><img src="icon-vp.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Schatzkammer</div><div class="ie-desc">13 VP</div></div></div>'
-        +'<div class="icon-entry"><img src="icon-vp.png" onerror="this.style.opacity=.15"><div><div class="ie-name">Residenz</div><div class="ie-desc">9 VP</div></div></div>'
-        +'<div class="icon-entry"><img src="res-muenze.png" onerror="this.style.opacity=.15"><div><div class="ie-name">M\u00fcnzen</div><div class="ie-desc">1 VP je (Herbst)</div></div></div>';
-    }
+    
   },
   { name: 'Spielende', acc: 'score', last: true,
     main: function(a) {
@@ -966,7 +962,7 @@ var ST = [
         +'<p><strong>Herbst ist die letzte Jahreszeit.</strong> Nach der Herbst-Wertung endet das Spiel sofort.</p>'
         +'<div class="note">Im Herbst z\u00e4hlen zus\u00e4tzlich alle verbliebenen M\u00fcnzen 1:1 als Siegpunkte. Plant Eure M\u00fcnzen bewusst ein!</div>'
         +'<p>Wer nach dem letzten \u00dcberfall und der Herbst-Wertung die meisten Gesamtsiegpunkte \u00fcber alle vier Jahreszeiten hat, <strong>gewinnt das Spiel</strong>.</p>'
-        +'<p style="margin-top:14px;font-style:italic;color:#506878">Bereit f\u00fcr die vollst\u00e4ndige Referenz? Karten, Glossar, Sonderregeln und alle Spielvarianten findest du im Referenz-Tab oben.</p>';
+        +'<p style="margin-top:14px;font-style:italic;color:#506878">Bereit f\u00fcr die vollst\u00e4ndige Referenz? Karten, Glossar, Sonderregeln und alle Spielvarianten findest du unter Solo/Koop/Glossar oben.</p>';
     },
     aside: function(a) {
       return '<div class="aside-label">4 Jahreszeiten</div>'
@@ -1062,10 +1058,10 @@ function getREFS() {
 
 var REFS = [
   {id:'karten',    icon:'icon-special.png',      title:'Standardgebäude',   desc:'Standardgebäude &amp; Sondergebäude',          acc:'intro'},
-  {id:'sonder',    icon:'icon-rathaus-level.png', title:'Sonderkarten',         desc:'32 Karten &amp; Mechaniken',          acc:'ref'},
+  {id:'sonder',    icon:'icon-rathaus-level.png', title:'Sondergebäude',         desc:'Mechaniken',          acc:'ref'},
   {id:'anfuehrer', icon:'icon-plundered.png',     title:'Überfallkarten',  desc:'Anführer, Angreifer, Richtung',  acc:'raid'},
   {id:'glossar',   icon:'icon-defense.png',       title:'Glossar',              desc:'Alle Begriffe',                      acc:'intro'},
-  {id:'faq',       icon:'icon-neighbor.png',      title:'Regelfragen',          desc:'Sonderfälle &amp; Grenzfälle', acc:'build'},
+  {id:'faq',       icon:'icon-neighbor.png',      title:'Regelfragen',          desc:'Sonderfälle &amp; Sonderregeln', acc:'build'},
   {id:'solo',      icon:'icon-vp.png',            title:'Solo-Modus',           desc:'Alleine spielen',                    acc:'score', special:true},
   {id:'koop',      icon:'icon-free-build.png',    title:'Koop-Variante',        desc:'Kooperativ spielen',                 acc:'koop',  special:true},
   {id:'kampagne',  icon:'icon-rathaus-level.png', title:'Solo-Kampagne',        desc:'26 Kapitel, Unlock-System',          acc:'score', special:true},
@@ -1362,7 +1358,7 @@ symbole:{acc:'intro',prev:null,next:'ressourcen',
   +'<div class="glos-section">Gameplay</div>'
   +'<div class="glos-icon-row">'+img('icon-vp.png',28)+'<div><div class="glos-term">Siegpunkte</div><div class="glos-def">Am Ende jeder Jahreszeit aus allen aktiven Gebäuden addiert.</div></div></div>'
   +'<div class="glos-icon-row">'+img('icon-defense.png',28)+'<div><div class="glos-term">Verteidigung</div><div class="glos-def">Wie viele Angreifer ein Gebäude aufhalten kann.</div></div></div>'
-  +'<div class="glos-icon-row">'+img('icon-plundered.png',28)+'<div><div class="glos-term">Geplündert</div><div class="glos-def">Wurde überrannt. Kein VP — Funktion und Ressourcen bleiben aktiv.</div></div></div>'
+  +'<div class="glos-icon-row">'+img('icon-plundered.png',28)+'<div><div class="glos-term">Geplündert</div><div class="glos-def">Wurde überrannt. Kein VP — Funktion und Rohstoffe bleiben aktiv.</div></div></div>'
   +'<div class="glos-icon-row">'+img('icon-fragile.png',28)+'<div><div class="glos-term">Fragil &#x26A1;</div><div class="glos-def">Einmal-Effekt. Nach dem Überfall automatisch entfernt.</div></div></div>'
   +'<div class="glos-icon-row">'+img('icon-special.png',28)+'<div><div class="glos-term">Sondergebäude</div><div class="glos-def">Einzigartige Fähigkeiten. Kosten beim Bau Münzen.</div></div></div>'
   +'<div class="glos-section">Rathaus &amp; Bau</div>'
@@ -1380,7 +1376,7 @@ symbole:{acc:'intro',prev:null,next:'ressourcen',
   +'<div class="glos-icon-row">'+img('icon-season-herbst.png',22)+'<div><div class="glos-term" style="font-size:.5rem">Herbst</div><div class="ie-desc">Münzen = VP</div></div></div>';}
 },
 ressourcen:{acc:'build',prev:'symbole',next:'karten',
- main:function(a){return '<div class="ch-label" style="color:'+a+'">Ressourcen</div><div class="ch-title">Ressourcen</div>'
+ main:function(a){return '<div class="ch-label" style="color:'+a+'">Ressourcen</div><div class="ch-title">Rohstoffe</div>'
   +'<div class="glos-section">Rohstoffe → Verteidigung (2:1)</div>'
   +'<div class="glos-icon-row">'+img('res-holz.png',28)+'<div><div class="glos-term">Holz</div><div class="glos-def">2 Holz → 1 Barriere. Schützt eine Außenkante. Permanent.</div></div></div>'
   +'<div class="glos-icon-row">'+img('res-nahrung.png',28)+'<div><div class="glos-term">Nahrung</div><div class="glos-def">2 Nahrung → 1 Ritter. +2 Verteidigung auf einem Gebäude.</div></div></div>'
@@ -1442,12 +1438,12 @@ glossar:{acc:'intro',prev:'anfuehrer',next:'faq',
   +'<div class="glos-section" style="margin-top:0">Symbole &amp; Icons</div>'
   +'<div class="glos-icon-row"><img src="res-holz.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Holz</div><div class="glos-def">2 Holz → 1 Barriere in der Rüstphase.</div></div></div><div class="glos-icon-row"><img src="res-nahrung.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Nahrung</div><div class="glos-def">2 Nahrung → 1 Ritter. Wird in der Rüstphase 1:1 in Münzen umgewandelt.</div></div></div><div class="glos-icon-row"><img src="res-glas.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Glas</div><div class="glos-def">2 Glas → 1 Münze in der Rüstphase.</div></div></div><div class="glos-icon-row"><img src="def-barriere.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Barriere</div><div class="glos-def">Holzwall an der Außenkante eines Randfeldes. Verhindert den Angriffsstart dort.</div></div></div><div class="glos-icon-row"><img src="def-ritter.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Ritter</div><div class="glos-def">Verteidiger auf einem Gebäude. +2 Verteidigung solange die Karte liegt.</div></div></div><div class="glos-icon-row"><img src="res-muenze.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Münze</div><div class="glos-def">Währung für Türme (2 Münzen) und Sonderkarten.</div></div></div><div class="glos-icon-row"><img src="def-turm.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Turm</div><div class="glos-def">Permanente Befestigung. Ein Feld mit Turm kann nie geplündert werden.</div></div></div><div class="glos-icon-row"><img src="icon-defense.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Verteidigung</div><div class="glos-def">Gibt an wie viele Angreifer ein Gebäude aufhalten kann.</div></div></div><div class="glos-icon-row"><img src="icon-vp.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Siegpunkte</div><div class="glos-def">Am Ende jeder Jahreszeit aus allen aktiven Gebäuden addiert.</div></div></div><div class="glos-icon-row"><img src="icon-def-sum.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Summe der Verteidigung</div><div class="glos-def">Gesamte Verteidigung aller Gebäude in der Siedlung.</div></div></div><div class="glos-icon-row"><img src="icon-special.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Sondergebäude</div><div class="glos-def">Karten mit einzigartigen Fähigkeiten. Kosten beim Bau Münzen.</div></div></div><div class="glos-icon-row"><img src="icon-fragile.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Fragil ⚡</div><div class="glos-def">Einmal-Effekt. Fragile Karten werden nach dem Überfall automatisch entfernt.</div></div></div><div class="glos-icon-row"><img src="icon-rathaus-level.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Rathaus-Level</div><div class="glos-def">Stufe 1–6. Karte unters Rathaus schieben → +1 Level, +1 Münze sofort.</div></div></div><div class="glos-icon-row"><img src="icon-free-build.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Kostenlos baubar</div><div class="glos-def">Verbraucht keinen der 5 Bauplätze der Jahreszeit.</div></div></div><div class="glos-icon-row"><img src="icon-neighbor.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Nachbargebäude</div><div class="glos-def">Direkt angrenzend — horizontal und vertikal. Diagonal zählt nicht.</div></div></div><div class="glos-icon-row"><img src="icon-plundered.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Geplündertes Gebäude</div><div class="glos-def">Wurde überrannt. Kein VP — bleibt auf dem Feld bis zum nächsten Bauen.</div></div></div><div class="glos-icon-row"><img src="icon-horde.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Horde</div><div class="glos-def">Anzahl der Plünderer beim Überfall. Bestimmt durch den blauen Würfel.</div></div></div><div class="glos-icon-row"><img src="icon-raid-start.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Start der Plünderung</div><div class="glos-def">Außenfeld von dem der Überfall startet. Bestimmt durch den gelben Würfel.</div></div></div><div class="glos-icon-row"><img src="icon-raid-dir.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Überfallrichtung</div><div class="glos-def">Richtung der Horde. Gelber Würfel gerade = ↻, ungerade = ↺.</div></div></div><div class="glos-icon-row"><img src="icon-season-winter.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Winter</div><div class="glos-def">Jahreszeit 1. Nur Bauen, Rüsten und Wertung — kein Überfall.</div></div></div><div class="glos-icon-row"><img src="icon-season-frühling.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Frühling</div><div class="glos-def">Jahreszeit 2. Erste vollständige Runde mit Gerüchten und Überfall.</div></div></div><div class="glos-icon-row"><img src="icon-season-sommer.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Sommer</div><div class="glos-def">Überfälle werden intensiver.</div></div></div><div class="glos-icon-row"><img src="icon-season-herbst.png" onerror="this.style.opacity=.15"><div><div class="glos-term">Herbst</div><div class="glos-def">Letzte Jahreszeit. Münzen werden am Ende in Siegpunkte umgewandelt.</div></div></div>'
   +'<div class="glos-section">Begriffe</div>'
-  +'<div class="glos-simple-row"><span class="glos-t">Barriere</span><span class="glos-d">Holzwall an der Außenkante eines Randfeldes. Sind ALLE Außenkanten barrikadiert, weicht der Angriff aus.</span></div><div class="glos-simple-row"><span class="glos-t">Ritter</span><span class="glos-d">Verteidiger. +2 Verteidigung. Bleibt solange die Karte liegt.</span></div><div class="glos-simple-row"><span class="glos-t">Münze</span><span class="glos-d">Währung. Für Türme (2) und Sonderkarten. Bleibt über Jahreszeiten erhalten.</span></div><div class="glos-simple-row"><span class="glos-t">Turm</span><span class="glos-d">Permanente Befestigung (2 Münzen). Feld uneinnehmbar.</span></div><div class="glos-simple-row"><span class="glos-t">Rathaus</span><span class="glos-d">Das feste Gebäude in der Mitte. Karte darunter schieben → Level +1, +1 Münze sofort. Max. Level 6.</span></div><div class="glos-simple-row"><span class="glos-t">Rathaus-Level</span><span class="glos-d">Stufe 1–6. Bestimmt max. Sonderkarten auf dem Feld und Rabatt beim Kauf.</span></div><div class="glos-simple-row"><span class="glos-t">Rohstoffe</span><span class="glos-d">Holz, Nahrung und Glas. In der Rüstphase 2:1 in Verteidigung.</span></div><div class="glos-simple-row"><span class="glos-t">Fragile ⚡</span><span class="glos-d">Einmal-Effekt. Fragile Karten nach dem Überfall automatisch entfernt.</span></div><div class="glos-simple-row"><span class="glos-t">Decoy</span><span class="glos-d">Sondertyp der Fragile-Karten. Zieht Angreifer auf sich — der restliche Pfad bleibt verschont.</span></div><div class="glos-simple-row"><span class="glos-t">Plündern</span><span class="glos-d">Ein Gebäude das überrannt wurde. Kein VP — Funktion und Ressourcen bleiben aktiv.</span></div><div class="glos-simple-row"><span class="glos-t">Siegpunkte</span><span class="glos-d">Am Ende jeder Jahreszeit addiert. Nach 4 Jahreszeiten ist der Gesamtscore dein Ergebnis.</span></div><div class="glos-simple-row"><span class="glos-t">Anführer</span><span class="glos-d">Der rote Würfel bestimmt eine Sonderfähigkeit der Horde — immer eine Überraschung.</span></div><div class="glos-simple-row"><span class="glos-t">Überfallrichtung</span><span class="glos-d">Der gelbe Würfel. Startfeld + Laufrichtung (gerade = ↻, ungerade = ↺).</span></div><div class="glos-simple-row"><span class="glos-t">Upgrade</span><span class="glos-d">Gleiche Ressourcenkarte auf bestehendes Gebäude (max. 6). Erhöht Produktion.</span></div><div class="glos-simple-row"><span class="glos-t">Stärkende Säulen</span><span class="glos-d">Solange aktiv: alle fragilen Gebäude bekommen def 2 und werden nicht zerstört.</span></div>';},
+  +'<div class="glos-simple-row"><span class="glos-t">Barriere</span><span class="glos-d">Holzwall an der Außenkante eines Randfeldes. Sind ALLE Außenkanten barrikadiert, weicht der Angriff aus.</span></div><div class="glos-simple-row"><span class="glos-t">Ritter</span><span class="glos-d">Verteidiger. +2 Verteidigung. Bleibt solange die Karte liegt.</span></div><div class="glos-simple-row"><span class="glos-t">Münze</span><span class="glos-d">Währung. Für Türme (2) und Sonderkarten. Bleibt über Jahreszeiten erhalten.</span></div><div class="glos-simple-row"><span class="glos-t">Turm</span><span class="glos-d">Permanente Befestigung (2 Münzen). Feld uneinnehmbar.</span></div><div class="glos-simple-row"><span class="glos-t">Rathaus</span><span class="glos-d">Das feste Gebäude in der Mitte. Karte darunter schieben → Level +1, +1 Münze sofort. Max. Level 6.</span></div><div class="glos-simple-row"><span class="glos-t">Rathaus-Level</span><span class="glos-d">Stufe 1–6. Bestimmt max. Sonderkarten auf dem Feld und Rabatt beim Kauf.</span></div><div class="glos-simple-row"><span class="glos-t">Rohstoffe</span><span class="glos-d">Holz, Nahrung und Glas. In der Rüstphase 2:1 in Verteidigung.</span></div><div class="glos-simple-row"><span class="glos-t">Fragile ⚡</span><span class="glos-d">Einmal-Effekt. Fragile Karten nach dem Überfall automatisch entfernt.</span></div><div class="glos-simple-row"><span class="glos-t">Decoy</span><span class="glos-d">Sondertyp der Fragile-Karten. Zieht Angreifer auf sich — der restliche Pfad bleibt verschont.</span></div><div class="glos-simple-row"><span class="glos-t">Plündern</span><span class="glos-d">Ein Gebäude das überrannt wurde. Kein VP — Funktion und Rohstoffe bleiben aktiv.</span></div><div class="glos-simple-row"><span class="glos-t">Siegpunkte</span><span class="glos-d">Am Ende jeder Jahreszeit addiert. Nach 4 Jahreszeiten ist der Gesamtscore dein Ergebnis.</span></div><div class="glos-simple-row"><span class="glos-t">Anführer</span><span class="glos-d">Der rote Würfel bestimmt eine Sonderfähigkeit der Horde — immer eine Überraschung.</span></div><div class="glos-simple-row"><span class="glos-t">Überfallrichtung</span><span class="glos-d">Der gelbe Würfel. Startfeld + Laufrichtung (gerade = ↻, ungerade = ↺).</span></div><div class="glos-simple-row"><span class="glos-t">Upgrade</span><span class="glos-d">Gleiche Rohstoffekarte auf bestehendes Gebäude (max. 6). Erhöht Produktion.</span></div><div class="glos-simple-row"><span class="glos-t">Stärkende Säulen</span><span class="glos-d">Solange aktiv: alle fragilen Gebäude bekommen def 2 und werden nicht zerstört.</span></div>';},
  aside:function(a){return '';}
 },
 faq:{acc:'build',prev:'glossar',next:'koop',
  main:function(a){return '<div class="ch-label" style="color:'+a+'">Sonderfälle</div><div class="ch-title">Regelfragen</div>'
-  +'<div class="faq-row" data-faq="1"><div class="faq-q">Produzieren geplünderte Gebäude?</div><div class="faq-a">Ja. Nur Siegpunkte gehen verloren. Ressourcen und alle Fähigkeiten bleiben vollständig aktiv.</div></div>'
+  +'<div class="faq-row" data-faq="1"><div class="faq-q">Produzieren geplünderte Gebäude?</div><div class="faq-a">Ja. Nur Siegpunkte gehen verloren. Rohstoffe und alle Fähigkeiten bleiben vollständig aktiv.</div></div>'
   +'<div class="faq-row" data-faq="1"><div class="faq-q">Wann zählen Münzen als VP?</div><div class="faq-a">Nur im Herbst, am Ende der Wertungsphase.</div></div>'
   +'<div class="faq-row" data-faq="1"><div class="faq-q">Was zählt für den Immobilienhändler?</div><div class="faq-a">Alle Sonderkarten — aktiv und geplündert. Er zählt sich selbst mit.</div></div>'
   +'<div class="faq-row" data-faq="1"><div class="faq-q">Alle Startfelder barrikadiert?</div><div class="faq-a">Angriff beginnt am nächsten ungeschützten Feld in Laufrichtung.</div></div>'
@@ -1459,7 +1455,7 @@ koop:{acc:'koop',prev:'faq',next:'solo',
  main:function(a){return '<div class="ch-label" style="color:'+a+'">Spielvariante</div><div class="ch-title">Koop-Variante</div>'
   +'<p style="font-style:italic;color:#506878;border-left:2px solid '+a+';padding:6px 12px">Alle gegen die Horde. Drei Säulen: Eskalationsleiter · geteilte Städte · Verborgenheits-Tokens</p>'
   +'<p><strong>Geteilte Städte:</strong> Jede:r betreut nicht eine eigene, sondern <strong>zwei halbe Städte</strong>. Du teilst eine Stadt mit dem linken Nachbarn und eine mit dem rechten. Mit jeder Karte entscheidest du: Baust du sie in die linke oder rechte Stadt? Absprache ist alles.</p>'
-  +'<p><strong>Ressourcen</strong> fließen in einen gemeinsamen Pool. Ein Würfelwurf gilt für alle Siedlungen gleichzeitig.</p>'
+  +'<p><strong>Rohstoffe</strong> fließen in einen gemeinsamen Pool. Ein Würfelwurf gilt für alle Siedlungen gleichzeitig.</p>'
   +'<div class="note"><strong>Verborgenheits-Tokens:</strong> Fällt eine Siedlung auf 0 VP → Token auf eine Würfelfarbe. Alle 3 Farben verborgen = die Horde ist unaufhaltsam. Sofortiges Spielende.</div>'
   +'<p><strong>Spielziel:</strong> Mehr Gesamtpunkte beschützen als die Horde stiehlt. Gemeinsam gewinnen oder gemeinsam verlieren.</p>'
   +'<table class="tbl" style="margin-top:10px"><thead style="background:'+a+'"><tr><th>Spielende</th><th>Normal</th><th>Schwer</th></tr></thead><tbody>'
@@ -1476,7 +1472,7 @@ solo:{acc:'score',prev:'koop',next:'kampagne',
   +'<p>Alle Regeln gelten wie im Mehrspielerspiel — mit einem Unterschied: <strong>das Drafting funktioniert anders.</strong></p>'
   +'<p><strong>Solo-Drafting:</strong> 4 Stapel à 6 Karten aufbauen. Je eine Hand aufnehmen, <strong>4 Karten ziehen, 1 spielen, 3 abwerfen</strong>. Das fünfmal wiederholen. So baut man 5 Gebäude pro Jahreszeit.</p>'
   +'<div class="note"><strong>Spielziel:</strong> Mehr Punkte beschützen als die Horde dir stiehlt. Du spielst gegen das Spiel. Tracke am Ende jeder Jahreszeit die geplünderten Punkte — wer am Ende der Herbst-Wertung mehr nicht-geplünderte Punkte hat als geplünderte, gewinnt.</div>'
-  +'<p style="margin-top:10px;font-size:.78rem;color:#506878">Kein gemeinsamer Ressourcenpool, kein Drafting mit Nachbarn — du allein planst und baust. Eine meditative, intensive Erfahrung.</p>';},
+  +'<p style="margin-top:10px;font-size:.78rem;color:#506878">Kein gemeinsamer Rohstoffepool, kein Drafting mit Nachbarn — du allein planst und baust. Eine meditative, intensive Erfahrung.</p>';},
  aside:function(a){return '';}
 },
 kampagne:{acc:'score',prev:'solo',next:'erweiterungen',
@@ -1515,9 +1511,9 @@ erweiterungen:{acc:'koop',prev:'kampagne',next:null,
   +lcard('C1','T1.png','Das Jahr des Orakels','\u00bbDie Murmeltiere lernten, die Zeichen zu lesen.\u00ab','Alle verborgenen Angriffsinformationen werden bereits <strong>vor der R\u00fcstphase</strong> aufgedeckt. Man r\u00fcstet mit vollst\u00e4ndigem Wissen.')
   +lcard('C2','T2.png','Das Jahr der rivalisierenden Siedlungen','\u00bbWas eine Siedlung verliert, gewinnt die andere.\u00ab','Gepl\u00fcnderte Punkte werden nicht vernichtet \u2014 sie gehen als Siegpunkte an den <strong>Nachbarn in Drafting-Richtung</strong>. Nur im Mehrspielerspiel aktiv.')
   +lcard('C3','T3.png','Das Jahr der \u00dcberschwemmung','\u00bbDas Tal stand unter Wasser. Die s\u00fcdlichen Felder versanken.\u00ab','Die drei s\u00fcdlichen Felder (<strong>S, SO, SW</strong>) k\u00f6nnen nicht bebaut werden. Die Horde zieht dar\u00fcber hinweg \u2014 jedes dieser Felder hat <strong>Verteidigung 2</strong>. Der \u00dcberfall kann nie von S\u00fcden starten.')
-  +lcard('C4','T4.png','Das Jahr der fahrenden H\u00e4ndler','\u00bbH\u00e4ndler aus dem ganzen Reich zogen durchs Tal.\u00ab','Ressourcen sind <strong>frei tauschbar: alles kostet 2:1</strong> \u2014 egal welche Ressource f\u00fcr welche Verteidigung. 2 Holz = 1 Ritter. 2 Nahrung = 1 Turm. 2 Glas = 1 Barriere.')
+  +lcard('C4','T4.png','Das Jahr der fahrenden H\u00e4ndler','\u00bbH\u00e4ndler aus dem ganzen Reich zogen durchs Tal.\u00ab','Rohstoffe sind <strong>frei tauschbar: alles kostet 2:1</strong> \u2014 egal welche Ressource f\u00fcr welche Verteidigung. 2 Holz = 1 Ritter. 2 Nahrung = 1 Turm. 2 Glas = 1 Barriere.')
   +lcard('C5','T5.png','Das Jahr der langen Schatten','\u00bbNiemand wusste, woher sie als n\u00e4chstes kommen w\u00fcrden.\u00ab','Die gelbe Karte (\uD83D\uDFE1 \u00dcberfallrichtung) bleibt bis zum \u00dcberfall verborgen, egal was die W\u00fcrfel zeigen.')
-  +lcard('C6','T6.png','Das Jahr des Wiederaufbaus','\u00bbWas niedergebrannt war, wurde st\u00e4rker neu errichtet.\u00ab','Gepl\u00fcnderte Karten produzieren in der <strong>n\u00e4chsten R\u00fcstphase doppelte Ressourcen</strong>. Ein Ansporn, Verluste hinzunehmen.')
+  +lcard('C6','T6.png','Das Jahr des Wiederaufbaus','\u00bbWas niedergebrannt war, wurde st\u00e4rker neu errichtet.\u00ab','Gepl\u00fcnderte Karten produzieren in der <strong>n\u00e4chsten R\u00fcstphase doppelte Rohstoffe</strong>. Ein Ansporn, Verluste hinzunehmen.')
   +lcard('C7','T7.png','Das Jahr der Stille','\u00bbKein Anf\u00fchrer f\u00fchrte die Horde. Aber sie kamen trotzdem.\u00ab','Der Anf\u00fchrer-Pool wird ignoriert \u2014 es gibt <strong>keinen Anf\u00fchrer</strong> in diesem Jahr.')
   +lcard('C8','T8.png','Das Jahr des Wirbelsturms','\u00bbEin Sturm fegte durchs Tal und vermischte alle Baupl\u00e4ne.\u00ab','Alle Geb\u00e4udekarten aller Jahreszeiten und Sonderkarten werden zu einem einzigen Stapel gemischt. <strong>Jede Karte kann in jeder Jahreszeit gebaut werden.</strong> Sonderkarten bleiben ans Siedlungs-Level gekoppelt.')
   +lcard('C9','T9.png','Das Jahr der Architekten','\u00bbDie Vorratskammern waren so voll, dass niemand etwas wegwerfen musste.\u00ab','Beim Drafting wird die sechste Karte <strong>nicht abgeworfen</strong> \u2014 sie darf ebenfalls gebaut oder f\u00fcrs Siedlungs-Upgrade genutzt werden.')
@@ -1548,7 +1544,7 @@ erweiterungen:{acc:'koop',prev:'kampagne',next:null,
   +'<div style="margin-top:10px;padding:12px 14px;background:#fff8ee;border:1px dashed #c8a050;border-radius:6px">'
   +'<div style="font-size:.58rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#c8a050;margin-bottom:6px">\u26a0 In Entwicklung</div>'
   +'<p style="font-size:.68rem;line-height:1.55;color:#304050">Die Entdeckung der neuen Ressource Schwarzpulver gibt dir ganz neue M\u00f6glichkeiten zur Verteidigung \u2014 aber pass auf wo du es lagerst, sonst gibt es eine explosive \u00dcberraschung.</p>'
-  +'<p style="font-size:.62rem;color:#906830;margin-top:6px;font-style:italic">11 neue Karten: neue Ressourcenkarten \u00bbSchwarzpulver\u00ab und neuer Kartentyp \u00bbalchimistisch\u00ab</p>'
+  +'<p style="font-size:.62rem;color:#906830;margin-top:6px;font-style:italic">11 neue Karten: neue Rohstoffekarten \u00bbSchwarzpulver\u00ab und neuer Kartentyp \u00bbalchimistisch\u00ab</p>'
   +'</div>';},
 
  aside:function(a){return '<div style="font-size:.68rem;color:#506070;line-height:1.7">'
