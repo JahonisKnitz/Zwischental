@@ -4308,77 +4308,91 @@ splashStartBtn.addEventListener('touchend', (e) => { e.preventDefault(); dismiss
 
 
 // ── GLOSSAR ─────────────────────────────────────────────────────────
-const GLOSSAR_ICONS = [
-  { icon: 'res-holz.png',             term: 'Holz',                   def: 'Rohstoff. Wird in der Rüstphase 1:1 in Barrieren umgewandelt.' },
-  { icon: 'res-nahrung.png',          term: 'Nahrung',                def: 'Rohstoff. Wird in der Rüstphase 1:1 in Ritter umgewandelt.' },
-  { icon: 'res-glas.png',             term: 'Glas',                   def: 'Rohstoff. Wird in der Rüstphase 1:1 in Münzen umgewandelt.' },
-  { icon: 'def-barriere.png',         term: 'Barriere',               def: 'Holzwall an der Außenkante eines Randfeldes. Verhindert den Angriffsstart dort.' },
-  { icon: 'def-ritter.png',           term: 'Ritter',                 def: 'Verteidiger auf einem Gebäude. Erhöht die Verteidigung um +2, solange die Karte liegt.' },
-  { icon: 'res-muenze.png',           term: 'Münze',                  def: 'Währung für Türme (2 Münzen) und Sonderkarten-Bau (1 Münze pro fehlendem Rathaus-Level).' },
-  { icon: 'def-turm.png',             term: 'Turm',                   def: 'Permanente Befestigung (2 Münzen). Ein Feld mit Turm kann nie geplündert werden.' },
-  { icon: 'icon-defense.png',         term: 'Verteidigung',           def: 'Gibt an wie viele Angreifer ein Gebäude aufhalten kann, bevor es geplündert wird.' },
-  { icon: 'icon-vp.png',              term: 'Siegpunkte',             def: 'Werden am Ende jeder Jahreszeit aus allen aktiven Gebäuden addiert. 4 Jahreszeiten ergeben den Gesamtscore.' },
-  { icon: 'icon-def-sum.png',         term: 'Summe der Verteidigung', def: 'Gesamte Verteidigung aller Gebäude in der Siedlung — inklusive geplünderter Karten.' },
-  { icon: 'icon-special.png',         term: 'Sondergebäude',          def: 'Karten mit einzigartigen Fähigkeiten. Kosten beim Bau Münzen je nach fehlendem Rathaus-Level.' },
-  { icon: 'icon-fragile.png',         term: 'Fragil',                 def: 'Einmal-Effekt. Fragile Karten werden nach dem Überfall automatisch entfernt.' },
-  { icon: 'icon-rathaus-level.png',   term: 'Rathaus-Level',          def: 'Stufe 1–6. Karten mit ⚡ skalieren ihre Punkte mit dem Level. Aufwertung durch Karte unters Rathaus schieben.' },
-  { icon: 'icon-free-build.png',      term: 'Kostenlos baubar',       def: 'Diese Karte verbraucht keinen der 5 Bauplätze der Jahreszeit.' },
-  { icon: 'icon-neighbor.png',        term: 'Nachbargebäude',         def: 'Direkt angrenzende Felder — horizontal und vertikal. Diagonal zählt nicht.' },
-  { icon: 'icon-plundered.png',       term: 'Geplündertes Gebäude',   def: 'Wurde überrannt. Zählt nicht zur Wertung, bleibt aber auf dem Feld bis zum nächsten Bauen.' },
-  { icon: 'icon-raid-start.png',      term: 'Start der Plünderung',   def: 'Das Außenfeld von dem der Überfall startet — bestimmt durch den gelben Würfel.' },
-  { icon: 'icon-raid-dir.png',        term: 'Überfallrichtung',       def: 'Die Richtung in der der Überfall durch die Siedlung zieht — mit oder gegen den Uhrzeigersinn.' },
-  { icon: 'icon-season-winter.png',   term: 'Winter',                 def: 'Jahreszeit 1. Kurze Runde: nur Bauen, Rüsten und Wertung — kein Überfall.' },
-  { icon: 'icon-season-frühling.png', term: 'Frühling',               def: 'Jahreszeit 2. Erste vollständige Runde mit Gerüchten und Überfall.' },
-  { icon: 'icon-season-sommer.png',   term: 'Sommer',                 def: 'Jahreszeit 3. Überfälle werden intensiver.' },
-  { icon: 'icon-season-herbst.png',   term: 'Herbst',                 def: 'Jahreszeit 4. Letzte Runde. Münzen werden am Ende in Siegpunkte umgewandelt.' },
-];
+// Source of Truth: zwischental-anleitung.html (DE Hauptglossar)
+// Einträge werden beim ersten Öffnen einmalig gefetcht und gecacht.
 
-const GLOSSAR_ENTRIES = [
-  { term: 'Barriere',         def: 'Holzwall an der Außenkante eines Randfeldes. Sind ALLE Außenkanten barrikadiert, kann dort kein Angriff starten. Der Angriff weicht in Laufrichtung aus. Barrieren bleiben permanent.' },
-  { term: 'Ritter',           def: 'Verteidiger auf einem Gebäude. Erhöht die Verteidigung um +2. Bleibt solange die Karte liegt — wird die Karte geplündert, verschwindet auch der Ritter.' },
-  { term: 'Münze',            def: 'Währung. Für Türme (2 Münzen) und Sonderkarten (1 Münze pro fehlendem Rathaus-Level). Münzen bleiben über Jahreszeiten erhalten.' },
-  { term: 'Turm',             def: 'Permanente Befestigung (2 Münzen). Ein Feld mit Turm ist uneinnehmbar — egal wie stark der Angriff.' },
-  { term: 'Rathaus',          def: 'Das feste Gebäude in der Mitte. Kann nicht ersetzt werden. Schiebe eine Karte darunter um es aufzuwerten (max. Level 6) — du erhältst sofort eine Münze.' },
-  { term: 'Rathaus-Level',    def: 'Stufe 1–6. Karten mit ⚡ skalieren ihre Punkte mit dem Level. Je höher, desto wertvoller.' },
-  { term: 'Rohstoffe',        def: 'Holz, Nahrung und Glas. Werden in der Bauphase produziert und in der Rüstphase zu Barrieren, Rittern und Münzen umgewandelt.' },
-  { term: 'Fragile',          def: 'Einmal-Effekt. Fragile Karten werden nach dem Überfall automatisch entfernt.' },
-  { term: 'Decoy',            def: 'Sondertyp der Fragile-Karten. Zieht Angreifer auf sich — der restliche Pfad bleibt verschont. Wird danach entfernt.' },
-  { term: 'Plündern',         def: 'Ein Gebäude das überrannt wurde gilt als geplündert. Es zählt in der Wertung nicht und bleibt markiert bis zum nächsten Bauen.' },
-  { term: 'Siegpunkte',       def: 'Werden am Ende jeder Jahreszeit aus allen aktiven Gebäuden addiert. Nach 4 Jahreszeiten ist der Gesamtscore dein Ergebnis.' },
-  { term: 'Champion',         def: 'Der rote Würfel bestimmt eine Sonderfähigkeit der angreifenden Horde — immer eine Überraschung.' },
-  { term: 'Angriffsrichtung', def: 'Der gelbe Würfel. Bestimmt von welcher Seite die Horde einmarschiert. Beeinflusst welche Felder zuerst getroffen werden.' },
-  { term: 'Upgrade',          def: 'Lege weitere Karten gleichen Rohstoffs auf ein bestehendes Gebäude (max. 6). Erhöht Rohstoffproduktion und oft auch Verteidigung.' },
-  { term: 'Stärkende Säulen', def: 'Solange aktiv erhalten alle fragilen Gebäude def 2 und werden nach einem Überfall nicht zerstört.' },
-];
+let _glossarCache = null;
+
+async function loadGlossar() {
+  if (_glossarCache) return _glossarCache;
+  try {
+    const resp = await fetch('zwischental-anleitung.html');
+    const html  = await resp.text();
+    const doc   = new DOMParser().parseFromString(html, 'text/html');
+
+    // Finde den langen DE-Glossar-Inline-Block:
+    // Er steht im <script> als String-Literal. Wir parsen ihn als HTML.
+    const scripts = doc.querySelectorAll('script');
+    let glossarHtml = '';
+    for (const s of scripts) {
+      // Suche den Block, der "glos-icon-row" und "Holz" enthält (DE Hauptglossar)
+      if (s.textContent.includes('glos-icon-row') && s.textContent.includes('Holz') && s.textContent.includes('Rüstphase')) {
+        // Extrahiere den HTML-String aus dem JS (steht nach +'<div class="glos-icon-row">...')
+        const match = s.textContent.match(/\+'(<div class="glos-icon-row"><img src="res-holz[\s\S]+?)'[\n\r]/);
+        if (match) { glossarHtml = match[1]; break; }
+      }
+    }
+
+    if (!glossarHtml) throw new Error('Glossar nicht gefunden');
+
+    // Unescape JS string escapes
+    glossarHtml = glossarHtml
+      .replace(/\\u([\da-fA-F]{4})/g, (_, h) => String.fromCharCode(parseInt(h,16)))
+      .replace(/\\'/g, "'")
+      .replace(/\\"/g, '"')
+      .replace(/\\\\/g, '\\')
+      .replace(/\\n/g, '')
+      .replace(/\\t/g, '');
+
+    const tmp = document.createElement('div');
+    tmp.innerHTML = glossarHtml;
+
+    const entries = [];
+    tmp.querySelectorAll('.glos-icon-row').forEach(row => {
+      const img  = row.querySelector('img');
+      const term = row.querySelector('.glos-term');
+      const def  = row.querySelector('.glos-def');
+      if (term && def) entries.push({
+        icon: img ? img.getAttribute('src') : null,
+        term: term.textContent.trim(),
+        def:  def.textContent.trim(),
+      });
+    });
+
+    _glossarCache = entries;
+    return entries;
+  } catch(e) {
+    console.warn('Glossar-Fetch fehlgeschlagen:', e);
+    return [];
+  }
+}
 
 function openGlossar() {
   const screen = document.getElementById('glossar-screen');
   const body   = document.getElementById('glossar-body');
+  screen.classList.add('active');
 
-  const iconSection = `
-    <div class="glossar-section-title">Symbole &amp; Icons</div>
-    ${GLOSSAR_ICONS.map(e => `
+  if (body.children.length > 0) return; // already rendered
+
+  body.innerHTML = '<div style="padding:20px;text-align:center;color:#7a9aaa;font-size:.8rem">Lade Glossar…</div>';
+
+  loadGlossar().then(entries => {
+    if (!entries.length) {
+      body.innerHTML = '<div style="padding:20px;color:#b83040;font-size:.8rem">Glossar konnte nicht geladen werden.</div>';
+      return;
+    }
+    body.innerHTML = entries.map(e => `
       <div class="glossar-entry glossar-icon-entry">
         <div class="glossar-icon-wrap">
-          <img src="${e.icon}" width="48" height="48" style="object-fit:contain;display:block;" onerror="this.style.opacity='0.15'">
+          ${e.icon ? `<img src="${e.icon}" width="48" height="48" style="object-fit:contain;display:block;" onerror="this.style.opacity='.15'">` : '<div style="width:48px"></div>'}
         </div>
         <div class="glossar-icon-text">
           <div class="glossar-term">${e.term}</div>
           <div class="glossar-def">${e.def}</div>
         </div>
       </div>
-    `).join('')}
-    <div class="glossar-section-title" style="margin-top:20px;">Begriffe</div>
-    ${GLOSSAR_ENTRIES.map(e => `
-      <div class="glossar-entry">
-        <div class="glossar-term">${e.term}</div>
-        <div class="glossar-def">${e.def}</div>
-      </div>
-    `).join('')}
-  `;
-
-  body.innerHTML = iconSection;
-  screen.classList.add('active');
+    `).join('');
+  });
 }
 
 
