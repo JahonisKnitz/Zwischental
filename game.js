@@ -7,7 +7,8 @@ const G = {
   fortified: Array(9).fill(false),
   fortifiedNew: new Set(),
   boosted: Array(9).fill(false),
-  plundered: Array(9).fill(false),  // geplündert: deaktiviert, zählt nicht bei Wertung
+  plundered: Array(9).fill(false),
+  vaultCoins: Array(9).fill(0),     // auf Karte gelagerte Münzen  // geplündert: deaktiviert, zählt nicht bei Wertung
   entered: Array(9).fill(false),    // während aktuellem Überfall betreten (für fragile-Logik)
   enteredProtected: new Set(),       // betreten aber durch Schutzpatronin geschützt
   lostPoints: 0,                     // kumulierte geplünderte Punkte (für Anzeige)
@@ -236,7 +237,7 @@ const DICE_COLORS = ['yellow', 'blue', 'red'];
 
 // ── Tauschverhältnis — fest 2:1 ──
 const RATIO = 2;
-const VERSION = '1.0.1';
+const VERSION = '1.3.0';
 
 // ── Außenkanten-System für Barrieren ──────────────────────────────
 // 12 Außenkanten am 3×3-Grid: jedes Randfeld hat 1 (Kante) oder 2 (Ecke) Außenkanten.
@@ -262,13 +263,40 @@ for (let i = 0; i < 9; i++) {
   for (const e of CELL_OUTER_EDGES[i]) ALL_EDGE_KEYS.push(EDGE_KEY(i, e));
 }
 
-// Ist diese Karte barrikadiert (alle Außenkanten geschützt)?
-function isBarricaded(idx) {
-  const edges = CELL_OUTER_EDGES[idx];
-  if (!edges || edges.length === 0) return false; // Rathaus
-  if (!G.barriers || G.barriers.size === 0) return false;
-  return edges.every(e => G.barriers.has(EDGE_KEY(idx, e)));
+// 8 Innenkanten zwischen Nicht-Rathaus-Feldern (Rathaus = idx 4 ausgenommen)
+// Format: 'I{min}-{max}' z.B. 'I0-1'
+const INNER_EDGES = [
+  [0,1],[1,2],[0,3],[2,5],[3,6],[5,8],[6,7],[7,8]
+];
+const INNER_KEY = (a, b) => `I${Math.min(a,b)}-${Math.max(a,b)}`;
+
+// Für einen Schritt von Karte prev → idx: gibt Inner-Key zurück (oder null)
+function innerBarrierKey(prev, idx) {
+  if (prev === null || prev === undefined) return null;
+  const a = Math.min(prev, idx), b = Math.max(prev, idx);
+  return INNER_EDGES.some(([x,y]) => x===a && y===b) ? `I${a}-${b}` : null;
 }
+
+// Außenkante die der Horde zum Starten gegenübersteht
+// Gibt den EDGE_KEY zurück wenn eine Barriere dort liegt
+function outerBarrierKey(startIdx) {
+  const entry = OUTER_ENTRY_EDGE[startIdx];
+  if (!entry) return null;
+  const k = EDGE_KEY(startIdx, entry);
+  return G.barriers.has(k) ? k : null;
+}
+
+// Welche Außenkante ist die Eintrittskante beim Überfall?
+const OUTER_ENTRY_EDGE = {
+  0:'N', 1:'N', 2:'N',   // Überfall von Norden
+  6:'S', 7:'S', 8:'S',   // Überfall von Süden
+  // Ost/West: je nach Richtung — wird dynamisch berechnet
+};
+
+// Barrieren-System: def 1, fragil (wird nach Auslösung entfernt)
+// Alte isBarricaded-Funktion (vollständig barrikadiert) wird nicht mehr für
+// Raid-Start verwendet — Barrieren blockieren jetzt nur einzelne Angreifer.
+function isBarricaded(idx) { return false; } // Legacy: immer false
 
 // ── Überfall-Mechaniken ──────────────────────────────────────────
 // Angreifer-Anzahl Formeln (blau)
@@ -506,6 +534,8 @@ const CARD_DESC_FALLBACK = {
   destroyable:        '15 Punkte — wird bei Deaktivierung zerstört',
   pts_if_plundered:   '0 Punkte wenn aktiv · 8 Punkte wenn geplündert',
   season_pts:         'Punkte steigen je Jahreszeit: 0 · 4 · 8 · 12',
+  infinite_cap:       'Unbegrenzte Kapazität — beliebig viele Ritter, Münzen und Türme.',
+  safe_vault:         'Gelagerte Münzen auf dieser Karte können nicht geplündert werden.',
   sonder_count:       'Punkte = Anzahl Sonderkarten in der Siedlung × 2 (auch geplünderte)',
   reveal_yellow:      'Überfallrichtung ist immer einsehbar für Besitzer',
   reveal_blue:        'Angreiferzahl ist immer einsehbar für Besitzer',
@@ -555,6 +585,8 @@ function makeCardBack(card) {
       case 'sonder_count': formula = `${p.factor} Punkte pro Sonderkarte`; break;
       case 'sole_survivor': formula = `${p.value} Punkte — nur wenn als einziges nicht geplündert`; break;
       case 'season_table': formula = 'Punkte je Jahreszeit: ' + (p.table||[]).join(' / '); break;
+      case 'blue*':  formula = `${p.factor} Punkte pro Wohngebäude`; break;
+      case 'green*': formula = `${p.factor} Punkte pro Rohstoffgebäude`; break;
     }
   }
 
@@ -1071,8 +1103,11 @@ function renderDice(animate) {
 const DICE_SYMBOLS = { yellow:'🟡', blue:'🔵', red:'🔴' };
 const RES_SYMBOLS  = { holz:'🪵', nahrung:'🌾', glas:'🫙' };
 
-function calcCardPts(card) {
+function calcCardPts(card, idx) {
   if (!card || card.id === 'rathaus') return 0;
+  // Gelagerte Münzen: +2 VP pro Münze (nur wenn Karte aktiv, nicht geplündert)
+  const vaultBonus = (idx !== undefined && !G.plundered?.[idx] && G.vaultCoins?.[idx])
+    ? G.vaultCoins[idx] * 2 : 0;
   const p = card.pts;
   if (typeof p === 'number') {
     // Versicherung: aktiv = 0 Punkte (Bonus +8 wird beim Plündern direkt gesetzt)
@@ -1081,42 +1116,45 @@ function calcCardPts(card) {
     }
     // Kristallpalast: 15 wenn aktiv, 0 wenn deaktiviert
     if (card.special_mechanic === 'destroyable') {
-      const idx = G.board.indexOf(card);
-      return (idx >= 0 && G.plundered[idx]) ? 0 : p;
+      const didx = G.board.indexOf(card);
+      return (didx >= 0 && G.plundered[didx]) ? 0 : p + vaultBonus;
     }
-    return p;
+    return p + vaultBonus;
   }
-  if (!p || !p.type) return 0;
+  if (!p || !p.type) return vaultBonus;
   const dice = (G.diceRolled && G.dice) ? G.dice : { yellow:0, blue:0, red:0 };
   const prod  = calcProduction();
+  let basePts = 0;
   switch (p.type) {
-    case 'dice+':     return (dice[p.color] || 0) + (p.bonus   || 0);
-    case 'dice*':     return (dice[p.color] || 0) * (p.factor  || 1);
-    case 'dice+dice': return (dice[p.a]     || 0) + (dice[p.b] || 0);
-    case 'res*':      return (prod[p.res]   || 0) * (p.factor  || 1);
-    case 'inno*':     return (G.rathausLevel || 1) * (p.factor || 1);
-    case 'def_sum':   return G.board.reduce((s,c,i) => c && i!==4 ? s + (c.def||0) + (G.boosted[i]||0) : s, 0);
-    case 'deact*':    return G.plundered.filter(Boolean).length * (p.factor || 1);
-    case 'season*':   return (G.season + 1) * (p.factor || 1);  // Jahreszeit × Faktor
-    case 'season_table': return (p.table || [0,0,0,0])[G.season] || 0; // feste Werte je Jahreszeit
-    case 'blue*': {  // Handelszentrum: aktive Rohstoffkarten × Faktor
+    case 'dice+':     basePts = (dice[p.color] || 0) + (p.bonus   || 0); break;
+    case 'dice*':     basePts = (dice[p.color] || 0) * (p.factor  || 1); break;
+    case 'dice+dice': basePts = (dice[p.a]     || 0) + (dice[p.b] || 0); break;
+    case 'res*':      basePts = (prod[p.res]   || 0) * (p.factor  || 1); break;
+    case 'inno*':     basePts = (G.rathausLevel || 1) * (p.factor || 1); break;
+    case 'def_sum':   basePts = G.board.reduce((s,c,i) => c && i!==4 ? s + (G.fortified[i] ? 0 : (c.def||0)) + (G.boosted[i]||0) : s, 0); break;
+    case 'deact*':    basePts = G.plundered.filter(Boolean).length * (p.factor || 1); break;
+    case 'season*':   basePts = (G.season + 1) * (p.factor || 1); break;
+    case 'season_table': basePts = (p.table || [0,0,0,0])[G.season] || 0; break;
+    case 'blue*':
+    case 'green*': {
       const count = G.board.filter((c, i) =>
         c && i !== 4 && !G.plundered[i] && c.res
       ).length;
-      return count * (p.factor || 1);
+      basePts = count * (p.factor || 1); break;
     }
-    case 'dice_sum*': // Nebelbastei: (Würfel A + Würfel B) × Faktor
-      return ((dice[p.a] || 0) + (dice[p.b] || 0)) * (p.factor || 1);
-    case 'sonder_count': {                                        // Immobilienhändler: alle Sonderkarten × 2 (aktiv oder nicht)
+    case 'dice_sum*':
+      basePts = ((dice[p.a] || 0) + (dice[p.b] || 0)) * (p.factor || 1); break;
+    case 'sonder_count': {
       const count = G.board.filter((c,i) => c && i!==4 && c.cat==='special').length;
-      return count * 2;
+      basePts = count * 2; break;
     }
-    case 'sole_survivor': {                                       // Schwarze Kathedrale: 48 Pkt wenn als einzige nicht deaktiviert
+    case 'sole_survivor': {
       const activeCount = G.board.filter((c,i) => c && i!==4 && !G.plundered[i]).length;
-      return activeCount === 1 ? (p.value || 48) : 0;
+      basePts = activeCount === 1 ? (p.value || 48) : 0; break;
     }
-    default:          return 0;
+    default: basePts = 0;
   }
+  return basePts + vaultBonus;
 }
 
 function formatPts(pts) {
@@ -1133,6 +1171,7 @@ function formatPts(pts) {
     case 'season*':     return `Jahr.×${pts.factor}`;
     case 'season_table': return `${(pts.table||[]).join('/')}✦`;
     case 'blue*':       return `🔵×${pts.factor}`;
+    case 'green*':      return `🟢×${pts.factor}`;
     case 'dice_sum*':   return `(${DICE_SYMBOLS[pts.a]}+${DICE_SYMBOLS[pts.b]})×${pts.factor}`;
     case 'sonder_count':return `✦×2`;
     case 'sole_survivor':return `☩48`;
@@ -1248,10 +1287,18 @@ function renderDefenseCta() {
     {
       cls: 'cta-btn-turm',
       icon: '💰', label: 'Turm',
-      sub: G.coins >= RATIO ? `${Math.floor(G.coins / RATIO)} baubar (${G.coins} Münzen)` : 'zu wenig Münzen',
-      disabled: G.coins < RATIO,
+      sub: G.fortified.filter(Boolean).length >= 2 ? 'Limit erreicht (max. 2)' : G.coins >= RATIO ? `${Math.floor(G.coins / RATIO)} baubar (${G.coins} Münzen)` : 'zu wenig Münzen',
+      disabled: G.coins < RATIO || G.fortified.filter(Boolean).length >= 2,
       active: G.selectedTower,
       onClick: () => onTowerHandClick()
+    },
+    {
+      cls: 'cta-btn-muenze',
+      icon: '🪙', label: 'Münze lagern',
+      sub: G.coins > 0 ? `${G.coins} Münze${G.coins > 1 ? 'n' : ''} im Pool` : 'keine Münzen',
+      disabled: G.coins <= 0,
+      active: G.mode === 'coin',
+      onClick: () => onCoinClick()
     },
   ];
 
@@ -1465,6 +1512,10 @@ function canUpgrade(existingIdx, newCard) {
   const stackSize = stack ? stack.length : 1;
   if (stackSize >= 6) return false;
   if (!existing.upgrade) return false;
+  // Gleiche Stack-Gruppe (z.B. Bogenwacht): nur mit sich selbst stapelbar
+  if (existing.stack_group && newCard.stack_group) {
+    return existing.stack_group === newCard.stack_group;
+  }
   if (!existing.res || !newCard.res) return false;
   return existing.res === newCard.res;
 }
@@ -1728,7 +1779,7 @@ function renderGrid(skipGlows) {
 
       // Schildtor-Bonus gilt immer — auch wenn Schildtor oder Nachbar geplündert
       const topDiv = document.createElement('div');
-      topDiv.style.cssText = 'position:absolute; inset:0; z-index:10;';
+      topDiv.style.cssText = 'position:absolute; inset:0; z-index:10; overflow:visible;';
       const swBonus = getSchildtorBonus(i);
       const renderCard = swBonus > 0
         ? { ...G.board[i], def: (G.board[i].def || 0) + swBonus }
@@ -1742,6 +1793,25 @@ function renderGrid(skipGlows) {
         topDiv.style.cssText = 'position:absolute; inset:0; z-index:10; border-radius:6px; overflow:visible;';
       }
       cell.appendChild(topDiv);
+      // Vault-Badge direkt an Zelle (nicht an topDiv) damit kein Clipping
+      if (G.vaultCoins?.[i] > 0) {
+        const safe = G.fortified[i] || !!(G.board[i]?.safe_vault);
+        const badge = document.createElement('div');
+        badge.className = 'vault-badge-el';
+        badge.style.cssText = `
+          position:absolute; top:3px; left:3px; z-index:50;
+          background:${safe ? '#2a7a20' : '#c8900a'};
+          color:#fff; border-radius:50%;
+          min-width:24px; height:24px; padding:0 4px;
+          display:flex; align-items:center; justify-content:center;
+          font-size:11px; font-weight:700; font-family:'Cinzel',serif;
+          box-shadow:0 2px 6px rgba(0,0,0,.4);
+          border:2px solid rgba(255,255,255,.85);
+          pointer-events:none;
+        `;
+        badge.textContent = G.vaultCoins[i];
+        cell.appendChild(badge);
+      }
 
       // Click-Handler immer registrieren (für Flip + Karte platzieren)
       cell.addEventListener('pointerup', (e) => { e.preventDefault(); onCellClick(i); });
@@ -2252,9 +2322,52 @@ function renderEdgeZones(active) {
       document.getElementById('app').appendChild(zone);
     }
   }
+
+  // ── Innenkanten-Zonen ──────────────────────────────────────────
+  for (const [a, b] of INNER_EDGES) {
+    const ik = INNER_KEY(a, b);
+    if (G.barriers.has(ik)) continue; // schon belegt
+    // Karten auf beiden Seiten müssen vorhanden sein
+    if (!G.board[a] || !G.board[b]) continue;
+
+    const cellA = cells[a];
+    const cellB = cells[b];
+    if (!cellA || !cellB) continue;
+
+    const rA = cellA.getBoundingClientRect();
+    const rB = cellB.getBoundingClientRect();
+    const isH = (a % 3 !== b % 3); // horizontal: verschiedene Spalten, gleiche Zeile
+
+    // Zone in der Mitte zwischen den zwei Karten
+    let left, top, width, height;
+    if (isH) {
+      left   = rA.right  - appR.left;
+      top    = (rA.top + rB.top) / 2 - appR.top + rA.height * 0.15;
+      width  = rB.left - rA.right;
+      height = rA.height * 0.7;
+    } else {
+      left   = (rA.left + rB.left) / 2 - appR.left + rA.width * 0.15;
+      top    = rA.bottom - appR.top;
+      width  = rA.width * 0.7;
+      height = rB.top - rA.bottom;
+    }
+
+    const zone = document.createElement('div');
+    zone.className = 'edge-zone active';
+    zone.dataset.edgeKey = ik;
+    zone.style.cssText = `
+      left:${left.toFixed(1)}px; top:${top.toFixed(1)}px;
+      width:${Math.max(8, width).toFixed(1)}px; height:${Math.max(8, height).toFixed(1)}px;
+    `;
+    zone.innerHTML = '<div class="edge-inner"></div>';
+    zone.addEventListener('click', () => onInnerEdgeClick(ik, a, b));
+    zone.addEventListener('touchend', (e) => { e.preventDefault(); onInnerEdgeClick(ik, a, b); }, { passive: false });
+    document.getElementById('app').appendChild(zone);
+  }
 }
 
 function updateRathausScore() {
+  recomputeScoreFromBoard();
   const cell = document.querySelector('.cell.rathaus');
   if (cell) cell.innerHTML = makeCard(RATHAUS, 130, 182, true, G.score);
 }
@@ -2405,7 +2518,7 @@ function advancePhase() {
       G.schildwall = null;
       _aoLorePick  = null; // Neue Jahreszeit → neuer Lore-Satz
       G.score = G.board.reduce((sum, card, i) =>
-        card && i !== 4 ? sum + calcCardPts(card) : sum, 0);
+        card && i !== 4 ? sum + calcCardPts(card, i) : sum, 0);
       startSeasonParticles(nextSeason); SFX.season();
     }
 
@@ -2522,12 +2635,15 @@ function recomputeScoreFromBoard() {
   G.score = G.board.reduce((sum, card, i) => {
     if (!card || i === 4) return sum;
     if (G.plundered[i]) {
-      if (card.special_mechanic === 'pts_if_plundered') return sum + 8;
+      if (card.special_mechanic === 'pts_if_plundered') {
+        const stackSize = (G.stacks[i] && G.stacks[i].length) || 1;
+        return sum + 8 * stackSize;
+      }
       return sum;
     }
     // Zwillingsturm selbst zählt normal (keine Selbstverdopplung)
     const mult = (card.special_mechanic === 'zwillingsturm') ? 1 : getZwillingsturmMultiplier(i);
-    return sum + calcCardPts(card) * mult;
+    return sum + calcCardPts(card, i) * mult;
   }, 0);
 }
 
@@ -2541,7 +2657,7 @@ function doScoring() {
   const fragileVictims = [];
   G.board.forEach((card, i) => {
     if (!card || i === 4) return;
-    if (card.fragile && G.entered[i] && !G.enteredProtected?.has(i)) fragileVictims.push(i);
+    if (card.fragile && G.entered[i] && !G.enteredProtected?.has(i) && !G.fortified[i]) fragileVictims.push(i);
   });
 
   if (fragileVictims.length > 0) {
@@ -2615,10 +2731,14 @@ function doScoringInternal() {
   const cardPoints = G.board.map((card, i) => {
     if (!card || i === 4) return 0;
     if (G.plundered[i]) {
-      return card.special_mechanic === 'pts_if_plundered' ? 8 : 0;
+      if (card.special_mechanic === 'pts_if_plundered') {
+        const stackSize = (G.stacks[i] && G.stacks[i].length) || 1;
+        return 8 * stackSize;
+      }
+      return 0;
     }
     const mult = (card.special_mechanic === 'zwillingsturm') ? 1 : getZwillingsturmMultiplier(i);
-    return calcCardPts(card) * mult;
+    return calcCardPts(card, i) * mult;
   });
   const points = cardPoints.reduce((s, p) => s + p, 0);
   G.score = points;
@@ -2701,8 +2821,6 @@ function doScoringInternal() {
           () => headerEl.classList.remove('scoring-flash'), { once: true });
       }
       G.victoryPoints += points;
-      const coinBonus = (G.season === 3) ? G.coins : 0;
-      if (coinBonus > 0) G.victoryPoints += coinBonus;
       const vpEl = document.getElementById('vp-value');
       if (vpEl) {
         vpEl.textContent = G.victoryPoints;
@@ -2712,11 +2830,7 @@ function doScoringInternal() {
         vpEl.classList.add('flash');
         vpEl.addEventListener('animationend', () => vpEl.classList.remove('flash'), { once: true });
       }
-      if (coinBonus > 0) {
-        SFX.scoring(); showToast(`+${points} Punkte · +${coinBonus} Münzen = ${G.victoryPoints} gesamt`);
-      } else {
-        SFX.scoring(); showToast(`+${points} Siegpunkte gesichert`);
-      }
+      SFX.scoring(); showToast(`+${points} Siegpunkte gesichert`);
     }, 1000);
   }, revealDuration);
 }
@@ -2936,8 +3050,9 @@ function getSchildtorBonus(idx) {
     if (!G.board[n]) continue;
     if (!neighbors.includes(n)) continue;
     const mech = G.board[n].special_mechanic;
-    if (mech === 'neighbor_defense_2') bonus += 2;
-    else if (mech === 'neighbor_defense') bonus += 1;
+    const stackSize = (G.stacks[n] && G.stacks[n].length) || 1;
+    if (mech === 'neighbor_defense_2') bonus += 2 * stackSize;
+    else if (mech === 'neighbor_defense') bonus += 1 * stackSize;
   }
   return bonus;
 }
@@ -3081,7 +3196,13 @@ function startRaidSequence() {
 
   // Route berechnen mit effektiven Werten
   // Bogenwacht: −2 Angreifer pro Bogenwacht-Karte auf dem Board (zählt aktive UND geplünderte)
-  const bogenwachtCount = G.board.filter((c, i) => c && i !== 4 && c.special_mechanic === 'minus2_attackers').length;
+  // Bogenwacht: −2 Angreifer pro Bogenwacht-Karte auf dem Board (zählt aktive UND geplünderte)
+  // Bei gestapelten Bogenwacht-Karten kumuliert der Effekt (Stapelgröße × −2)
+  const bogenwachtCount = G.board.reduce((sum, c, i) => {
+    if (!c || i === 4 || c.special_mechanic !== 'minus2_attackers') return sum;
+    const stackSize = (G.stacks[i] && G.stacks[i].length) || 1;
+    return sum + stackSize;
+  }, 0);
   if (bogenwachtCount > 0) {
     const reduction = bogenwachtCount * 2;
     attackers = Math.max(0, attackers - reduction);
@@ -3115,21 +3236,47 @@ function startRaidSequence() {
   let spentSoFar = 0;
 
   const steps = [];
+  let prevIdx = null; // vorheriges Feld in der Route
+
   for (const idx of raidRoute) {
     if (attackers <= 0) break;
 
     const card = G.board[idx];
-    if (!card) continue; // sollte durch raidRoute-Filter nicht vorkommen, aber sicher ist sicher
+    if (!card) { prevIdx = idx; continue; }
+
+    // ── Barrieren-Check ────────────────────────────────────────────
+    // 1. Außenkante: gilt nur für die allererste Karte (prevIdx === null)
+    if (prevIdx === null) {
+      const outerKey = OUTER_ENTRY_EDGE_FOR_ROUTE(idx, effectiveClockwise);
+      if (outerKey && G.barriers.has(outerKey)) {
+        attackers = Math.max(0, attackers - 1);
+        steps.push({ type: 'barrier', key: outerKey, kind: 'outer', idx });
+        if (attackers <= 0) { prevIdx = idx; break; }
+      }
+    }
+    // 2. Innenkante: wenn wir von einer vorherigen Karte kommen
+    if (prevIdx !== null) {
+      const ik = innerBarrierKey(prevIdx, idx);
+      if (ik && G.barriers.has(ik)) {
+        attackers = Math.max(0, attackers - 1);
+        steps.push({ type: 'barrier', key: ik, kind: 'inner', idx });
+        if (attackers <= 0) { prevIdx = idx; break; }
+      }
+    }
 
     const schildwallBonus = getSchildtorBonus(idx);
-    const schutzBonus = (card.fragile && hasSchutzpatronin()) ? Math.max(0, 2 - card.def) : 0;
-    const def  = (card.def || 0) + (G.boosted[idx] || 0) + schildwallBonus + schutzBonus;
+    // Turm überschreibt Karten-def → 0 (nur Ritter-Bonus zählt noch)
+    const cardDef = G.fortified[idx] ? 0 : (card.def || 0);
+    // Schutzpatronin wirkt nur auf fragile Karten OHNE Turm
+    const schutzBonus = (card.fragile && !G.fortified[idx] && hasSchutzpatronin()) ? Math.max(0, 2 - cardDef) : 0;
+    const def  = cardDef + (G.boosted[idx] || 0) + schildwallBonus + schutzBonus;
     const hasTower = G.fortified[idx];
     const incoming = attackers;
     attackers = Math.max(0, attackers - def);
     const deactivate = incoming >= def && !hasTower;
     const blocked    = incoming >= def &&  hasTower;
     steps.push({ type: 'attack', idx, incoming, def, hasTower, deactivate, blocked, spent: Math.min(def, incoming) });
+    prevIdx = idx;
   }
 
   // Brandstifter (C9): Startkarte wurde bereits als fragil markiert im Champion-Switch.
@@ -3139,6 +3286,20 @@ function startRaidSequence() {
 
   steps.forEach((step, si) => {
     {
+      // Barrier-Schritte: kein Karten-Outline nötig
+      if (step.type === 'barrier') {
+        setTimeout(() => {
+          G.barriers.delete(step.key);
+          renderBarriers();
+          const loc = step.kind === 'outer' ? `Außenkante ${step.idx}` : `Innenkante`;
+          spawnColoredFloat(step.idx, '🪵 Barriere hält!', '#c4955a');
+          setHint(`🪵 Barriere stoppt 1 Angreifer`, true);
+          showToast('🪵 Barriere hält — 1 Angreifer gestoppt');
+        }, stepDelay);
+        stepDelay += 700;
+        return;
+      }
+
       // Outline auf Karte setzen
       setTimeout(() => setRaidActive(step.idx), stepDelay - 150 < 0 ? 0 : stepDelay - 150);
 
@@ -3179,6 +3340,13 @@ function startRaidSequence() {
           } else {
             G.plundered[idx] = true;
             G.boosted[idx] = 0;
+
+            // Vault-Münzen verloren wenn nicht geschützt
+            if (G.vaultCoins[idx] > 0 && !(G.fortified[idx] || G.board[idx]?.safe_vault)) {
+              const lost = G.vaultCoins[idx];
+              G.vaultCoins[idx] = 0;
+              spawnColoredFloat(idx, `−${lost} 💰 Versteck geplündert!`, '#c04040');
+            }
 
             // Flip via animated display-swap
             const flipEl = document.querySelectorAll('.cell')[idx]?.querySelector('.card-flip');
@@ -3318,6 +3486,7 @@ function restartGame() {
   G.fortifiedNew  = new Set();
   G.boosted       = Array(9).fill(false);
   G.plundered     = Array(9).fill(false);
+  G.vaultCoins    = Array(9).fill(0);
   G.entered = Array(9).fill(false); G.enteredProtected = new Set();
   G.barriers      = new Set();
   G.hand          = [];
@@ -3532,6 +3701,7 @@ function onBarrierHandClick() {
 function onTowerHandClick() {
   if (!isPhaseAllowed('tower')) { showToast('Türme nur in der Verteidigungs-Phase'); return; }
   if (G.coins < RATIO) { showToast(`Nicht genug Münzen (${RATIO} benötigt)`); return; }
+  if (G.fortified.filter(Boolean).length >= 2) { showToast('Maximal 2 Türme pro Siedlung'); return; }
   if (G.selectedTower) { clearSelection(); setHint('Karte wählen'); renderHand(); renderDefenseCta();
    renderGrid(); renderDefenseCta(); return; }
   clearSelection();
@@ -3540,6 +3710,37 @@ function onTowerHandClick() {
   setHint(`Tippe ein Gebäude zum Befestigen (−${RATIO} Münzen)`, true);
   renderHand(); renderDefenseCta();
    renderGrid(true); renderDefenseCta();
+}
+
+function onCoinClick() {
+  if (!isPhaseAllowed('tower')) { showToast('Münzen nur in der Verteidigungs-Phase lagern'); return; }
+  if (G.coins <= 0) { showToast('Keine Münzen im Pool'); return; }
+  if (G.mode === 'coin') { clearSelection(); G.mode = 'card'; setHint('Karte wählen'); renderHand(); renderDefenseCta(); renderGrid(); return; }
+  clearSelection();
+  G.mode = 'coin';
+  setHint('Tippe ein Gebäude zum Lagern einer Münze (+2 VP wenn nicht geplündert)', true);
+  renderHand(); renderDefenseCta(); renderGrid(true);
+}
+
+function placeCoin(idx) {
+  if (!G.board[idx] || G.coins <= 0) return;
+  if (freeCapacity(idx) < 1) { capToast(idx); return; }
+  G.vaultCoins[idx] = (G.vaultCoins[idx] || 0) + 1;
+  G.coins -= 1;
+  updateVaultBadge(idx);
+  renderResources();
+  renderDefenseCta();
+  updateRathausScore();
+  // Bleibe im Coin-Modus solange noch Münzen da sind
+  if (G.coins <= 0) {
+    clearSelection();
+    G.mode = 'card';
+    setHint('Karte wählen');
+    renderHand(); renderDefenseCta(); renderGrid();
+  } else {
+    setHint(`Tippe ein Gebäude zum Lagern (${G.coins} Münze${G.coins > 1 ? 'n' : ''} übrig)`, true);
+    renderGrid(true);
+  }
 }
 
 function onKnightClick() {
@@ -3567,6 +3768,10 @@ function onCellClick(idx) {
     if (!G.board[idx] || idx === 4) { showToast('Nur auf Gebäude platzierbar'); return; }
     placeKnight(idx); return;
   }
+  if (G.mode === 'coin') {
+    if (!G.board[idx] || idx === 4) { showToast('Nur auf Gebäude platzierbar'); return; }
+    placeCoin(idx); return;
+  }
 
   // ── Karte muss ausgewählt sein ────────────────────────────────
   if (G.selectedHandIdx < 0) {
@@ -3575,16 +3780,22 @@ function onCellClick(idx) {
       const cells = document.getElementById('grid').querySelectorAll('.cell');
       const flipEl = cells[idx]?.querySelector('.card-flip');
       if (flipEl) {
-        // Clear any existing auto-flip timer first
         if (flipEl._autoFlipTimer) {
           clearTimeout(flipEl._autoFlipTimer);
           flipEl._autoFlipTimer = null;
         }
         if (flipEl.dataset.flipped === '1') {
-          // Already flipped — unflip immediately
           unflipCard(flipEl);
         } else {
-          // Flip forward, then auto-unflip after 2s
+          // Alle anderen umgedrehten Karten zuerst zurückdrehen
+          cells.forEach((c, ci) => {
+            if (ci === idx) return;
+            const otherFlip = c.querySelector('.card-flip[data-flipped="1"]');
+            if (otherFlip) {
+              if (otherFlip._autoFlipTimer) { clearTimeout(otherFlip._autoFlipTimer); otherFlip._autoFlipTimer = null; }
+              unflipCard(otherFlip);
+            }
+          });
           flipCard(flipEl);
           flipEl._autoFlipTimer = setTimeout(() => {
             unflipCard(flipEl);
@@ -3820,7 +4031,14 @@ function onEdgeClick(key, cellIdx, edge) {
   if (!G.selectedBarrier) return;
   G.selectedBarrierKey = key;
   document.querySelectorAll('.edge-zone').forEach(z => z.classList.remove('target'));
-  placeBarrier(key, cellIdx, edge);
+  placeBarrier(key);
+}
+
+function onInnerEdgeClick(key, a, b) {
+  if (!G.selectedBarrier) return;
+  G.selectedBarrierKey = key;
+  document.querySelectorAll('.edge-zone').forEach(z => z.classList.remove('target'));
+  placeBarrier(key);
 }
 
 function flashChip(key) {
@@ -3844,6 +4062,8 @@ function flashChip(key) {
 
 function placeTower(idx) {
   if (G.coins < RATIO || !G.board[idx] || G.fortified[idx]) return;
+  if (G.fortified.filter(Boolean).length >= 2) { showToast('Maximal 2 Türme pro Siedlung'); clearSelection(); G.mode = 'card'; renderGrid(); return; }
+  if (freeCapacity(idx) < 1) { capToast(idx); return; }
   G.coins -= RATIO;
   G.fortified[idx] = true;
   G.fortifiedNew.add(idx);
@@ -3862,6 +4082,7 @@ function placeTower(idx) {
 
 function placeKnight(idx) {
   if (G.knights <= 0 || !G.board[idx]) return;
+  if (freeCapacity(idx) < 1) { capToast(idx); return; }
   G.boosted[idx] = (G.boosted[idx] || 0) + 2;
   G.knights--;
   clearSelection();
@@ -3874,7 +4095,7 @@ function placeKnight(idx) {
   showToast('Verteidigung +2');
 }
 
-function placeBarrier(key, cellIdx, edge) {
+function placeBarrier(key) {
   G.barriers.add(key);
   G.barrierHand--;
 
@@ -3893,13 +4114,8 @@ function placeBarrier(key, cellIdx, edge) {
     }
   }, 30);
 
-  const barricaded = isBarricaded(cellIdx);
   setHint('Karte wählen');
-  if (barricaded) {
-    showToast(`🛡 Feld ${cellIdx} vollständig barrikadiert!`);
-  } else {
-    showToast('🪵 Barriere errichtet!');
-  }
+  showToast('🪵 Barriere errichtet!');
 }
 
 // ── Farbiger Burst — für Turm (violett) und Ritter (grün) ────────
@@ -4141,8 +4357,22 @@ function renderAttackOrigin() {
   if (cells[startCell]) cells[startCell].classList.add('attack-origin');
 }
 
+// Gibt den Außenkanten-Key zurück, der beim Einmarsch in die erste Karte relevant ist
+// (die Kante durch die die Horde die Siedlung betritt)
+function OUTER_ENTRY_EDGE_FOR_ROUTE(firstIdx, clockwise) {
+  // Die Eintrittskante ist die Außenkante die dem Überfall-Startpunkt zugewandt ist
+  const outerEdges = CELL_OUTER_EDGES[firstIdx];
+  if (!outerEdges || outerEdges.length === 0) return null;
+  // Nimm die erste verfügbare Außenkante dieser Startkarte
+  for (const e of outerEdges) {
+    const k = EDGE_KEY(firstIdx, e);
+    if (G.barriers.has(k)) return k;
+  }
+  return null;
+}
+
+
 function renderBarriers() {
-  // Alte Barrieren entfernen
   document.querySelectorAll('.edge-barrier').forEach(e => e.remove());
   if (!G.barriers || G.barriers.size === 0) return;
 
@@ -4150,21 +4380,46 @@ function renderBarriers() {
   const cells  = gridEl.querySelectorAll('.cell');
 
   G.barriers.forEach(key => {
-    const [idxStr, edge] = key.split('-');
+    // ── Innenkante (I0-1 etc.) ──────────────────────────────────
+    if (key.startsWith('I')) {
+      const parts = key.slice(1).split('-');
+      const a = Number(parts[0]), b = Number(parts[1]);
+      const cellA = cells[a], cellB = cells[b];
+      if (!cellA || !cellB) return;
+      const isH = (a % 3 !== b % 3); // horizontal: gleiche Zeile, verschiedene Spalten
+      const el = document.createElement('div');
+      el.className = 'edge-barrier';
+      el.dataset.edgeKey = key;
+      // Positioniere in der Mitte zwischen den beiden Zellen (relativ zu cellA)
+      const colA = a % 3, rowA = Math.floor(a / 3);
+      let posCSS;
+      if (isH) {
+        // Nebeneinander: Mitte rechts von cellA
+        posCSS = `top:50%; right:0; transform:translate(50%,-50%);`;
+      } else {
+        // Übereinander: Mitte unten von cellA
+        posCSS = `left:50%; bottom:0; transform:translate(-50%,50%);`;
+      }
+      el.style.cssText = `position:absolute; pointer-events:none; z-index:49; ${posCSS}`;
+      el.innerHTML = makeBarrierSVG(!isH);
+      cellA.appendChild(el);
+      return;
+    }
+
+    // ── Außenkante (bestehend) ──────────────────────────────────
+    const dashIdx = key.lastIndexOf('-');
+    const idxStr = key.slice(0, dashIdx);
+    const edge   = key.slice(dashIdx + 1);
     const idx  = Number(idxStr);
     const cell = cells[idx];
     if (!cell) return;
     if (!CELL_OUTER_EDGES[idx]?.includes(edge)) return;
 
     const isH = (edge === 'N' || edge === 'S');
-
-    // Positionierung relativ zur Zelle (50% = Mitte der jeweiligen Kante)
-    // Zelle hat overflow:visible, daher ragt die Barriere über den Rand hinaus
     const el = document.createElement('div');
     el.className = 'edge-barrier';
     el.dataset.edgeKey = key;
 
-    // CSS-Positionierung: Mitte der Kante, dann mit translate zentrieren
     let posCSS = '';
     switch (edge) {
       case 'N': posCSS = `left:50%; top:0;    transform:translate(-50%, calc(-50% - ${EDGE_OFFSET}px));`; break;
@@ -4252,8 +4507,14 @@ function renderRulesPage(idx) {
     `<div class="rules-pip${i === idx ? ' active' : ''}"></div>`
   ).join('');
   const iconEl = document.getElementById('rules-icon');
-  if (['I','II','III','IV','V'].includes(page.icon)) {
+  const isRoman = ['I','II','III','IV','V'].includes(page.icon);
+  const isImg   = /\.(png|jpg|webp|svg)/i.test(page.icon);
+  if (isRoman) {
     iconEl.innerHTML = `<span style="font-family:'Pirata One',cursive;font-size:2.4rem;color:#d67617;line-height:1;">${page.icon}</span>`;
+  } else if (isImg) {
+    iconEl.innerHTML = page.icon.trim().split(/\s+/).map(src =>
+      `<img src="${src}" style="height:2.2rem;object-fit:contain;margin:0 2px;" onerror="this.style.opacity='.3'">`
+    ).join('');
   } else {
     iconEl.textContent = page.icon;
   }
@@ -4262,6 +4523,7 @@ function renderRulesPage(idx) {
     <div>
       <div class="rules-section-heading">${s.heading}</div>
       <div class="rules-section-text">${s.text}</div>
+      ${s.image ? `<img src="${s.image}" alt="" style="max-width:100%;border-radius:6px;margin-top:8px;display:block;">` : ''}
     </div>
   `).join('');
   const back = document.getElementById('rules-back');
@@ -4307,8 +4569,85 @@ splashStartBtn.addEventListener('click', dismissSplash);
 splashStartBtn.addEventListener('touchend', (e) => { e.preventDefault(); dismissSplash(); }, {passive:false});
 
 
-// ── GLOSSAR ─────────────────────────────────────────────────────────
-// Source of Truth: zwischental-anleitung.html (DE Hauptglossar)
+// ── VAULT — Münzen lagern ─────────────────────────────────────────────────────
+// Pool-Limit = Siedlungs-Level. Überschüssige Münzen müssen auf Karten gelagert
+// werden. Gelagerte Münzen bringen Zinsen (+1 pro Karte mit ≥1 Münze) bei jeder
+// Jahreszeitenwertung und zählen im Herbst als 2 VP. Schutz durch Turm oder
+// safe_vault-Flag auf der Karte.
+
+// ── KAPAZITÄTSSYSTEM ─────────────────────────────────────────────────────────
+// Kapazität = max. Anzahl Upgrades (Ritter + Münzen + Turm) auf einer Karte
+// Definiert per Karte in cards.js als card.cap (0–5)
+// Z2 (Lagerfeste): gibt Nachbarkarten +2 Kapazität
+
+const GRID_NEIGHBORS = {
+  0:[1,3], 1:[0,2], 2:[1,5], 3:[0,6], 4:[], 5:[2,8], 6:[3,7], 7:[6,8], 8:[5,7]
+};
+
+function getCapBoost(idx) {
+  // Prüfe ob ein Nachbar die Kapazität erhöht (cap_boost_neighbors Mechanik)
+  const neighbors = GRID_NEIGHBORS[idx] || [];
+  let boost = 0;
+  for (const ni of neighbors) {
+    const nc = G.board[ni];
+    if (nc && !G.plundered[ni] && nc.special_mechanic === 'cap_boost_neighbors') {
+      boost += 2;
+    }
+  }
+  return boost;
+}
+
+function usedCapacity(idx) {
+  const knights = Math.floor((G.boosted[idx] || 0) / 2); // je +2 Def = 1 Ritter
+  const coins   = G.vaultCoins?.[idx] || 0;
+  const tower   = G.fortified[idx] ? 1 : 0;
+  return knights + coins + tower;
+}
+
+function freeCapacity(idx) {
+  const card = G.board[idx];
+  if (!card) return 0;
+  if (card.infinite_cap) return 99;
+  const cap = (card.cap ?? 1) + getCapBoost(idx);
+  return Math.max(0, cap - usedCapacity(idx));
+}
+
+function capToast(idx) {
+  const card = G.board[idx];
+  if (card?.infinite_cap) return; // sollte nie vorkommen
+  const cap = (card?.cap ?? 1) + getCapBoost(idx);
+  showToast(`Kapazität voll (max. ${cap} Upgrade${cap !== 1 ? 's' : ''})`);
+}
+
+// Badge direkt im DOM aktualisieren ohne renderGrid()
+function updateVaultBadge(idx) {
+  const cells = document.getElementById('grid')?.querySelectorAll('.cell');
+  if (!cells) return;
+  const cell = cells[idx];
+  if (!cell) return;
+  // Bestehendes Badge entfernen
+  cell.querySelectorAll('.vault-badge-el').forEach(e => e.remove());
+  const n = G.vaultCoins[idx] || 0;
+  const safe = G.fortified[idx] || !!(G.board[idx]?.safe_vault);
+  const col  = safe ? '#2a7a20' : '#c8900a';
+  if (n > 0) {
+    const badge = document.createElement('div');
+    badge.className = 'vault-badge-el';
+    badge.style.cssText = `
+      position:absolute; top:3px; left:3px; z-index:50;
+      background:${col};
+      color:#fff; border-radius:50%;
+      min-width:24px; height:24px; padding:0 4px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:11px; font-weight:700; font-family:'Cinzel',serif;
+      box-shadow:0 2px 6px rgba(0,0,0,.4);
+      border:2px solid rgba(255,255,255,.85);
+      pointer-events:none;
+    `;
+    badge.textContent = n;
+    cell.appendChild(badge);
+  }
+}
 // Einträge werden beim ersten Öffnen einmalig gefetcht und gecacht.
 
 let _glossarCache = null;
