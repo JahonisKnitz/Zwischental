@@ -884,8 +884,10 @@ header {
 
 .fortify-overlay {
   position: absolute;
-  top: 14%;        /* näher an der Oberkante — halbierte Distanz */
-  right: 6%;
+  /* Schild-Mittelpunkt: x = 27% der Kartenbreite, y = 65% der Kartenhöhe */
+  left: 27%;
+  top:  65%;
+  transform: translate(-50%, -50%);
   pointer-events: none;
   z-index: 10;
 }

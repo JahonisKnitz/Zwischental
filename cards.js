@@ -226,7 +226,9 @@ function makeCard(card, w, h, isRathaus, score, fortified, boosted, plundered, a
   ${imgTag}
 
   <!-- VERTEIDIGUNG SCHILD — über dem PNG -->
-  ${makeShield(fortified ? 0 : card.def, w, h, isSpecial ? SEASON_COLORS[card.cat] : null, boosted, card.fragile && !fortified)}
+  ${fortified
+    ? ''
+    : makeShield(card.def, w, h, isSpecial ? SEASON_COLORS[card.cat] : null, boosted, card.fragile)}
 
   <!-- SCHIMMER -->
   <rect width="${w}" height="${h}" rx="3"
@@ -368,6 +370,63 @@ function makeLightningSVG(size, color) {
           stroke-linejoin="round"/>
   </svg>`;
 }
+// Turm-Token: ersetzt das Schild auf befestigten Karten vollständig
+// Koordinaten exakt aus makeShield übernommen damit der Turm die gleiche
+// Fläche belegt wie das Schild
+function makeTowerToken(w, h, boosted) {
+  // Identisch mit makeShield-Koordinaten
+  const x  = w * 0.270;
+  const hw = w * 0.080;
+  const y0 = h * 0.580;
+  const y2 = y0 + h * 0.140;
+  const midY = (y0 + y2) / 2 + h * 0.008;
+
+  // Turm-Körper: füllt den Schild-Bereich aus
+  const tx  = x - hw * 0.95;  // linke Kante
+  const tw  = hw * 1.90;       // Breite
+  const th  = y2 - y0;         // Höhe (= Schildhöhe)
+  const mh  = th * 0.26;       // Zinnen-Höhe
+  const mw  = tw / 5.2;        // Zinnen-Breite
+  const mg  = mw * 0.55;       // Lücke zwischen Zinnen
+
+  // Drei Zinnen oben auf dem Turm
+  const merlons = [-tw*0.28, 0, tw*0.28].map(dx => {
+    const mx = x + dx - mw/2;
+    return `<rect x="${mx.toFixed(1)}" y="${(y0 - mh).toFixed(1)}"
+      width="${mw.toFixed(1)}" height="${mh.toFixed(1)}"
+      rx="0.5" fill="#5a2888"/>`;
+  }).join('');
+
+  // Tor (kleiner Bogen in Turmmitte)
+  const gateW = tw * 0.30, gateH = th * 0.32;
+  const gx = x - gateW/2, gy = y2 - gateH;
+
+  return `
+  <!-- Turm-Körper -->
+  <rect x="${tx.toFixed(1)}" y="${y0.toFixed(1)}"
+        width="${tw.toFixed(1)}" height="${th.toFixed(1)}"
+        rx="1" fill="#3a1a60" opacity="0.93"/>
+  <!-- Helles oberes Drittel -->
+  <rect x="${tx.toFixed(1)}" y="${y0.toFixed(1)}"
+        width="${tw.toFixed(1)}" height="${(th*0.28).toFixed(1)}"
+        rx="1" fill="#6a38a8" opacity="0.60"/>
+  <!-- Tor-Bogen -->
+  <rect x="${gx.toFixed(1)}" y="${gy.toFixed(1)}"
+        width="${gateW.toFixed(1)}" height="${(gateH*0.6).toFixed(1)}"
+        rx="${(gateW*0.5).toFixed(1)}" fill="#1a0a30" opacity="0.85"/>
+  <!-- Drei Zinnen -->
+  ${merlons}
+  <!-- Kontur -->
+  <rect x="${tx.toFixed(1)}" y="${y0.toFixed(1)}"
+        width="${tw.toFixed(1)}" height="${th.toFixed(1)}"
+        rx="1" fill="none" stroke="#8a58c8" stroke-width="0.8"/>
+  <!-- Ritter-Bonus falls vorhanden -->
+  ${(boosted||0) > 0 ? `
+  <text x="${x}" y="${midY}" text-anchor="middle" dominant-baseline="middle"
+    font-family="'Cinzel',serif" font-size="${h<100 ? 7 : 9}" font-weight="700"
+    fill="#3db870">${boosted}</text>` : ''}`;
+}
+
 function makeShield(def, w, h, color, boosted, fragile) {
   const x  = w * 0.270;
   const hw = w * 0.080;
