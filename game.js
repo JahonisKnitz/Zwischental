@@ -237,7 +237,7 @@ const DICE_COLORS = ['yellow', 'blue', 'red'];
 
 // ── Tauschverhältnis — fest 2:1 ──
 const RATIO = 2;
-const VERSION = '1.3.0';
+const VERSION = '1.3.2';
 
 // ── Außenkanten-System für Barrieren ──────────────────────────────
 // 12 Außenkanten am 3×3-Grid: jedes Randfeld hat 1 (Kante) oder 2 (Ecke) Außenkanten.
@@ -3334,12 +3334,11 @@ function startRaidSequence() {
             && G.stacks[idx] && G.stacks[idx].length > 1;
 
           if (isDecoyWithUnderlying) {
-            G.boosted[idx] = 0;
             spawnColoredFloat(idx, '🎭 Abgelenkt!', '#c8940a');
             renderGrid();
           } else {
             G.plundered[idx] = true;
-            G.boosted[idx] = 0;
+            // G.boosted bleibt — Ritter sind permanent und verschwinden nicht bei Plünderung
 
             // Vault-Münzen verloren wenn nicht geschützt
             if (G.vaultCoins[idx] > 0 && !(G.fortified[idx] || G.board[idx]?.safe_vault)) {
@@ -3923,8 +3922,13 @@ function commitPlacement() {
     G.stacks[targetIdx] = [{ ...newCard }];
     G.fortified[targetIdx] = false;
     G.boosted[targetIdx]   = false;
+    if (G.vaultCoins?.[targetIdx] > 0) {
+      G.vaultCoins[targetIdx] = 0;
+      showToast('Gebäude abgerissen — Münzen verloren');
+    } else {
+      showToast('Gebäude abgerissen und neu gebaut');
+    }
     SFX.discard();
-    showToast('Gebäude abgerissen und neu gebaut');
   }
 
   // Score vollständig neu berechnen (erfasst alle abhängigen Karten: def_sum, sonder_count, res*, blue*, sole_survivor, inno*)
