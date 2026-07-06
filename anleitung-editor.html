@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Zwischental — Spielanleitung</title>
+<link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Cinzel:wght@400;700&family=Cardo:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --blue:#1a4060; --gold:#e8c840; --ink:#1a2530;
+  --pm: 10mm;    /* page margin outer */
+  --cg: 5mm;     /* column gap (half) */
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #cdd5d8; font-family: 'Cardo', Georgia, serif; }
+
+/* ── TOOLBAR ─────────────────────── */
+#toolbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: var(--blue); color: #fff;
+  padding: 8px 14px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  box-shadow: 0 2px 8px rgba(0,0,0,.3);
+}
+#toolbar h1 { font-size: 16px; font-weight: bold; flex: 1; }
+button { font-family: inherit; cursor: pointer; border: none; border-radius: 6px; padding: 6px 12px; font-size: 13px; font-weight: 700; }
+.tbtn-gold  { background: var(--gold); color: #1a1200; }
+.tbtn-white { background: rgba(255,255,255,.15); color: #fff; }
+.tbtn-green { background: #2a6a30; color: #fff; }
+.tbtn-sep   { width: 1px; height: 22px; background: rgba(255,255,255,.2); }
+button:hover { opacity: .82; }
+
+/* pickers */
+.picker {
+  display: none; position: fixed; top: 50px; left: 50%; transform: translateX(-50%);
+  background: #fff; border-radius: 10px; box-shadow: 0 8px 32px rgba(0,0,0,.25);
+  padding: 14px; z-index: 200; width: 340px;
+}
+.picker h3 { font-size: 13px; margin-bottom: 8px; color: var(--blue); }
+.picker input, .picker select {
+  width: 100%; padding: 6px 9px; border: 1.5px solid #ddd; border-radius: 6px;
+  font-family: inherit; font-size: 13px; margin-bottom: 8px;
+}
+.pbtns { display: flex; gap: 8px; }
+#card-grid { display: flex; flex-wrap: wrap; gap: 5px; max-height: 220px; overflow-y: auto; margin-bottom: 8px; }
+.cthumb {
+  cursor: pointer; border: 1.5px solid #ddd; border-radius: 4px;
+  padding: 2px; text-align: center; font-size: 8px; color: #506878;
+}
+.cthumb:hover { border-color: var(--blue); }
+
+/* ── WORKSPACE ───────────────────── */
+#workspace {
+  padding-top: 52px; padding-bottom: 32px;
+  display: flex; flex-direction: column; align-items: center; gap: 18px;
+}
+.page-label {
+  font-size: 11px; color: #7a8a96; font-family: 'Cinzel', serif;
+  align-self: flex-start;
+  margin-left: max(16px, calc((100vw - 297mm)/2));
+}
+
+/* ═══════════════════════════
+   A4 LANDSCAPE PAGE
+   2 A5 halves × 2 columns = 4 columns total
+   ALL widths are EXPLICIT — no CSS multicol
+═══════════════════════════ */
+.page {
+  width: 297mm;
+  height: 210mm;
+  background: #fff;
+  display: flex;         /* row: two A5 halves */
+  box-shadow: 0 4px 24px rgba(0,0,0,.18);
+  overflow: hidden;
+  font-size: 8.6pt;
+  line-height: 1.46;
+  color: var(--ink);
+}
+
+/* each A5 half = two equal columns */
+.a5 {
+  width: 148.5mm;       /* exactly half of 297mm */
+  height: 210mm;
+  display: flex;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.a5:first-child {
+  border-right: 0.8pt solid #b8b0a0;
+}
+
+/* individual column */
+.col {
+  width: 74.25mm;        /* exactly half of 148.5mm */
+  height: 210mm;
+  overflow: hidden;
+  padding: var(--pm) var(--cg);
+  outline: none;
+  flex-shrink: 0;
+}
+/* outer padding on edge columns */
+.a5:first-child .col:first-child  { padding-left:  var(--pm); }
+.a5:last-child  .col:last-child   { padding-right: var(--pm); }
+/* inner column separator */
+.a5 .col:first-child { border-right: 0.5pt solid #d8d0c0; }
+
+/* ── TYPOGRAPHY ──────────────────── */
+.rl-title {
+  font-family: 'Pirata One', cursive;
+  font-size: 21pt; color: var(--blue); line-height: 1.05;
+  margin-bottom: 1mm;
+}
+.rl-subtitle {
+  font-family: 'Cinzel', serif; font-size: 6.5pt; color: #8a7050;
+  letter-spacing: .18em; text-transform: uppercase; margin-bottom: 2.5mm;
+}
+.rl-h2 {
+  font-family: 'Cinzel', serif; font-size: 9pt; font-weight: 700;
+  color: var(--blue); margin-top: 2.5mm; margin-bottom: 0.8mm;
+}
+.rl-h3 {
+  font-family: 'Cinzel', serif; font-size: 7.5pt; font-weight: 700;
+  color: #4a6070; margin-top: 1.5mm; margin-bottom: 0.4mm;
+}
+.rl-p  { margin-bottom: 1mm; }
+.rl-li { padding-left: 2.5mm; text-indent: -2.5mm; margin-bottom: 0.6mm; }
+.rl-li::before { content: '·  '; color: var(--gold); }
+.rl-note {
+  background: #f4f0e8; border-left: 2pt solid var(--gold);
+  padding: 1.5mm 2mm; margin: 1.5mm 0; font-size: 7.5pt;
+}
+.rl-title-graphic {
+  width: 100%; height: 20mm;
+  background: linear-gradient(135deg,#1a4060 0%,#2d7aaa 60%,#5aa0c8 100%);
+  border-radius: 1.5mm;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 2.5mm;
+}
+.rl-title-graphic span {
+  font-family: 'Pirata One', cursive; font-size: 9pt;
+  color: rgba(255,255,255,.4); letter-spacing: .3em;
+}
+.rl-rule { border: none; border-top: 0.5pt solid #d8d0c0; margin: 2mm 0; }
+.rl-phase-table { width: 100%; border-collapse: collapse; margin: 1mm 0; }
+.rl-phase-table td { padding: 0.8mm 1.5mm; border-bottom: 0.5pt solid #e0d8cc; font-size: 7.5pt; vertical-align: top; }
+.rl-phase-table td:first-child { font-family: 'Cinzel', serif; font-weight: 700; color: var(--blue); white-space: nowrap; width: 18mm; }
+.rl-card-row { display: flex; gap: 1.5mm; margin: 1.5mm 0; flex-wrap: wrap; }
+.rl-img { max-width: 100%; border-radius: 1mm; display: block; margin: 1.5mm 0; }
+.rl-img-sm   { max-height: 18mm; }
+.rl-img-md   { max-height: 28mm; }
+.rl-img-lg   { max-height: 40mm; }
+.rl-img-full { width: 100%; }
+
+/* ═══════════════════════════
+   PRINT
+═══════════════════════════ */
+@media print {
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  body { background: white !important; }
+  #toolbar, #card-picker, #img-picker, .page-label, #help-overlay { display: none !important; }
+  #workspace { display: block !important; padding: 0 !important; margin: 0 !important; }
+  .page {
+    width: 297mm !important; height: 210mm !important;
+    box-shadow: none !important; margin: 0 !important;
+    break-after: page; page-break-after: always;
+  }
+  .page:last-of-type { break-after: auto; page-break-after: auto; }
+}
+@page { size: A4 landscape; margin: 0; }
+</style>
+</head>
+<body>
+
+<div id="toolbar">
+  <h1>Zwischental · Spielanleitung</h1>
+  <div class="tbtn-sep"></div>
+  <button class="tbtn-green" onclick="showPicker('card')">＋ Karte</button>
+  <button class="tbtn-white" onclick="showPicker('img')">＋ Bild</button>
+  <button class="tbtn-white" onclick="addPage()">＋ Seite</button>
+  <div class="tbtn-sep"></div>
+  <button class="tbtn-white" onclick="toggleHelp()">?</button>
+  <button class="tbtn-gold"  onclick="window.print()">🖨 PDF drucken</button>
+</div>
+
+<!-- CARD PICKER -->
+<div id="card-picker" class="picker">
+  <h3>Karte einfügen</h3>
+  <input id="csearch" placeholder="Name oder ID…" oninput="filterCards(this.value)">
+  <div id="card-grid"></div>
+  <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap">
+    <label style="font-size:11px">Größe:
+      <select id="csize">
+        <option value="52,73">Klein</option>
+        <option value="66,92" selected>Mittel</option>
+        <option value="84,118">Groß</option>
+      </select>
+    </label>
+    <label style="font-size:11px"><input type="checkbox" id="cinline"> Inline</label>
+  </div>
+  <div class="pbtns">
+    <button class="tbtn-white" onclick="hidePickers()">Abbrechen</button>
+  </div>
+</div>
+
+<!-- IMG PICKER -->
+<div id="img-picker" class="picker">
+  <h3>Bild einfügen</h3>
+  <label style="font-size:11px">Dateiname</label>
+  <input id="ifile" placeholder="z.B. cover.png">
+  <label style="font-size:11px">Größe</label>
+  <select id="isize">
+    <option value="rl-img rl-img-sm">Klein (~18mm)</option>
+    <option value="rl-img rl-img-md" selected>Mittel (~28mm)</option>
+    <option value="rl-img rl-img-lg">Groß (~40mm)</option>
+    <option value="rl-img rl-img-full">Volle Breite</option>
+  </select>
+  <div class="pbtns">
+    <button class="tbtn-green" onclick="insertImg()">Einfügen</button>
+    <button class="tbtn-white" onclick="hidePickers()">Abbrechen</button>
+  </div>
+</div>
+
+<div id="workspace">
+
+<!-- ═══ SEITE 1: GRUNDREGELN ═══ -->
+<div class="page-label">Seite 1 — Grundregeln</div>
+<div class="page" id="page-1">
+ <div class="a5">
+
+  <!-- SPALTE 1: Titel / Spielziel / Material -->
+  <div class="col" id="col-1-1" contenteditable spellcheck="false"
+       onfocus="setActive(this)" onpaste="cleanPaste(event)">
+    <div class="rl-title">Zwischental</div>
+    <div class="rl-subtitle">Bauen · Plündern · Bauen</div>
+    <div class="rl-title-graphic"><span>TITELBILD</span></div>
+    <div class="rl-h2">Das Spielziel</div>
+    <p class="rl-p">Willkommen bei der Talwacht. Vier Königreiche liegen seit Jahrhunderten im Streit — das fruchtbare Zwischental liegt genau dazwischen. Du beschützt eine kleine Siedlung und baust sie zur reichen Metropole aus. Baue clever, denn Plünderer aus allen Richtungen ziehen regelmäßig durch das Tal.</p>
+    <div class="rl-note"><strong>Spielziel:</strong> Wer nach vier Jahreszeiten die meisten Siegpunkte gesammelt hat, gewinnt das Spiel.</div>
+    <div class="rl-h2">Spielmaterial</div>
+    <p class="rl-li">104 Gebäudekarten (24 Winter, 20 Frühling, 16 Sommer, 12 Herbst, 32 Sonder)</p>
+    <p class="rl-li">3 × 8 Überfallkarten (🟡 Startfeld, 🔵 Stärke, 🔴 Anführer) + 3 Würfel</p>
+    <p class="rl-li">Token: Ritter, Barrieren, Türme, Münzen — 1 Zählscheibe pro Spieler:in</p>
+    <p class="rl-li">1 Rathaus pro Spieler:in</p>
+  </div>
+
+  <!-- SPALTE 2: Aufbau / Drafting -->
+  <div class="col" id="col-1-2" contenteditable spellcheck="false"
+       onfocus="setActive(this)" onpaste="cleanPaste(event)">
+    <div class="rl-h2">Spielaufbau</div>
+    <p class="rl-p">Jede:r wählt ein Rathaus und legt es als Zentrum der eigenen Siedlung. Karten nach Rückseite sortieren und mischen.</p>
+    <p class="rl-li"><strong>1 — Gebäudekarten:</strong> 4 Jahreszeitstapel + 1 Sonderkartenstapel</p>
+    <p class="rl-li"><strong>2 — Überfallkarten & Würfel:</strong> 3 Stapel verdeckt in die Mitte, passenden Würfel darunter</p>
+    <p class="rl-li"><strong>3 — Token & Münzen:</strong> Als gemeinsamen Vorrat bereithalten</p>
+    <div class="rl-h3">Drafting vorbereiten</div>
+    <p class="rl-p">Jede Jahreszeit beginnt mit Drafting. Für jede:n 6 Karten verdeckt ziehen:</p>
+    <table class="rl-phase-table">
+      <tr><td>❄ Winter</td><td>6 Saisonkarten, 0 Sonder — Richtung immer ↻</td></tr>
+      <tr><td>🌿 Frühling</td><td>5 Saison, 1 Sonder — Richtung per 🟡</td></tr>
+      <tr><td>☀ Sommer</td><td>4 Saison, 2 Sonder — Richtung per 🟡</td></tr>
+      <tr><td>🍂 Herbst</td><td>3 Saison, 3 Sonder — Richtung per 🟡</td></tr>
+    </table>
+    <div class="rl-note">🟡 gerade → ↻, ungerade → ↺</div>
+    <div class="rl-h2">Ablauf einer Jahreszeit</div>
+    <p class="rl-p">Im <strong>Winter</strong> gibt es keine Gerüchte und keinen Überfall.</p>
+    <table class="rl-phase-table">
+      <tr><td>1 Gerüchte</td><td>Würfel werfen, Karten aufdecken — höchste bleibt verborgen</td></tr>
+      <tr><td>2 Bauen</td><td>5 Karten draften und bauen</td></tr>
+      <tr><td>3 Rüsten</td><td>Rohstoffe produzieren, 2:1 umwandeln</td></tr>
+      <tr><td>4 Überfall</td><td>Durchführen (außer Winter)</td></tr>
+      <tr><td>5 Wertung</td><td>Punkte aller aktiven Gebäude notieren</td></tr>
+    </table>
+  </div>
+
+ </div><!-- /a5 left -->
+ <div class="a5">
+
+  <!-- SPALTE 3: Drafting & Bauen / Rüsten -->
+  <div class="col" id="col-1-3" contenteditable spellcheck="false"
+       onfocus="setActive(this)" onpaste="cleanPaste(event)">
+    <div class="rl-h2">Die Gerüchtephase</div>
+    <p class="rl-p">Zu Beginn jeder Jahreszeit (außer Winter) werden alle drei Würfel geworfen. Die oberste Überfallkarte von jedem Stapel wird aufgedeckt — <strong>außer die Farbe mit dem höchsten Würfelwert</strong>. Diese bleibt verborgen bis zum Überfall.</p>
+    <p class="rl-li"><strong>🟡 Gelb</strong> — Startfeld &amp; Richtung (gerade ↻ / ungerade ↺)</p>
+    <p class="rl-li"><strong>🔵 Blau</strong> — Anzahl der Plünderer</p>
+    <p class="rl-li"><strong>🔴 Rot</strong> — Anführer-Sonderfähigkeit</p>
+    <div class="rl-note">Tipp: Ist das Startfeld bekannt, legt die Zählscheibe neben die entsprechende Karte — so habt ihr das Überfall-Ziel beim Bauen immer vor Augen.</div>
+    <div class="rl-h2">Drafting & Bauphase</div>
+    <p class="rl-p">Wähle eine Karte, gib die restlichen in Drafting-Richtung weiter — die gewählte Karte wird sofort gespielt. Wiederhole bis zur 5. Karte, die 6. wird abgeworfen.</p>
+    <p class="rl-li"><strong>Bauen</strong> — Karte auf ein leeres Feld legen</p>
+    <p class="rl-li"><strong>Abreissen & Bauen</strong> — Karte ersetzt ein bestehendes Gebäude</p>
+    <p class="rl-li"><strong>Upgraden</strong> — gleichen Rohstoff stapeln (Stapel-Icon nötig)</p>
+    <p class="rl-li"><strong>Rathaus upgraden</strong> — Karte unter Rathaus schieben → Siedlungs-Level +1, sofort +1 Münze (max. Level 6)</p>
+    <div class="rl-note"><strong>Sondergebäude:</strong> Das Siedlungs-Level bestimmt, wie viele lila Sondergebäude gleichzeitig aktiv sein dürfen.</div>
+    <div class="rl-h2">Die Rüstphase</div>
+    <p class="rl-p">Alle Gebäude produzieren Rohstoffe. Gestapelte Gebäude produzieren entsprechend mehr. Umrechnung 2:1:</p>
+    <p class="rl-li">2 Holz 🪵 → 1 Barriere</p>
+    <p class="rl-li">2 Nahrung 🌾 → 1 Ritter (+2 Verteidigung)</p>
+    <p class="rl-li">2 Glas 🫙 → 1 Münze</p>
+    <p class="rl-li">2 Münzen → 1 Turm (unplünderbar, max. 2)</p>
+    <div class="rl-note"><strong>Kapazität (NEU):</strong> Jede Karte kann nur begrenzt Ritter, Münzen und Türme aufnehmen — als goldene Punkte unten rechts sichtbar.</div>
+    <div class="rl-note"><strong>Münzen lagern (NEU):</strong> Münzen auf Gebäuden bringen +2 VP pro Wertung, solange die Karte nicht geplündert wird. Münzen im Vorrat: 0 VP.</div>
+  </div>
+
+  <!-- SPALTE 4: Überfall / Wertung / Spielende -->
+  <div class="col" id="col-1-4" contenteditable spellcheck="false"
+       onfocus="setActive(this)" onpaste="cleanPaste(event)">
+    <div class="rl-h2">Der Überfall</div>
+    <p class="rl-p">Deckt verdeckte Karten auf. Startfeld 🟡, Richtung, Plündereranzahl 🔵 und Anführer 🔴 sind jetzt bekannt. Zählscheibe auf Plündererzahl stellen.</p>
+    <p class="rl-p">Die Horde zieht Feld für Feld in Laufrichtung. Bei jedem Feld:</p>
+    <p class="rl-li"><strong>Verteidigung ≥ Plünderer:</strong> Gebäude hält stand — Überfall endet</p>
+    <p class="rl-li"><strong>Verteidigung &lt; Plünderer:</strong> Gebäude geplündert — 0 VP diese Wertung, Zählscheibe um Verteidigungswert senken, weiter zum nächsten Feld</p>
+    <div class="rl-note"><strong>Barrieren (NEU):</strong> Def 1, fragil — stoppt 1 Plünderer, verschwindet danach. An Außen- und Innenkanten platzierbar.</div>
+    <div class="rl-note"><strong>Türme (NEU):</strong> Setzt Kartenverteidigung auf 0 — nur Ritter zählen noch. Hebt Fragilität auf. Max. 2 Türme.</div>
+    <div class="rl-h2">Wertung</div>
+    <p class="rl-p">Nach dem Überfall: Punkte aller aktiven Gebäude notieren. Alle geplünderten Gebäude wieder aktivieren — nächste Jahreszeit beginnt.</p>
+    <div class="rl-h2">Spielende</div>
+    <p class="rl-p"><strong>Herbst ist die letzte Jahreszeit.</strong> Im Herbst zählen zusätzlich alle verbliebenen Münzen 1:1 als Siegpunkte. Höchste Gesamtpunktzahl über alle vier Jahreszeiten gewinnt.</p>
+
+  </div>
+
+ </div><!-- /a5 right -->
+</div><!-- /page-1 -->
+
+<!-- ═══ SEITE 2: KARTENFUNKTIONEN ═══ -->
+<div class="page-label">Seite 2 — Kartenfunktionen</div>
+<div class="page" id="page-2">
+ <div class="a5">
+  <div class="col" id="col-2-1" contenteditable spellcheck="false"
+       onfocus="setActive(this)" onpaste="cleanPaste(event)">
+    <div class="rl-h2">Karten &amp; ihre Funktionen</div>
+    <p class="rl-p">Inhalt hier eingeben.</p>
+  </div>
+  <div class="col" id="col-2-2" contenteditable spellcheck="false"
+       onfocus="setActive(this)" onpaste="cleanPaste(event)">
+    <p class="rl-p">Fortsetzung hier.</p>
+  </div>
+ </div>
+ <div class="a5">
+  <div class="col" id="col-2-3" contenteditable spellcheck="false"
+       onfocus="setActive(this)" onpaste="cleanPaste(event)">
+    <div class="rl-h2">Sonderkarten</div>
+    <p class="rl-p">Inhalt hier eingeben.</p>
+  </div>
+  <div class="col" id="col-2-4" contenteditable spellcheck="false"
+       onfocus="setActive(this)" onpaste="cleanPaste(event)">
+    <p class="rl-p">Fortsetzung hier.</p>
+  </div>
+ </div>
+</div>
+
+<!-- ═══ SEITE 3: SOLO & KOOP ═══ -->
+<div class="page-label">Seite 3 — Solo &amp; Koop</div>
+<div class="page" id="page-3">
+ <div class="a5">
+  <div class="col" id="col-3-1" contenteditable spellcheck="false"
+       onfocus="setActive(this)" onpaste="cleanPaste(event)">
+    <div class="rl-h2">Solo-Modus</div>
+    <p class="rl-p">Inhalt hier eingeben.</p>
+  </div>
+  <div class="col" id="col-3-2" contenteditable spellcheck="false"
+       onfocus="setActive(this)" onpaste="cleanPaste(event)">
+    <p class="rl-p">Fortsetzung hier.</p>
+  </div>
+ </div>
+ <div class="a5">
+  <div class="col" id="col-3-3" contenteditable spellcheck="false"
+       onfocus="setActive(this)" onpaste="cleanPaste(event)">
+    <div class="rl-h2">Kooperativer Modus</div>
+    <p class="rl-p">Inhalt hier eingeben.</p>
+  </div>
+  <div class="col" id="col-3-4" contenteditable spellcheck="false"
+       onfocus="setActive(this)" onpaste="cleanPaste(event)">
+    <p class="rl-p">Fortsetzung hier.</p>
+  </div>
+ </div>
+</div>
+
+</div><!-- /workspace -->
+
+<script src="cards.js"></script>
+<script>
+// ── SELECTION ─────────────────────────────────────────────────────────────
+let activeCol = null, savedRange = null;
+function setActive(el) { activeCol = el; }
+document.querySelectorAll('.col').forEach(c => {
+  c.addEventListener('keyup',  () => saveRange());
+  c.addEventListener('mouseup',() => saveRange());
+  c.addEventListener('focus',  () => setActive(c));
+});
+function saveRange() {
+  const s = window.getSelection();
+  if (s && s.rangeCount) savedRange = s.getRangeAt(0).cloneRange();
+}
+function restoreRange() {
+  if (!savedRange) return;
+  const s = window.getSelection(); s.removeAllRanges(); s.addRange(savedRange);
+}
+
+// ── INSERT ─────────────────────────────────────────────────────────────────
+function insertHTML(html) {
+  restoreRange();
+  const s = window.getSelection();
+  if (s && s.rangeCount) {
+    const r = s.getRangeAt(0); r.deleteContents();
+    r.insertNode(r.createContextualFragment(html));
+    r.collapse(false); s.removeAllRanges(); s.addRange(r);
+  } else if (activeCol) {
+    activeCol.insertAdjacentHTML('beforeend', html);
+  }
+}
+
+// ── CARD PICKER ───────────────────────────────────────────────────────────
+let allCards = [];
+function initCards() {
+  if (typeof BUILDINGS !== 'undefined') allCards = [...BUILDINGS, ...SPECIAL_BUILDINGS];
+  filterCards('');
+}
+function filterCards(q) {
+  const g = document.getElementById('card-grid');
+  const cats = {winter:'#6899b8',spring:'#5a9e6a',summer:'#c8940a',autumn:'#a04820',special:'#7a3a9a'};
+  const list = allCards.filter(c => !q || c.name.toLowerCase().includes(q.toLowerCase()) || c.id.toLowerCase().includes(q.toLowerCase()));
+  g.innerHTML = list.slice(0,60).map(c =>
+    `<div class="cthumb" onclick="insertCard('${c.id}')" title="${c.name}" style="border-top:2px solid ${cats[c.cat]||'#888'}">
+      <div style="width:44px;height:60px;background:${cats[c.cat]||'#888'};border-radius:2px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.65);font-size:7px">${c.id}</div>
+      <div style="width:46px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:7px;margin-top:1px">${c.name}</div>
+    </div>`
+  ).join('');
+}
+function insertCard(id) {
+  const card = allCards.find(c=>c.id===id); if(!card) return;
+  const [w,h] = document.getElementById('csize').value.split(',').map(Number);
+  const inline = document.getElementById('cinline').checked;
+  const G = {rathausLevel:1, vaultCoins:Array(9).fill(0), fortified:Array(9).fill(false)};
+  let svg;
+  try { svg = makeCard(card,w,h,false,undefined,false,0,false,false); }
+  catch(e) { svg = `<span style="background:#e8e0d8;padding:2px 5px;border-radius:3px;font-size:8pt">${card.id}</span>`; }
+  insertHTML(`<span style="display:inline-block;vertical-align:middle;margin:1mm" contenteditable="false">${svg}</span>${inline?'':''}`);
+  hidePickers();
+}
+
+// ── IMG PICKER ────────────────────────────────────────────────────────────
+function insertImg() {
+  const src = document.getElementById('ifile').value.trim(); if(!src) return;
+  const cls = document.getElementById('isize').value;
+  insertHTML(`<img src="${src}" class="${cls}" alt="" onerror="this.style.opacity='.3'">`);
+  hidePickers(); document.getElementById('ifile').value='';
+}
+
+// ── PICKERS ───────────────────────────────────────────────────────────────
+function showPicker(which) {
+  saveRange();
+  hidePickers();
+  if(which==='card') { initCards(); document.getElementById('card-picker').style.display='block'; }
+  else               { document.getElementById('img-picker').style.display='block'; }
+}
+function hidePickers() {
+  document.getElementById('card-picker').style.display='none';
+  document.getElementById('img-picker').style.display='none';
+}
+document.addEventListener('mousedown', e => {
+  if(!e.target.closest('.picker') && !e.target.closest('#toolbar')) hidePickers();
+});
+
+// ── ADD PAGE ──────────────────────────────────────────────────────────────
+let pageCount = 3;
+function addPage() {
+  pageCount++;
+  const ws = document.getElementById('workspace');
+  const lbl = document.createElement('div');
+  lbl.className='page-label'; lbl.textContent=`Seite ${pageCount}`;
+  const pg = document.createElement('div');
+  pg.className='page'; pg.id=`page-${pageCount}`;
+  pg.innerHTML = [1,2,3,4].map(i=>
+    `<div class="a5"${ i<=2 && i===1 ? '' : '' }>
+      <div class="col" id="col-${pageCount}-${i}" contenteditable spellcheck="false"
+           onfocus="setActive(this)" onpaste="cleanPaste(event)">
+        <p class="rl-p">Spalte ${i}.</p>
+      </div>
+     </div>`
+  ).join('');
+  // Better: two a5 halves each with 2 cols
+  pg.innerHTML = `
+    <div class="a5">
+      <div class="col" id="col-${pageCount}-1" contenteditable spellcheck="false" onfocus="setActive(this)" onpaste="cleanPaste(event)"><p class="rl-p">Spalte 1</p></div>
+      <div class="col" id="col-${pageCount}-2" contenteditable spellcheck="false" onfocus="setActive(this)" onpaste="cleanPaste(event)"><p class="rl-p">Spalte 2</p></div>
+    </div>
+    <div class="a5">
+      <div class="col" id="col-${pageCount}-3" contenteditable spellcheck="false" onfocus="setActive(this)" onpaste="cleanPaste(event)"><p class="rl-p">Spalte 3</p></div>
+      <div class="col" id="col-${pageCount}-4" contenteditable spellcheck="false" onfocus="setActive(this)" onpaste="cleanPaste(event)"><p class="rl-p">Spalte 4</p></div>
+    </div>`;
+  pg.querySelectorAll('.col').forEach(c => {
+    c.addEventListener('keyup',()=>saveRange()); c.addEventListener('mouseup',()=>saveRange());
+  });
+  ws.appendChild(lbl); ws.appendChild(pg);
+  pg.querySelector('.col').focus();
+}
+
+// ── PASTE CLEAN ───────────────────────────────────────────────────────────
+function cleanPaste(e) {
+  e.preventDefault();
+  document.execCommand('insertText',false,(e.clipboardData||window.clipboardData).getData('text/plain'));
+}
+
+// ── HELP ──────────────────────────────────────────────────────────────────
+let helpOn=false;
+function toggleHelp(){
+  if(helpOn){const h=document.getElementById('help-overlay');if(h)h.remove();helpOn=false;return;}
+  helpOn=true;
+  const d=document.createElement('div');d.id='help-overlay';
+  d.style.cssText='position:fixed;top:52px;right:14px;background:#fff;border-radius:10px;padding:16px;box-shadow:0 8px 32px rgba(0,0,0,.2);z-index:300;max-width:280px;font-size:12px;line-height:1.6';
+  d.innerHTML=`<strong style="color:#1a4060">Kurzanleitung</strong><br><br>
+    Klicken & tippen direkt in jede Spalte.<br>
+    <b>＋ Karte</b> — Karte an Cursor einfügen<br>
+    <b>＋ Bild</b> — Bild per Dateiname<br>
+    <b>＋ Seite</b> — neue A4-Seite<br><br>
+    <b>Klassen:</b> rl-h2, rl-h3, rl-p, rl-li, rl-note<br><br>
+    <b>🖨 PDF:</b> Drucken → Als PDF → Skala 100%, Ränder Keine<br>
+    <button onclick="toggleHelp()" style="margin-top:8px;padding:4px 10px;border:none;background:#1a4060;color:#fff;border-radius:5px;cursor:pointer">Schließen</button>`;
+  document.body.appendChild(d);
+}
+
+
+// ═══════════════════════════════════════════════════
+//  KARTEN-SEITEN AUTO-GENERIERUNG
+// ═══════════════════════════════════════════════════
+function cardDesc(card) {
+  const parts = [];
+  if (typeof card.pts === 'number') {
+    if (card.pts > 0) parts.push(card.pts + ' VP');
+  } else if (card.pts && card.pts.type) {
+    const m = {
+      'dice+': `W+${card.pts.bonus}`,
+      'dice*': `W×${card.pts.factor}`,
+      'res*':  `${card.pts.res}×${card.pts.factor}`,
+      'def_sum': 'Σ Def VP',
+      'season_table': '0/4/8/12',
+      'sole_survivor': '48 wenn allein',
+      'inno*': `Lvl×${card.pts.factor}`,
+      'sonder_count': 'Sonder×2',
+      'deact*': `gepl.×${card.pts.factor}`,
+      'dice_sum*': `(B+G)×${card.pts.factor}`,
+      'blue*': `Wohn×${card.pts.factor}`,
+      'green*': `Rohstoff×${card.pts.factor}`,
+    };
+    parts.push(m[card.pts.type] || card.pts.type);
+  }
+  if (card.def > 0) parts.push('Def ' + card.def);
+  if (card.res) parts.push('+' + card.res.charAt(0).toUpperCase() + card.res.slice(1));
+  const mechM = {
+    decoy:'Nebeltarnung', force_start:'Startfeld', force_dir_cw:'↻ zw.',
+    force_dir_ccw:'↺ zw.', minus2_attackers:'−2 Plünd.', neighbor_defense_2:'+2 Def Nachb.',
+    pts_if_plundered:'gepl.→+8VP', destroyable:'15VP fragil', zwillingsturm:'Nachb.×2',
+    direct_knight:'+2 Ritter', direct_barrier:'+2 Barr.', direct_coins:'+2 Münzen',
+    direct_coins_seasonal:'+Münzen/Jahreszeit', indestructible:'unplündbar',
+    free_build:'kostenlos', cap_boost_neighbors:'Nachb.+2Kap', reveal_yellow:'gelb aufdecken',
+    reveal_blue:'blau aufdecken', schutzpatronin:'fragil+2Def',
+    season_pts:'saisonal', sonder_count:'Sonder×2',
+    dual_res_glas:'+Glas', dual_res_nahrung:'+Nahrung', dual_res_holz:'+Holz',
+  };
+  if (card.special_mechanic && mechM[card.special_mechanic]) parts.push(mechM[card.special_mechanic]);
+  if (card.fragile) parts.push('⚡fragil');
+  if (card.infinite_cap) parts.push('∞Kap');
+  if (card.safe_vault) parts.push('Münzen sicher');
+  if (card.cap > 0 && !card.infinite_cap) parts.push('Kap ' + card.cap);
+  if (card.stack_group) parts.push('stapelbar');
+  return parts.join(' · ') || '—';
+}
+
+function renderCardEntry(card) {
+  let svg = '';
+  try {
+    const G = { rathausLevel:1, vaultCoins:Array(9).fill(0), fortified:Array(9).fill(false) };
+    svg = makeCard(card, 52, 73, false, undefined, false, 0, false, false);
+  } catch(e) {
+    const cats = {winter:'#6899b8',spring:'#5a9e6a',summer:'#c8940a',autumn:'#a04820',special:'#7a3a9a'};
+    svg = `<div style="width:52px;height:73px;background:${cats[card.cat]||'#888'};border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:8px;color:rgba(255,255,255,.8)">${card.id}</div>`;
+  }
+  return `<div style="width:calc(50% - 1mm);flex-shrink:0">
+    <div style="width:52px">${svg}</div>
+    <div style="font-size:5.5pt;font-weight:700;color:#1a4060;line-height:1.2;margin-top:0.5mm;max-width:35mm;word-wrap:break-word">${card.name}</div>
+    <div style="font-size:4.8pt;color:#506878;line-height:1.3;max-width:35mm">${card.id} · ${cardDesc(card)}</div>
+  </div>`;
+}
+
+function createCardCol(cards, header) {
+  const div = document.createElement('div');
+  div.className = 'col';
+  div.setAttribute('contenteditable', 'true');
+  div.setAttribute('spellcheck', 'false');
+  div.addEventListener('focus', () => setActive(div));
+  div.addEventListener('keyup', () => saveRange());
+  div.addEventListener('mouseup', () => saveRange());
+  div.addEventListener('paste', cleanPaste);
+
+  let html = header ? `<div class="rl-h2" style="margin-bottom:2mm">${header}</div>` : '';
+  for (let i = 0; i < cards.length; i += 2) {
+    html += `<div style="display:flex;gap:2mm;margin-bottom:2.5mm;align-items:flex-start">`;
+    html += renderCardEntry(cards[i]);
+    if (cards[i+1]) html += renderCardEntry(cards[i+1]);
+    html += `</div>`;
+  }
+  div.innerHTML = html;
+  return div;
+}
+
+function catLabel(cat) {
+  return {winter:'Winter',spring:'Frühling',summer:'Sommer',autumn:'Herbst',special:'Sonderkarten'}[cat] || cat;
+}
+
+function generateCardPages() {
+  if (typeof BUILDINGS === 'undefined') return;
+  const allCards = [...BUILDINGS, ...SPECIAL_BUILDINGS];
+  const CARDS_PER_COL = 10; // 5 rows × 2 cards
+  const ws = document.getElementById('workspace');
+
+  // Group by season for headers
+  const seasons = ['winter','spring','summer','autumn','special'];
+  let cardQueue = []; // {card, isFirst, cat}
+  let prevCat = null;
+  for (const cat of seasons) {
+    const cats = allCards.filter(c => c.cat === cat);
+    cats.forEach((c, i) => cardQueue.push({card: c, isFirst: i===0, cat}));
+  }
+
+  // Chunk into columns
+  let cols = [];       // each col = {header, cards[]}
+  let curCol = {header: catLabel(cardQueue[0].cat), cards: []};
+  for (const item of cardQueue) {
+    // Start new column if: (a) current is full, or (b) new season starting (unless col nearly empty)
+    if (curCol.cards.length >= CARDS_PER_COL) {
+      cols.push(curCol);
+      curCol = {header: item.isFirst ? catLabel(item.cat) : '', cards: []};
+    } else if (item.isFirst && curCol.cards.length > 0) {
+      cols.push(curCol);
+      curCol = {header: catLabel(item.cat), cards: []};
+    }
+    curCol.cards.push(item.card);
+  }
+  if (curCol.cards.length > 0) cols.push(curCol);
+
+  // Build pages
+  const COLS_PER_PAGE = 4;
+  let globalPage = 4;
+  for (let p = 0; p < cols.length; p += COLS_PER_PAGE) {
+    const pageCols = cols.slice(p, p + COLS_PER_PAGE);
+    const lbl = document.createElement('div');
+    lbl.className = 'page-label';
+    const firstCard = pageCols[0].cards[0];
+    const lastColCards = pageCols[pageCols.length-1].cards;
+    const lastCard = lastColCards[lastColCards.length-1];
+    lbl.textContent = `Karten: ${firstCard.name} → ${lastCard.name}`;
+    ws.appendChild(lbl);
+
+    const page = document.createElement('div');
+    page.className = 'page';
+    page.id = `page-cards-${globalPage++}`;
+
+    const a5L = document.createElement('div'); a5L.className = 'a5';
+    const a5R = document.createElement('div'); a5R.className = 'a5';
+
+    for (let ci = 0; ci < COLS_PER_PAGE; ci++) {
+      const col = pageCols[ci];
+      if (!col) {
+        const empty = document.createElement('div');
+        empty.className = 'col';
+        (ci < 2 ? a5L : a5R).appendChild(empty);
+        continue;
+      }
+      const colEl = createCardCol(col.cards, col.header);
+      (ci < 2 ? a5L : a5R).appendChild(colEl);
+    }
+
+    page.appendChild(a5L);
+    page.appendChild(a5R);
+    ws.appendChild(page);
+  }
+
+  // KOOP PAGE
+  addKoopPage(globalPage++);
+  addSoloPage(globalPage++);
+}
+
+function addKoopPage(num) {
+  const ws = document.getElementById('workspace');
+  const lbl = document.createElement('div');
+  lbl.className = 'page-label'; lbl.textContent = 'Kooperativer Modus';
+  ws.appendChild(lbl);
+
+  const page = document.createElement('div');
+  page.className = 'page'; page.id = `page-koop-${num}`;
+  page.innerHTML = `
+    <div class="a5">
+      <div class="col" contenteditable spellcheck="false" onfocus="setActive(this)" onpaste="cleanPaste(event)">
+        <div class="rl-h2">Kooperativer Modus</div>
+        <p class="rl-p" style="font-style:italic;color:#506878">Beschützt gemeinsam das Tal gegen die plündernden Horden. Doch diese werden immer dreister — je mehr ihr Schwäche zeigt, umso gerissener werden sie.</p>
+        <p class="rl-p">Es gelten die normalen Regeln mit folgenden Änderungen:</p>
+        <div class="rl-h3">Siedlungen teilen</div>
+        <p class="rl-p">Jede:r betreut nicht eine eigene, sondern <strong>zwei halbe Siedlungen</strong>. Du teilst eine Siedlung mit dem linken Nachbarn und eine mit dem rechten. Mit jeder Karte entscheidest du: Spielst du sie in die linke oder rechte Siedlung? <strong>Absprache ist alles.</strong></p>
+        <div class="rl-h3">Gemeinsame Verteidigung</div>
+        <p class="rl-p">Produzierte <strong>Verteidigungen</strong> (Ritter, Barrieren, Türme) fließen in einen gemeinsamen Pool und können in jeder Siedlung eingesetzt werden — auch wenn sie dort nicht produziert wurden.</p>
+        <div class="rl-note"><strong>Eskalation:</strong> Erhält eine Siedlung in einer Jahreszeitenwertung 0 Siegpunkte → platziert einen Turm als Markierung neben einer Würfelfarbe. Diese Farbe bleibt ab sofort bis zum Überfall verborgen. Sind alle drei Farben markiert, sind die Horden unaufhaltsam — ihr habt verloren.</div>
+      </div>
+      <div class="col" contenteditable spellcheck="false" onfocus="setActive(this)" onpaste="cleanPaste(event)">
+        <div class="rl-h3">Spielziel</div>
+        <p class="rl-p">Erhaltet gemeinsam deutlich mehr Siegpunkte als die Horde euch stiehlt.</p>
+        <table class="rl-phase-table">
+          <tr><td>2 Spieler</td><td>Normal: 40 VP · Schwer: 60 VP</td></tr>
+          <tr><td>3 Spieler</td><td>Normal: 50 VP · Schwer: 75 VP</td></tr>
+          <tr><td>4 Spieler</td><td>Normal: 60 VP · Schwer: 90 VP</td></tr>
+        </table>
+        <div class="rl-h3">Eskalationsstufen</div>
+        <p class="rl-li"><strong>Ab 15 gepl. Punkten:</strong> Min. 5 Plünderer bei jedem Überfall</p>
+        <p class="rl-li"><strong>Ab 45 gepl. Punkten:</strong> Kein Münzbonus beim Siedlungs-Level-Erhöhen</p>
+        <p class="rl-li"><strong>Ab 90 gepl. Punkten:</strong> Türme kosten ab jetzt 3 Münzen</p>
+        <div class="rl-note"><strong>Tipp:</strong> Koordiniert früh, welche Siedlung auf Punkte und welche auf Verteidigung setzt. Wer die Horde aufhält, gibt dem Anderen Raum zu punkten.</div>
+      </div>
+    </div>
+    <div class="a5">
+      <div class="col" contenteditable spellcheck="false" onfocus="setActive(this)" onpaste="cleanPaste(event)">
+        <p class="rl-p">Weitere Koop-Regeln hier.</p>
+      </div>
+      <div class="col" contenteditable spellcheck="false" onfocus="setActive(this)" onpaste="cleanPaste(event)">
+        <p class="rl-p">Notizen.</p>
+      </div>
+    </div>`;
+  page.querySelectorAll('.col').forEach(c => {
+    c.addEventListener('focus',()=>setActive(c));
+    c.addEventListener('keyup',()=>saveRange());
+    c.addEventListener('mouseup',()=>saveRange());
+    c.addEventListener('paste', cleanPaste);
+  });
+  ws.appendChild(page);
+}
+
+function addSoloPage(num) {
+  const ws = document.getElementById('workspace');
+  const lbl = document.createElement('div');
+  lbl.className = 'page-label'; lbl.textContent = 'Solo-Modus';
+  ws.appendChild(lbl);
+
+  const page = document.createElement('div');
+  page.className = 'page'; page.id = `page-solo-${num}`;
+  page.innerHTML = `
+    <div class="a5">
+      <div class="col" contenteditable spellcheck="false" onfocus="setActive(this)" onpaste="cleanPaste(event)">
+        <div class="rl-h2">Solo-Modus</div>
+        <p class="rl-p" style="font-style:italic;color:#506878">Allein gegen die Horde. Das Zwischental gehört dir — und dir allein. Kein Mitspieler hilft. Nur dein Geschick und mutige Entscheidungen zählen.</p>
+        <p class="rl-p">Es gelten alle Regeln wie beim Mehrspielerspiel — mit einem Unterschied: das <strong>Drafting</strong>.</p>
+        <div class="rl-h3">Solo-Drafting</div>
+        <p class="rl-p">Für jede Jahreszeit bereitest du das Drafting nach regulären Regeln für <strong>4 Spielende</strong> vor. Lege die 4 Stapel à 6 Karten übereinander zu einem einzigen verdeckten Stapel.</p>
+        <p class="rl-p">Das Drafting: <strong>4 Karten vom Stapel ziehen, 1 spielen, 3 abwerfen.</strong> Das 5× wiederholen. Die übrigen Karten ebenfalls abwerfen.</p>
+        <div class="rl-note"><strong>Spielziel:</strong> Du spielst gegen das Spiel. Notiere am Ende jeder Jahreszeit auch die geplünderten Punkte. Hast du nach der Herbst-Wertung <strong>20 Punkte mehr</strong> als dir geplündert wurden — gewinnst du.</div>
+      </div>
+      <div class="col" contenteditable spellcheck="false" onfocus="setActive(this)" onpaste="cleanPaste(event)">
+        <div class="rl-h3">Notizen</div>
+        <p class="rl-p">Kein gemeinsamer Rohstoffpool, kein Weitergeben an Nachbarn — du allein planst und baust. Eine meditative, intensive Erfahrung.</p>
+        <table class="rl-phase-table">
+          <tr><td>Jahreszeit</td><td>Drafting</td><td>Sonder</td></tr>
+          <tr><td>Winter</td><td>4×6 = 24 → 1 Stapel</td><td>0</td></tr>
+          <tr><td>Frühling</td><td>4×5 + 4×1</td><td>4</td></tr>
+          <tr><td>Sommer</td><td>4×4 + 4×2</td><td>8</td></tr>
+          <tr><td>Herbst</td><td>4×3 + 4×3</td><td>12</td></tr>
+        </table>
+        <div class="rl-note">Im Solo-Modus sind mehr Sonderkarten im Stapel als bei 4 Spielenden. Das gibt dir mehr Auswahl — und mehr Entscheidungsdruck.</div>
+      </div>
+    </div>
+    <div class="a5">
+      <div class="col" contenteditable spellcheck="false" onfocus="setActive(this)" onpaste="cleanPaste(event)">
+        <div class="rl-h3">Wertungstabelle (Solo)</div>
+        <table class="rl-phase-table">
+          <tr><td>Differenz</td><td>Ergebnis</td></tr>
+          <tr><td>&lt; 0</td><td>Niederlage — die Horde hat gewonnen</td></tr>
+          <tr><td>0–19</td><td>Unentschieden — das Tal überlebt knapp</td></tr>
+          <tr><td>20–49</td><td>Sieg — du hast die Talwacht verdient</td></tr>
+          <tr><td>50–79</td><td>Glänzender Sieg</td></tr>
+          <tr><td>80+</td><td>Legende des Zwischentals</td></tr>
+        </table>
+        <p class="rl-p" style="margin-top:2mm;font-size:7pt;color:#7a8a96">Differenz = Eigene VP − Geplünderte VP über alle 4 Jahreszeiten.</p>
+      </div>
+      <div class="col" contenteditable spellcheck="false" onfocus="setActive(this)" onpaste="cleanPaste(event)">
+        <p class="rl-p">Weitere Solo-Notizen hier.</p>
+      </div>
+    </div>`;
+  page.querySelectorAll('.col').forEach(c => {
+    c.addEventListener('focus',()=>setActive(c));
+    c.addEventListener('keyup',()=>saveRange());
+    c.addEventListener('mouseup',()=>saveRange());
+    c.addEventListener('paste', cleanPaste);
+  });
+  ws.appendChild(page);
+}
+
+window.addEventListener('load',()=>{
+  if(typeof BUILDINGS!=='undefined') { initCards(); generateCardPages(); }
+});
+</script>
+</body>
+</html>

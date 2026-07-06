@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zwischental — Kartenvorschau</title>
+<link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Cinzel:wght@700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --parchment: #f2ebe0;
+    --ink: #1a1208;
+    --divider: #c8a878;
+    --winter:  #6899b8;
+    --spring:  #5a9e6a;
+    --summer:  #c8940a;
+    --autumn:  #a04820;
+    --special: #7a3a8a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--parchment);
+    color: var(--ink);
+    font-family: 'Crimson Text', serif;
+    padding: 32px 20px 80px;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .game-title {
+    font-family: 'Pirata One', cursive;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    letter-spacing: 0.04em;
+  }
+
+  .subtitle {
+    font-family: 'Crimson Text', serif;
+    font-style: italic;
+    color: #7a5830;
+    font-size: 1rem;
+    margin-top: 4px;
+    letter-spacing: 0.1em;
+  }
+
+  .divider {
+    width: 240px;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--divider), transparent);
+    margin: 14px auto;
+  }
+
+  .stats {
+    font-family: 'Crimson Text', serif;
+    font-size: 0.9rem;
+    color: #8a6840;
+    font-style: italic;
+  }
+
+  /* ── Controls ── */
+  .controls {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 32px;
+  }
+
+  .filter-btn {
+    font-family: 'Pirata One', cursive;
+    font-size: 0.85rem;
+    padding: 6px 16px;
+    border: 1.5px solid var(--divider);
+    border-radius: 20px;
+    background: white;
+    color: var(--ink);
+    cursor: pointer;
+    letter-spacing: 0.04em;
+    transition: all 0.15s;
+  }
+
+  .filter-btn:hover { background: #f0e8d8; }
+  .filter-btn.active { color: white; border-color: transparent; }
+  .filter-btn[data-cat="all"].active    { background: #3a2a18; }
+  .filter-btn[data-cat="winter"].active  { background: var(--winter); }
+  .filter-btn[data-cat="spring"].active  { background: var(--spring); }
+  .filter-btn[data-cat="summer"].active  { background: var(--summer); }
+  .filter-btn[data-cat="autumn"].active  { background: var(--autumn); }
+  .filter-btn[data-cat="special"].active { background: var(--special); }
+
+  .search-wrap {
+    position: relative;
+  }
+
+  .search-input {
+    font-family: 'Crimson Text', serif;
+    font-size: 0.95rem;
+    padding: 6px 14px 6px 32px;
+    border: 1.5px solid var(--divider);
+    border-radius: 20px;
+    background: white;
+    color: var(--ink);
+    outline: none;
+    width: 200px;
+  }
+
+  .search-input:focus { border-color: #a07840; }
+
+  .search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.85rem;
+    color: #a07840;
+    pointer-events: none;
+  }
+
+  /* ── Season sections ── */
+  .season-section {
+    max-width: 1100px;
+    margin: 0 auto 48px;
+  }
+
+  .season-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 18px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid;
+  }
+
+  .season-header.winter  { border-color: var(--winter); }
+  .season-header.spring  { border-color: var(--spring); }
+  .season-header.summer  { border-color: var(--summer); }
+  .season-header.autumn  { border-color: var(--autumn); }
+  .season-header.special { border-color: var(--special); }
+
+  .season-title {
+    font-family: 'Pirata One', cursive;
+    font-size: 1.6rem;
+    letter-spacing: 0.05em;
+  }
+
+  .season-title.winter  { color: var(--winter); }
+  .season-title.spring  { color: var(--spring); }
+  .season-title.summer  { color: var(--summer); }
+  .season-title.autumn  { color: var(--autumn); }
+  .season-title.special { color: var(--special); }
+
+  .season-count {
+    font-family: 'Crimson Text', serif;
+    font-style: italic;
+    font-size: 0.9rem;
+    color: #9a7848;
+    margin-left: auto;
+  }
+
+  /* ── Card grid ── */
+  .card-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+
+  /* ── Card wrapper ── */
+  .card-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: transform 0.12s;
+  }
+
+  .card-wrap:hover { transform: translateY(-3px); }
+
+  .card-wrap svg {
+    display: block;
+    border-radius: 3px;
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.15));
+  }
+
+  .card-name {
+    font-family: 'Crimson Text', serif;
+    font-size: 0.72rem;
+    color: #5a4020;
+    text-align: center;
+    max-width: 70px;
+    line-height: 1.2;
+  }
+
+  .card-id {
+    font-family: 'Cinzel', serif;
+    font-size: 0.6rem;
+    color: #a08060;
+    letter-spacing: 0.08em;
+  }
+
+  /* ── Detail overlay ── */
+  .detail-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(20,14,8,0.72);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    overflow-y: auto;
+  }
+
+  .detail-overlay.open { display: flex; }
+
+  .detail-panel {
+    background: #faf6f0;
+    border-radius: 16px;
+    padding: 36px 32px 28px;
+    max-width: 520px;
+    width: 100%;
+    box-shadow: 0 20px 64px rgba(0,0,0,0.45);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+
+  .detail-close {
+    position: absolute;
+    top: 14px; right: 16px;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #8a6840;
+    cursor: pointer;
+    line-height: 1;
+    z-index: 1;
+  }
+
+  .detail-close:hover { color: var(--ink); }
+
+  /* Large card graphic */
+  #detail-svg {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 24px;
+  }
+
+  #detail-svg svg {
+    border-radius: 6px;
+    filter: drop-shadow(0 8px 24px rgba(0,0,0,0.28));
+  }
+
+  /* Meta info below the card */
+  .detail-info {
+    width: 100%;
+  }
+
+  .detail-name {
+    font-family: 'Pirata One', cursive;
+    font-size: 1.8rem;
+    letter-spacing: 0.04em;
+    margin-bottom: 2px;
+    text-align: center;
+  }
+
+  .detail-id {
+    font-family: 'Cinzel', serif;
+    font-size: 0.75rem;
+    color: #9a7848;
+    letter-spacing: 0.12em;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+
+  .detail-divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--divider), transparent);
+    margin-bottom: 14px;
+  }
+
+  .detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 20px;
+    margin-bottom: 14px;
+  }
+
+  .detail-row {
+    display: flex;
+    flex-direction: column;
+    padding: 6px 10px;
+    background: rgba(200,168,120,0.10);
+    border-radius: 8px;
+    font-size: 0.88rem;
+  }
+
+  .detail-label { color: #9a7848; font-style: italic; font-size: 0.75rem; margin-bottom: 2px; }
+  .detail-value { font-weight: 600; color: var(--ink); font-size: 0.95rem; }
+
+  .detail-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+    margin-top: 6px;
+  }
+
+  .detail-tag {
+    display: inline-block;
+    font-size: 0.78rem;
+    padding: 3px 12px;
+    border-radius: 12px;
+    color: white;
+    font-family: 'Cinzel', serif;
+    letter-spacing: 0.05em;
+  }
+
+  .tag-fragile  { background: #b87010; }
+  .tag-upgrade  { background: #5a8a30; }
+  .tag-inno     { background: #2a6090; }
+  .tag-mechanic { background: #6a3a8a; }
+
+  /* ── No results ── */
+  .no-results {
+    font-family: 'Crimson Text', serif;
+    font-style: italic;
+    color: #9a7848;
+    text-align: center;
+    padding: 40px;
+    font-size: 1.1rem;
+  }
+
+  /* ── Hidden ── */
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="game-title">Zwischental</div>
+  <div class="subtitle">Bauen · Plündern · Bauen — Kartenvorschau</div>
+  <div class="divider"></div>
+  <div class="stats" id="stats-line">Lade Karten…</div>
+</header>
+
+<!-- Controls -->
+<div class="controls">
+  <button class="filter-btn active" data-cat="all">Alle</button>
+  <button class="filter-btn" data-cat="winter">❄ Winter</button>
+  <button class="filter-btn" data-cat="spring">🌱 Frühling</button>
+  <button class="filter-btn" data-cat="summer">☀ Sommer</button>
+  <button class="filter-btn" data-cat="autumn">🍂 Herbst</button>
+  <button class="filter-btn" data-cat="special">✦ Sonderkarten</button>
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input class="search-input" id="search" type="text" placeholder="Name oder ID suchen…">
+  </div>
+</div>
+
+<!-- Card sections -->
+<div id="sections"></div>
+
+<!-- Detail overlay -->
+<div class="detail-overlay" id="detail-overlay">
+  <div class="detail-panel">
+    <button class="detail-close" id="detail-close">✕</button>
+    <div id="detail-svg"></div>
+    <div class="detail-info" id="detail-info"></div>
+  </div>
+</div>
+
+<!-- Load game dependencies (stubs for standalone use) -->
+<script>
+// ── Minimal stubs so cards.js renders standalone ──
+const G = {
+  board: Array(9).fill(null),
+  rathausLevel: 1,
+  dice: { yellow: 4, blue: 3, red: 2 },
+  diceRolled: false,
+  coins: 0,
+};
+
+// Required constants from game.js
+const DICE_SYMBOLS = { yellow:'🟡', blue:'🔵', red:'🔴' };
+const RES_SYMBOLS  = { holz:'🪵', nahrung:'🌾', glas:'🫙' };
+
+// Required function from game.js
+function formatPts(pts) {
+  if (typeof pts === 'number') return String(pts);
+  if (!pts || !pts.type) return '0';
+  switch (pts.type) {
+    case 'dice+':       return `${DICE_SYMBOLS[pts.color]}+${pts.bonus}`;
+    case 'dice*':       return `${DICE_SYMBOLS[pts.color]}×${pts.factor}`;
+    case 'dice+dice':   return `${DICE_SYMBOLS[pts.a]}+${DICE_SYMBOLS[pts.b]}`;
+    case 'res*':        return `${RES_SYMBOLS[pts.res]}×${pts.factor}`;
+    case 'inno*':       return `⚡×${pts.factor}`;
+    case 'def_sum':     return `Σ🛡`;
+    case 'deact*':      return `💀×${pts.factor}`;
+    case 'season*':     return `Jahr.×${pts.factor}`;
+    case 'blue*':       return `🔵×${pts.factor}`;
+    case 'dice_sum*':   return `(${DICE_SYMBOLS[pts.a]}+${DICE_SYMBOLS[pts.b]})×${pts.factor}`;
+    case 'sonder_count':return `✦×2`;
+    default:            return '?';
+  }
+}
+</script>
+
+<!-- Load cards.js -->
+<script src="cards.js"></script>
+
+<script>
+// ── Main render ──
+const SEASON_META = {
+  winter:  { label: '❄ Winter',      emoji: '❄️',  cls: 'winter'  },
+  spring:  { label: '🌱 Frühling',   emoji: '🌱', cls: 'spring'  },
+  summer:  { label: '☀ Sommer',      emoji: '☀️',  cls: 'summer'  },
+  autumn:  { label: '🍂 Herbst',     emoji: '🍂', cls: 'autumn'  },
+  special: { label: '✦ Sonderkarten',emoji: '✦',  cls: 'special' },
+};
+
+const CARD_W = 70, CARD_H = 98;
+let activeFilter = 'all';
+let searchQuery  = '';
+let allCards     = [];
+
+function buildAllCards() {
+  // Assign num field (within category) so makeCard's code field works
+  const counters = {};
+  return [...BUILDINGS, ...SPECIAL_BUILDINGS].map(c => {
+    counters[c.cat] = (counters[c.cat] || 0) + 1;
+    return { ...c, num: counters[c.cat] };
+  });
+}
+
+function renderPtsDetail(pts) {
+  if (typeof pts === 'number') return pts + ' Pkt';
+  return formatPtsLocal(pts);
+}
+
+function renderCard(card) {
+  try {
+    return makeCard(card, CARD_W, CARD_H, false, 0, false, false, false, false);
+  } catch(e) {
+    return `<svg width="${CARD_W}" height="${CARD_H}"><rect width="${CARD_W}" height="${CARD_H}" rx="3" fill="#eee"/>
+      <text x="${CARD_W/2}" y="${CARD_H/2}" text-anchor="middle" font-size="8" fill="#888">Fehler</text></svg>`;
+  }
+}
+
+function openDetail(card) {
+  const overlay = document.getElementById('detail-overlay');
+  const svgEl   = document.getElementById('detail-svg');
+  const infoEl  = document.getElementById('detail-info');
+
+  // Very large card graphic — 4× the grid size
+  try {
+    svgEl.innerHTML = makeCard(card, 280, 392, false, 0, false, false, false, false);
+  } catch(e) { svgEl.innerHTML = ''; }
+
+  // Tags
+  const tags = [];
+  if (card.fragile)  tags.push('<span class="detail-tag tag-fragile">fragil</span>');
+  if (card.upgrade)  tags.push('<span class="detail-tag tag-upgrade">upgrade</span>');
+  if (card.inno)     tags.push(`<span class="detail-tag tag-inno">⚡ ×${card.inno}</span>`);
+  if (card.special_mechanic) tags.push(`<span class="detail-tag tag-mechanic">${card.special_mechanic}</span>`);
+
+  const resMap = { holz:'🪵 Holz', nahrung:'🌾 Nahrung', glas:'🫙 Glas' };
+
+  const minLvlCell = card.minLevel ? `
+    <div class="detail-row">
+      <span class="detail-label">Min. Rathaus</span>
+      <span class="detail-value">Lvl ${card.minLevel}</span>
+    </div>` : '';
+
+  infoEl.innerHTML = `
+    <div class="detail-name">${card.name}</div>
+    <div class="detail-id">${card.id}</div>
+    <div class="detail-divider"></div>
+    <div class="detail-grid">
+      <div class="detail-row">
+        <span class="detail-label">Punkte</span>
+        <span class="detail-value">${renderPtsDetail(card.pts)}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Verteidigung</span>
+        <span class="detail-value">${card.def}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Rohstoff</span>
+        <span class="detail-value">${card.res ? (resMap[card.res]||card.res) : '—'}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Kategorie</span>
+        <span class="detail-value">${SEASON_META[card.cat]?.label || card.cat}</span>
+      </div>
+      ${minLvlCell}
+    </div>
+    ${tags.length ? `<div class="detail-tags">${tags.join('')}</div>` : ''}
+  `;
+
+  overlay.classList.add('open');
+}
+
+function closeDetail() {
+  document.getElementById('detail-overlay').classList.remove('open');
+}
+
+function matchesFilter(card) {
+  if (activeFilter !== 'all' && card.cat !== activeFilter) return false;
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    if (!card.name.toLowerCase().includes(q) && !card.id.toLowerCase().includes(q)) return false;
+  }
+  return true;
+}
+
+function renderSections() {
+  const container = document.getElementById('sections');
+  const order = ['winter','spring','summer','autumn','special'];
+  let totalVisible = 0;
+
+  container.innerHTML = '';
+
+  for (const cat of order) {
+    if (activeFilter !== 'all' && activeFilter !== cat) continue;
+
+    const cards = allCards.filter(c => c.cat === cat && matchesFilter(c));
+    if (cards.length === 0) continue;
+
+    totalVisible += cards.length;
+
+    const meta = SEASON_META[cat];
+    const sec  = document.createElement('div');
+    sec.className = 'season-section';
+
+    const hdr = document.createElement('div');
+    hdr.className = `season-header ${meta.cls}`;
+    hdr.innerHTML = `
+      <span class="season-title ${meta.cls}">${meta.label}</span>
+      <span class="season-count">${cards.length} Karten</span>`;
+    sec.appendChild(hdr);
+
+    const grid = document.createElement('div');
+    grid.className = 'card-grid';
+
+    for (const card of cards) {
+      const wrap = document.createElement('div');
+      wrap.className = 'card-wrap';
+      wrap.innerHTML = `
+        ${renderCard(card)}
+        <div class="card-name">${card.name}</div>
+        <div class="card-id">${card.id}</div>`;
+      wrap.addEventListener('click', () => openDetail(card));
+      grid.appendChild(wrap);
+    }
+
+    sec.appendChild(grid);
+    container.appendChild(sec);
+  }
+
+  if (totalVisible === 0) {
+    container.innerHTML = `<div class="no-results">Keine Karten gefunden für „${searchQuery}"</div>`;
+  }
+
+  // Update stats
+  document.getElementById('stats-line').textContent =
+    `${allCards.length} Karten gesamt · ${totalVisible} angezeigt · Winter ${allCards.filter(c=>c.cat==='winter').length} · Frühling ${allCards.filter(c=>c.cat==='spring').length} · Sommer ${allCards.filter(c=>c.cat==='summer').length} · Herbst ${allCards.filter(c=>c.cat==='autumn').length} · Sonderkarten ${allCards.filter(c=>c.cat==='special').length}`;
+}
+
+// ── Event listeners ──
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeFilter = btn.dataset.cat;
+    renderSections();
+  });
+});
+
+document.getElementById('search').addEventListener('input', e => {
+  searchQuery = e.target.value.trim();
+  renderSections();
+});
+
+document.getElementById('detail-close').addEventListener('click', closeDetail);
+document.getElementById('detail-overlay').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeDetail();
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeDetail();
+});
+
+// ── Init ──
+allCards = buildAllCards();
+renderSections();
+</script>
+</body>
+</html>

@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zwischental · Solo-Kampagne</title>
+<link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Lora:ital,wght@0,400;0,600;1,400&family=Cinzel:wght@500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+/* Tokens identical to Anleitung */
+:root{
+  --blue-dk:#1a4060;--blue-md:#2d7aaa;--blue-lt:#3a9aca;
+  --gold:#e8c840;--ink:#1a1810;--muted:#506070;
+  --border:#b0c0c8;--off:#f6f9fb;--page:#ffffff;--sky:#dce8ec;
+  --score:#b83040;--koop:#2a3a70;
+}
+
+html,body{min-height:100%;background:var(--sky);display:flex;flex-direction:column;align-items:center;
+  padding:40px 16px 80px;font-family:'Lora',serif;color:var(--ink)}
+
+/* Book stage */
+.book{width:580px;background:var(--page);box-shadow:0 16px 56px rgba(0,0,0,.18);
+  border-radius:10px;overflow:hidden;display:flex;flex-direction:column}
+
+/* Topbar */
+.bar{background:var(--blue-dk);padding:11px 22px;display:flex;align-items:center;gap:10px;
+  border-radius:10px 10px 0 0}
+.bar-logo{font-family:'Pirata One',cursive;font-size:1.1rem;color:var(--gold);cursor:pointer;flex-shrink:0}
+.bar-back{font-family:'Cinzel',serif;font-size:.5rem;letter-spacing:.1em;text-transform:uppercase;
+  color:rgba(255,255,255,.4);text-decoration:none;margin-left:auto;
+  border:1px solid rgba(255,255,255,.15);padding:3px 10px;border-radius:20px}
+.bar-back:hover{color:rgba(255,255,255,.75)}
+
+/* Accent strip */
+.strip{height:4px;background:var(--score);flex-shrink:0}
+
+/* Hero */
+.hero{padding:24px 24px 20px;border-bottom:1px solid var(--border)}
+.hero-eyebrow{font-family:'Cinzel',serif;font-size:.52rem;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--score);margin-bottom:4px}
+.hero-title{font-family:'Pirata One',cursive;font-size:2rem;color:var(--ink);line-height:1;margin-bottom:10px}
+.hero-lead{font-size:.88rem;line-height:1.7;color:#2a2820;margin-bottom:14px}
+.hero-lead strong{font-weight:600} .hero-rule strong{font-weight:600;display:inline}
+.hero-rules{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.hero-rule{font-size:.84rem;line-height:1.75;color:#2a2820;padding-left:22px;text-indent:-22px;margin-bottom:4px}
+.hero-rule-n{font-family:'Pirata One',cursive;font-size:1rem;color:var(--score);display:inline;margin-right:6px}
+
+/* Note box */
+.note{border-left:2px solid var(--blue-lt);background:var(--off);padding:9px 13px;
+  font-style:italic;font-size:.8rem;color:#3a4840;line-height:1.6;margin:10px 0}
+
+/* Material */
+.material{background:var(--off);border:1px solid var(--border);border-radius:3px;
+  padding:10px 14px;margin-top:10px}
+.mat-label{font-family:'Cinzel',serif;font-size:.52rem;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--blue-dk);margin-bottom:6px;
+  padding-bottom:4px;border-bottom:1px solid var(--border)}
+.mat-items{display:flex;flex-direction:column;gap:3px}
+.mat-item{font-size:.78rem;color:#2a2820;padding:2px 0;
+  border-bottom:1px solid rgba(0,0,0,.04)}
+.mat-item:last-child{border-bottom:none}
+.mat-item::before{content:'· ';color:var(--blue-md)}
+
+/* Progress */
+.progress-wrap{padding:12px 24px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px}
+.progress-track{flex:1;height:4px;background:rgba(26,64,96,.1);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:var(--score);border-radius:2px;transition:width .4s ease;width:0%}
+.progress-label{font-family:'Cinzel',serif;font-size:.48rem;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--muted);white-space:nowrap}
+
+/* Chapter list */
+.chapters{padding:16px 22px 28px;display:flex;flex-direction:column;gap:0}
+
+/* Group header */
+.group-hd{padding:14px 0 6px;display:flex;align-items:center;gap:10px;
+  font-family:'Cinzel',serif;font-size:.52rem;letter-spacing:.2em;
+  text-transform:uppercase}
+.group-hd::after{content:'';flex:1;height:1px;background:currentColor;opacity:.2}
+
+/* Reward panel */
+.reward{border:1px solid var(--border);border-radius:4px;margin-bottom:10px;overflow:hidden}
+.reward-hd{background:var(--blue-dk);padding:8px 14px;
+  display:flex;align-items:center;gap:10px}
+.reward-icon{font-size:1rem}
+.reward-title{font-family:'Pirata One',cursive;font-size:.95rem;color:var(--gold);line-height:1}
+.reward-sub{font-family:'Cinzel',serif;font-size:.46rem;letter-spacing:.12em;
+  text-transform:uppercase;color:rgba(232,200,64,.5);margin-top:2px}
+.reward-body{display:flex;gap:14px;padding:10px 14px;background:var(--off);align-items:flex-start}
+.reward-card{width:108px;flex-shrink:0;background:#fff;border:1px solid var(--border);
+  border-radius:5px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.reward-card-img{aspect-ratio:5/7;background:#f0f4f8;overflow:hidden}
+.reward-card-img img{width:100%;height:100%;object-fit:cover;display:block}
+.reward-card-name{font-family:'Cinzel',serif;font-size:.56rem;font-weight:600;text-transform:uppercase;
+  letter-spacing:.02em;color:var(--ink);line-height:1.25;padding:5px 7px;text-align:center}
+.reward-text{flex:1;font-size:.78rem;color:#2a2820;line-height:1.6;font-style:italic}
+.reward-rathaus{font-family:'Cinzel',serif;font-size:.46rem;letter-spacing:.12em;
+  text-transform:uppercase;color:rgba(232,200,64,.6);margin-top:2px}
+.reward-locked-msg{padding:8px 14px;font-family:'Cinzel',serif;font-size:.48rem;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-align:center}
+
+/* Chapter card */
+.ch{background:#fff;border:1px solid var(--border);border-radius:3px;
+  margin-bottom:4px;display:flex;align-items:stretch;cursor:pointer;
+  transition:box-shadow .15s;overflow:hidden}
+.ch:hover{box-shadow:0 2px 8px rgba(26,64,96,.12)}
+.ch.done{opacity:.55}
+.ch.done .ch-name{text-decoration:line-through;opacity:.6}
+.ch.locked{opacity:.4;pointer-events:none}
+
+.ch-num{font-family:'Pirata One',cursive;font-size:1.3rem;line-height:1;
+  color:white;min-width:46px;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;padding:8px}
+.ch-body{flex:1;padding:9px 11px}
+.ch-name{font-family:'Cinzel',serif;font-size:.7rem;font-weight:600;
+  letter-spacing:.06em;color:var(--ink);margin-bottom:2px}
+.ch-story{font-style:italic;font-size:.76rem;color:var(--muted);
+  line-height:1.4;margin-bottom:4px}
+.ch-tags{display:flex;flex-wrap:wrap;gap:3px}
+.ch-tag{font-family:'Cinzel',serif;font-size:.46rem;letter-spacing:.06em;
+  text-transform:uppercase;padding:2px 7px;border-radius:20px;color:white}
+.tag-ziel{background:var(--blue-dk)}
+.tag-mod{background:#7a4400}
+
+.ch-check{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--border);
+  margin:10px 12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  font-size:.75rem;color:transparent;transition:all .2s;align-self:center}
+.ch.done .ch-check{background:var(--score);border-color:var(--score);color:white}
+
+/* Difficulty colours */
+.diff-1 .ch-num{background:var(--blue-md)}
+.diff-2 .ch-num{background:#2a6a40}
+.diff-3 .ch-num{background:var(--score)}
+.diff-4 .ch-num{background:#4a1a6a}
+.diff-1 .group-hd{color:var(--blue-md)}
+.diff-2 .group-hd{color:#2a6a40}
+.diff-3 .group-hd{color:var(--score)}
+.diff-4 .group-hd{color:#4a1a6a}
+
+/* Footer */
+.bar-foot{background:var(--blue-dk);padding:10px 22px;
+  display:flex;align-items:center;justify-content:space-between;
+  border-radius:0 0 10px 10px}
+.foot-pg{font-family:'Cinzel',serif;font-size:.48rem;letter-spacing:.1em;
+  text-transform:uppercase;color:rgba(255,255,255,.3)}
+.foot-btn{font-family:'Cinzel',serif;font-size:.5rem;letter-spacing:.08em;
+  text-transform:uppercase;border:1px solid rgba(255,255,255,.18);
+  background:transparent;color:rgba(255,255,255,.45);padding:4px 12px;cursor:pointer}
+.foot-btn.p{background:var(--blue-md);border-color:var(--blue-md);color:white}
+.group-name{}
+.group-hint{font-size:.55rem;font-style:italic;color:var(--muted);letter-spacing:.04em;
+  text-transform:none;display:block;margin-top:2px}
+.locked-card{opacity:.4;pointer-events:none;cursor:default}
+
+</style>
+</head>
+<body>
+<div class="book">
+
+  <div class="bar">
+    <div class="bar-logo">Solo- / Koop-Kampagne</div>
+    <a href="zwischental-anleitung.html" class="bar-back">← Anleitung</a>
+  </div>
+  <div class="strip"></div>
+
+  <div class="hero">
+    <div class="hero-title">26 Jahre Talwacht</div>
+    <p class="hero-lead">Das Tal hat eine Geschichte. Du schreibst sie — Jahreszeit für Jahreszeit, Sieg für Sieg. Stell dich in 5 Kapiteln den Abenteuern und Rückschlägen von 25 Jahren Talwacht.</p>
+    <div class="hero-rules">
+      <div class="hero-rule"><span class="hero-rule-n">1</span>Bestehe wenigstens <strong>4 von 5 Level</strong> in jedem Kapitel, um das nächste freizuschalten.</div>
+      <div class="hero-rule"><span class="hero-rule-n">2</span>Für jedes freigeschaltete Kapitel startet deine <strong>Siedlung ein Level höher</strong> und du gewinnst <strong>4 epische Sonderkarten</strong>.</div>
+      <div class="hero-rule"><span class="hero-rule-n">3</span>Bestehe alle 25 Level und stelle dich dem <strong>Finale: Level 26</strong>.</div>
+      <div class="hero-rule"><span class="hero-rule-n">4</span>Schaffe das Finale — erhalte das <strong>goldene Rathaus</strong> und den <strong>goldenen Turm</strong> (verdoppelt Punkte).</div>
+    </div>
+    <div class="note">Die Kampagne kann solo oder kooperativ gespielt werden. Alle normalen Regeln gelten.</div>
+    <div class="material">
+      <div class="mat-label">Zusätzliches Material</div>
+      <div class="mat-items">
+        <div class="mat-item">4 Sonderkarten Z1, Z2, Z3, Z33</div>
+        <div class="mat-item">1 alternative Rathauskarte in Gold</div>
+        <div class="mat-item">1 Turm-Token in Goldfarbe</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-label" id="prog-label">0 / 26</div>
+    <div class="progress-track"><div class="progress-fill" id="prog-fill"></div></div>
+  </div>
+
+  <div class="chapters" id="chapters"></div>
+
+  <div class="bar-foot">
+    <div class="foot-pg">Zwischental · Solo-Kampagne</div>
+    <a href="index.html" class="foot-btn p">▶ Demo spielen</a>
+  </div>
+
+</div>
+
+<script>
+const CHAPTERS = [
+  // ── EINSTEIGER (1–6) ──────────────────────────────────────────────
+  {
+    num:1, name:'Das erste Jahr',
+    story:'Willkommen bei der Talwacht. Du legst den Grundstein für eine neue Siedlung. Das Tal ist ruhig. Noch wissen die Plünderer nichts davon.',
+    ziel:'Erreiche 40 Siegpunkte',
+    mod:null, diff:1,
+  },
+  {
+    num:2, name:'Das Jahr der ersten Händler',
+    story:'Reisende Händler werden aufmerksam auf die neue Siedlung',
+    ziel:'Baue mindestens 6 Rohstoffkarten (Grün) und erreiche 60 Siegpunkte',
+    mod:'Starte jede Jahreszeit mit 1 Glas als Bonus', diff:1,
+  },
+  {
+    num:3, name:'Ein kurzes Jahr',
+    story:'Gerüchte von Streitigkeiten zwischen den vier Königreichen kommen auf. Noch ist das Tal ruhig. Zeit zum Bauen.',
+    ziel:'Erreiche 45 Siegpunkte',
+    mod:'Spiele nur Winter und Frühling — kein Überfall', diff:1,
+  },
+  {
+    num:4, name:'Ein Jahr von Toren & Türmen',
+    story:'Die ersten Horden werden auf deine Siedlung aufmerksam. Alle reden davon, Tore und Türme. Aber wer zahlt dafür?',
+    ziel:'Baue in jeder Jahreszeit ein Tor oder einen Turm',
+    mod:null, diff:1,
+  },
+  {
+    num:5, name:'Das Jahr der kopflosen Horden',
+    story:'Immer mehr Plünderer ziehen von Königreich zu Königreich durch dein Tal. Noch sind sie führerlos.',
+    ziel:'Erreiche 75 Siegpunkte',
+    mod:'Jeden Überfall mit Anführer C6 (Kein Anführer)', diff:1,
+  },
+  {
+    num:6, name:'Ein teures Jahr',
+    story:'Die Steuereintreiber der umliegenden Königreiche fordern ihren Anteil. Eine subtilere Art zu plündern?',
+    ziel:'Erreiche 60 Siegpunkte und ende mit mindestens 8 Münzen',
+    mod:'Steuern: 1 Glas pro Jahreszeit gilt als Abgabe und kann nicht genutzt werden', diff:1,
+  },
+
+  // ── FORTGESCHRITTEN (7–14) ─────────────────────────────────────────
+  {
+    num:7, name:'Das Jahr der südlichen Eskalation',
+    story:'Das südliche Königreich wird immer gesetzloser. Sie kommen immer aus derselben Richtung. Der Süden schläft nicht.',
+    ziel:'Überlebe mindestes 1 Jahreszeit ohne eine Karte zu verlieren (alle Karten werden am Ende der Jahreszeit gewertet)',
+    mod:'Jeder Überfall startet aus S (gelber Würfel immer = 5)', diff:2,
+  },
+  {
+    num:8, name:'Das Jahr des wandernden Architekten',
+    story:'Ein Architekt verbringt ein Jahr bei euch. Es entstehen besonders prächtige Gebäude in deiner Siedlung.',
+    ziel:'Werte mindestens 4 Sondergebäude in der Herbst-Wertung',
+    mod:null, diff:2,
+  },
+  {
+    num:9, name:'Das Jahr der hölzernen Mauern',
+    story:'Die Siedlung soll eine hölzerne Stadtmauer bekommen. Wirst du es rechtzeitig schaffen?',
+    ziel:'Erreiche 50 Siegpunkte',
+    mod:'Barrikadiere alle 12 Außenkanten der Siedlung bis Ende Herbst', diff:2,
+  },
+  {
+    num:10, name:'Das Jahr der Überschwemmung',
+    story:'Das Tal wird überschwemmt. Die südlichen Felder der Siedlung stehen unter Wasser.',
+    ziel:'Erreiche 55 Siegpunkte mit nur 5 Feldern',
+    mod:'Felder S, SO und SW (Unterkante) dürfen nicht bebaut werden. Plünderer ziehen darüber hinweg.', diff:2,
+  },
+  {
+    num:11, name:'Das Jahr ohne Winterschlaf',
+    story:'Sie kamen schon im Winter. Niemand hat damit gerechnet.',
+    ziel:'Überstehe alle 4 Jahreszeiten inkl. Winterüberfall mit mindestens 75 Siegpunkten',
+    mod:'Auch im Winter findet ein Überfall statt. Entsprechend gibt es auch eine Gerüchtephase.', diff:2,
+  },
+  {
+    num:12, name:'Das Jahr der Berserker',
+    story:'Dreimal hintereinander derselbe Anführer. Die Horde lernt dazu.',
+    ziel:'Erreiche 85 Siegpunkte',
+    mod:'Anführer C9 (Brandstifter) tritt dreimal in Folge auf', diff:2,
+  },
+  {
+    num:13, name:'Das Elfenbeinjahr',
+    story:'Ein umherziehender Mönch behauptet, der Elfenbeinturm sei der Schlüssel zu allem.',
+    ziel:'Baue den Elfenbeinturm, erreiche Level 6 mit der Siedlung und 85 Siegpunkte',
+    mod:'Halte die Karte "Elfenbeinturm" bereit. Du kannst sie jederzeit bauen anstelle einer Karte aus dem Drafting', diff:2,
+  },
+  {
+    num:14, name:'Ein fragiles Jahr',
+    story:'Das Rathaus bröckelt. Es ist das neunte Gebäude — und das gefährdetste.',
+    ziel:'Beende das Spiel mit aktivem Rathaus',
+    mod:'Das Rathaus gilt als fragil — wird es betreten, ist das Spiel sofort verloren', diff:3,
+  },
+
+  // ── SCHWER (15–21) ─────────────────────────────────────────────────
+  {
+    num:15, name:'Das Jahr der schwarzen Kathedrale',
+    story:'Sie sagen, die Kathedrale gibt mehr als sie nimmt. Finde es heraus.',
+    ziel:'Die Schwarze Kathedrale muss in der Herbst-Wertung aktiv sein',
+    mod:'Keine Türme verfügbar. Halte die Karte "schwarze Kathedrale" bereit. Du kannst sie jederzeit bauen anstelle einer Karte aus dem Drafting', diff:3,
+  },
+  {
+    num:16, name:'Ein Jahr im schimmernden Nebel',
+    story:'Ein schimmernder Nebel durchzieht das Tal. Das bringt dich auf eine Idee...',
+    ziel:'Werte den Spiegelturm mit 2 Nachbarn aktiv und erreiche insgesamt mindestens 90 Siegpunkte',
+    mod:'Der Spiegelturm muss in der Mitte einer Reihe oder Spalte stehen', diff:2,
+  },
+  {
+    num:17, name:'Das Dürre-Jahr',
+    story:'Eine Dürre befällt das Tal. Der Brunnen versorgt deine Siedlung mit dem nötigen Wasser. Wer ihn verliert, verliert alles.',
+    ziel:'Die Karte "Brunnen" auf Feld NW oben-links darf nie geplündert werden',
+    mod:'Legt die Karte "Brunnen" auf das Feld NW zu Spielbeginn. Keine Türme verfügbar — nur Barrieren und Ritter', diff:3,
+  },
+  {
+    num:18, name:'6 Wunder in einem Jahr',
+    story:'Deine Baumeister waren fleißig. Die Siedlung ist voller Wunder — und umso attraktiver für Räuber.',
+    ziel:'Werte 6 aktive Sondergebäude in der Herbst-Wertung',
+    mod:null, diff:3,
+  },
+  {
+    num:19, name:'Ein wechselhaftes Jahr',
+    story:'Die Würfel lügen. Was du siehst, stimmt nicht mit dem überein, was kommt.',
+    ziel:'Erreiche 90 Siegpunkte',
+    mod:'Jeder Überfall mit Anführer C10 (Blau/Gelb tauschen)', diff:3,
+  },
+  {
+    num:20, name:'Das Jahr voll Reichtum und Ruhm',
+    story:'Das Tal will Punkte und Münzen. Beides zur gleichen Zeit.',
+    ziel:'Ende mit mindestens 100 Siegpunkten UND 10 Münzen',
+    mod:null, diff:3,
+  },
+  {
+    num:21, name:'Das Jahr der Belagerungen',
+    story:'In diesem Jahr sind die Horden besonders stark. Immer und immer wieder.',
+    ziel:'Überstehe mindestens 3 Jahreszeiten mit mehr 20 Punkten pro Jahreszeit',
+    mod:'Jeder Überfall mit Anführer C4 (Blau+Gelb auf 6)', diff:3,
+  },
+
+  // ── LEGENDÄR (22–26) ──────────────────────────────────────────────
+  {
+    num:22, name:'Der einjährige Konflikt im Süden',
+    story:'Das südliche Königreich will die Herrschaft über das Tal - sie geben nicht nach!',
+    ziel:'Erreiche 80 Siegpunkte',
+    mod:'Felder SO und SW nicht bebaubar · Jeder Überfall startet aus S', diff:4,
+  },
+  {
+    num:23, name:'Das Jahr der Sicherheiten',
+    story:'Manche Gebäude sind mehr wert im Ruin als im Aufbau. Nutze das.',
+    ziel:'Werte 3 aktive Versicherungskarten gleichzeitig',
+    mod:'Alle drei müssen im gleichen Spielzug geplündert sein', diff:4,
+  },
+  {
+    num:24, name:'Der einjährige Winter',
+    story:'Vier Jahreszeiten Winter. Die Kälte macht keine Pause mehr.',
+    ziel:'Erreiche 70 Siegpunkte',
+    mod:'Jede Jahreszeit gilt als Winter (kein Überfall) — aber nur Winterkarten im Pool. (nur Solo spielbar)', diff:4,
+  },
+  {
+    num:25, name:'Das Jahr am Abgrund',
+    story:'Türme gibt es nicht. Barrieren gibt es nicht. Nur Mut und gute Planung.',
+    ziel:'Erreiche 99 Siegpunkte',
+    mod:'Keine Türme, keine Barrieren · Nur Ritter zur Verteidigung', diff:4,
+  },
+  {
+    num:26, name:'26 Jahre Talwacht',
+    story:'Du hast alles gesehen. Die Horde kennt deine Strategien. Jetzt zeigst du, was du wirklich kannst.',
+    ziel:'Erreiche mehr als 120 Siegpunkte',
+    mod:'Alle Überfälle mit Anführer C9 · Felder S/SO/SW nicht bebaubar · Keine Türme', diff:4,
+  },
+];
+const GROUPS   = [
+  {
+    name:'Kapitel I · Die Anfänge', nums:[1,2,3,4,5],
+    reward: {
+      icon:'🏛', title:'Siedlungs-Level 2',
+      desc:'Ab sofort startest du jedes Spiel mit Siedlungs-Level 2 statt Level 1 und 1 Münze.',
+      card: { name:'Anführer-Arena', id:'Z31', pts:'Roter Würfel ×3', def:2,
+        flavor:'Die Arena fordert den Anführer heraus — und nutzt seine Stärke.' }
+    }
+  },
+  {
+    name:'Kapitel II · Das Erwachen', nums:[6,7,8,9,10],
+    reward: {
+      icon:'🏛', title:'Siedlungs-Level 3',
+      desc:'Ab sofort startest du jedes Spiel mit Siedlungs-Level 3 und 2 Münzen.',
+      card: { name:'Schwarze Kathedrale', id:'Z32', pts:'48★ (Allein-Survivor)', def:0,
+        flavor:'Wer allein steht, gewinnt alles — oder verliert alles.' }
+    }
+  },
+  {
+    name:'Kapitel III · Der Riss', nums:[11,12,13,14,15],
+    reward: {
+      icon:'🏛', title:'Siedlungs-Level 4',
+      desc:'Ab sofort startest du jedes Spiel mit Siedlungs-Level 4 und 3 Münzen.',
+      card: { name:'Spiegelturm', id:'Z33', pts:'3 + verdoppelt Nachbarn', def:2,
+        flavor:'Was er reflektiert, wächst. Was ihn umgibt, gedeiht.' }
+    }
+  },
+  {
+    name:'Kapitel IV · Die Prüfung', nums:[16,17,18,19,20],
+    reward: {
+      icon:'🏛', title:'Siedlungs-Level 5',
+      desc:'Ab sofort startest du jedes Spiel mit Siedlungs-Level 5, 4 Münzen und dem Elfenbeinturm auf einem Feld deiner Wahl.',
+      card: { name:'Elfenbeinturm', id:'Z34', pts:'Rathaus-Level ×3', def:2,
+        flavor:'Der Turm wächst mit dem Rathaus. Level 5 = 15 Punkte.' }
+    }
+  },
+  {
+    name:'Kapitel V · Der Abgrund', nums:[21,22,23,24,25],
+    reward: null // Finale freigeschaltet
+  },
+  {
+    name:'⚔ Finale · 26 Jahre Talwacht', nums:[26],
+    reward: {
+      icon:'🏆', title:'Goldene Rathausfestung',
+      desc:'Die wirst für immer eine Legende der Talwacht sein! Glückwunsch Wächter, du hast die Kampagne abgeschlossen.\nAb jetzt darfst du das goldene Rathaus für deine Siedlung verwenden. Die Siedlung startet sofort auf Level 6 und du erhältst 5 Münzen. Statt das Siedlungs-Level zu erhöhen, kannst du Karten für eine Münze verkaufen.\n\nZusätzlich kannst du goldene Türme bauen.',
+      card: { name:'Goldene Rathausfestung', id:'GT', pts:'Verdoppelt Punkte der Karte', def:'',
+        flavor:'Eine neue Funktion: Baust du einen Turm für 4 Münzen statt 2, verdoppelt er Siegpunkte des geschützten Gebäudes.' }
+    }
+  },
+];
+
+
+
+
+const DIFF_LABELS = {1:'Einsteiger',2:'Fortgeschritten',3:'Schwer',4:'Legendär'};
+
+
+
+const KEY = 'talwacht_kampagne_v2';
+let done = JSON.parse(localStorage.getItem(KEY) || '{}');
+
+function save(){ localStorage.setItem(KEY, JSON.stringify(done)); }
+
+function isGroupUnlocked(groupIdx) {
+  if (groupIdx === 0) return true; // Kapitel I immer offen
+  if (groupIdx === 5) {
+    // Finale: alle 5 Kapitel müssen je 4/5 haben
+    return [0,1,2,3,4].every(gi => groupDone(gi) >= 4);
+  }
+  // Kapitel N: vorheriges Kapitel muss 4/5 haben
+  return groupDone(groupIdx - 1) >= 4;
+}
+
+function groupDone(groupIdx) {
+  return GROUPS[groupIdx].nums.filter(n => done[n]).length;
+}
+
+function updateProgress(){
+  const n = Object.values(done).filter(Boolean).length;
+  const pct = Math.round(n / 26 * 100);
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-label').textContent = `${n} von 26 Kapiteln abgeschlossen`;
+}
+
+function render(){
+  const cont = document.getElementById('chapters');
+  cont.innerHTML = '';
+
+  GROUPS.forEach((group, gi) => {
+    const unlocked = isGroupUnlocked(gi);
+    const doneCount = groupDone(gi);
+    const total = group.nums.length;
+    const isFinale = gi === 5;
+    const rewardUnlocked = gi < 5 ? isGroupUnlocked(gi + 1) : !!done[26];
+
+    // Gruppenheader
+    const header = document.createElement('div');
+    header.className = `group-hd diff-${gi < 5 ? gi+1 : 4}${unlocked ? '' : ' locked'}`;
+    const lockIcon = unlocked ? '' : '🔒 ';
+    const progress = isFinale ? (done[26] ? ' · ✓' : ' · 0/1') : ` · ${doneCount}/${total}`;
+    const unlockHint = !unlocked && gi < 5
+      ? ` — noch ${4 - groupDone(gi-1)} in Kapitel ${['I','II','III','IV','V'][gi-1]}`
+      : !unlocked && gi === 5
+      ? ' — schließe alle Kapitel (je 4/5) ab'
+      : '';
+    header.innerHTML = `<span class="group-name">${lockIcon}${group.name}${progress}</span>${unlockHint ? `<span class="group-hint">${unlockHint}</span>` : ''}`;
+    cont.appendChild(header);
+
+    // Kapitel-Karten
+    group.nums.forEach(num => {
+      const ch = CHAPTERS.find(c => c.num === num);
+      if (!ch) return;
+      const el = document.createElement('div');
+      const isDone = !!done[ch.num];
+      el.className = `ch diff-${ch.diff}${isDone ? ' done' : ''}${!unlocked ? ' locked-card' : ''}`;
+      if (!unlocked) {
+        el.innerHTML = `<div class="ch-num" style="background:#3a3028">?</div><div class="ch-body"><div class="ch-name" style="color:rgba(26,18,8,0.3)">Gesperrt</div><div class="ch-story" style="color:rgba(26,18,8,0.2)">Schließe das vorherige Kapitel ab.</div></div>`;
+      } else {
+        el.innerHTML = `
+          <div class="ch-num">${ch.num}</div>
+          <div class="ch-body">
+            <div class="ch-name">${ch.name}</div>
+            <div class="ch-story">${ch.story}</div>
+            <div class="ch-tags">
+              <span class="ch-tag tag-ziel">★ ${ch.ziel}</span>
+              ${ch.mod ? `<span class="ch-tag tag-mod">⚙ ${ch.mod}</span>` : ''}
+            </div>
+          </div>
+          <div class="ch-check">✓</div>`;
+        el.addEventListener('click', () => {
+          done[ch.num] = !done[ch.num];
+          save(); render(); updateProgress();
+        });
+      }
+      cont.appendChild(el);
+    });
+
+    // Belohnungs-Panel
+    if (group.reward && unlocked) {
+      const rp = document.createElement('div');
+      rp.className = 'reward';
+      if (rewardUnlocked) {
+        const r = group.reward;
+        const c = r.card;
+        rp.innerHTML = `
+          <div class="reward-hd">
+            <div class="reward-icon">${r.icon}</div>
+            <div>
+              <div class="reward-title">${r.title}</div>
+              <div class="reward-rathaus">Belohnung freigeschaltet ✓</div>
+            </div>
+          </div>
+          <div class="reward-body">
+            <div class="reward-card">
+              <div class="reward-card-img"><img src="${c.id}.png" alt="${c.name}" onerror="this.style.opacity=.06"></div>
+              <div class="reward-card-name">${c.name}</div>
+            </div>
+            <div class="reward-text">${r.desc}</div>
+          </div>`;
+      } else {
+        rp.innerHTML = `<div class="reward-locked-msg">🔒 Belohnung — schließe ${gi < 5 ? '4 von 5 Kapiteln' : 'das Finale'} ab</div>`;
+      }
+      cont.appendChild(rp);
+    }
+  });
+
+  updateProgress();
+}
+
+render();
+
+</script>
+</body>
+</html>
