@@ -243,25 +243,7 @@ function makeCard(card, w, h, isRathaus, score, fortified, boosted, plundered, a
   <line x1="${w-6}"  y1="6" x2="${w-12}" y2="12" stroke="white" stroke-width="1.4" stroke-linecap="round"/>
   ` : ''}
 
-  <!-- KAPAZITÄTSPUNKTE — goldene Dots unten rechts -->
-  ${(() => {
-    if (card.infinite_cap) {
-      const by = h - (h<100 ? 5 : 6);
-      const bx = w - (h<100 ? 8 : 10);
-      return `<text x="${bx}" y="${by}" text-anchor="end" dominant-baseline="auto"
-        font-family="serif" font-size="${h<100 ? 7 : 9}" fill="#c8a020" opacity="0.82">∞</text>`;
-    }
-    const cap = card.cap || 0;
-    if (!cap) return '';
-    const r = h < 100 ? 2.2 : 2.8;
-    const gap = r * 2.8;
-    const bx = w - r - 5;
-    const by = h - r - 5;
-    return Array.from({length: cap}, (_, i) =>
-      `<circle cx="${(bx - i * gap).toFixed(1)}" cy="${by.toFixed(1)}" r="${r}"
-        fill="#c8a020" opacity="0.82"/>`
-    ).join('');
-  })()}
+  <!-- Kapazitätspunkte entfernt — Info in Grafiken eingearbeitet -->
 </svg>`;
 }
 
