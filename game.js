@@ -521,7 +521,7 @@ const CARD_DESC_FALLBACK = {
   dual_res_nahrung:   'Produziert Holz und Nahrung',
   dual_res_holz:      'Produziert Nahrung und Holz',
   dual_res_glas:      'Produziert 2× Glas',
-  schutzpatronin:     'Solange aktiv haben alle fragilen Gebäude Verteidigung 2 und werden nicht zerstört',
+  schutzpatronin:     'Solange aktiv haben alle fragilen Gebäude Verteidigung 3 und werden nicht zerstört',
   direct_knight:      'Gibt einmalig +2 Ritter beim Bau',
   direct_barrier:     'Gibt einmalig +2 Barrieren beim Bau.',
   direct_coins:       'Gibt einmalig +2 Münzen beim Bau.',
@@ -1800,7 +1800,7 @@ function renderGrid(skipGlows) {
         badge.className = 'vault-badge-el';
         badge.style.cssText = `
           position:absolute; top:3px; left:3px; z-index:50;
-          background:${safe ? '#2a7a20' : '#c8900a'};
+          background:'#c8a020';
           color:#fff; border-radius:50%;
           min-width:24px; height:24px; padding:0 4px;
           display:flex; align-items:center; justify-content:center;
@@ -1864,7 +1864,7 @@ function renderGrid(skipGlows) {
           fort.classList.add('animate');
           G.fortifiedNew.delete(i);
         }
-        fort.innerHTML = makeFortifyStone();
+        fort.innerHTML = makeFortifyStone(G.boosted[i] || 0);
         cell.appendChild(fort);
       }
     } else {
@@ -3268,7 +3268,7 @@ function startRaidSequence() {
     // Turm überschreibt Karten-def → 0 (nur Ritter-Bonus zählt noch)
     const cardDef = G.fortified[idx] ? 0 : (card.def || 0);
     // Schutzpatronin wirkt nur auf fragile Karten OHNE Turm
-    const schutzBonus = (card.fragile && !G.fortified[idx] && hasSchutzpatronin()) ? Math.max(0, 2 - cardDef) : 0;
+    const schutzBonus = (card.fragile && !G.fortified[idx] && hasSchutzpatronin()) ? Math.max(0, 3 - cardDef) : 0;
     const def  = cardDef + (G.boosted[idx] || 0) + schildwallBonus + schutzBonus;
     const hasTower = G.fortified[idx];
     const incoming = attackers;
@@ -3570,7 +3570,7 @@ const SPECIAL_MECHANIC_DESC = {
   direct_coins_seasonal: 'Münzen je nach Jahreszeit beim Bau',
   dual_res_nahrung:  'Produziert Holz UND Nahrung',
   dual_res_holz:     'Produziert Nahrung UND Holz',
-  schutzpatronin:    'Alle fragilen Gebäude erhalten def 2 und werden nicht zerstört',
+  schutzpatronin:    'Alle fragilen Gebäude erhalten def 3 und werden nicht zerstört',
   dual_res_glas:     'Produziert 2× Glas',
   destroyable:       '15 Punkte — wird bei Deaktivierung zerstört',
   pts_if_plundered:  '0 Punkte wenn aktiv · 8 Punkte wenn geplündert',
@@ -4297,10 +4297,11 @@ function showToast(msg) {
 //  BEFESTIGUNG — kleiner Schachturm (ISO)
 //  Niedrig, kompakt, klar erkennbar als Turm
 // ═══════════════════════════════════════════
-function makeFortifyStone() {
+function makeFortifyStone(boosted) {
   const w = 40, h = 40;
   const cx = w/2, cy = h/2;
   const r = 17; // Chip-Radius
+  const knightBonus = boosted || 0;
 
   // Schachturm-Silhouette, klein, weiß, zentriert auf dem Chip
   const tx = cx, ty = cy + 1; // Turm-Zentrum leicht nach unten
@@ -4341,6 +4342,15 @@ function makeFortifyStone() {
     <!-- Violetter Akzent-Streifen im Körper -->
     <rect x="${tx-tw/2+2}" y="${ty-1}" width="${tw-4}" height="1.5"
           rx="0.3" fill="rgba(140,80,220,0.6)"/>
+
+    <!-- Ritter-Badge rechts unten (nur wenn Ritter vorhanden) -->
+    ${knightBonus > 0 ? `
+    <circle cx="${cx+11}" cy="${cy+11}" r="8.5"
+            fill="#1a5a28" stroke="#fff" stroke-width="1.4"/>
+    <text x="${cx+11}" y="${cy+11.5}" text-anchor="middle" dominant-baseline="middle"
+          font-family="'Cinzel',serif" font-size="7" font-weight="700"
+          fill="#6ee88a">+${knightBonus}</text>
+    ` : ''}
   </svg>`;
 }
 
@@ -4582,20 +4592,22 @@ splashStartBtn.addEventListener('touchend', (e) => { e.preventDefault(); dismiss
 // ── KAPAZITÄTSSYSTEM ─────────────────────────────────────────────────────────
 // Kapazität = max. Anzahl Upgrades (Ritter + Münzen + Turm) auf einer Karte
 // Definiert per Karte in cards.js als card.cap (0–5)
-// Z2 (Lagerfeste): gibt Nachbarkarten +2 Kapazität
+// Z2 (Lagerfeste): gibt Nachbarkarten +3 Kapazität
 
 const GRID_NEIGHBORS = {
   0:[1,3], 1:[0,2], 2:[1,5], 3:[0,6], 4:[], 5:[2,8], 6:[3,7], 7:[6,8], 8:[5,7]
 };
 
 function getCapBoost(idx) {
-  // Prüfe ob ein Nachbar die Kapazität erhöht (cap_boost_neighbors Mechanik)
+  // Lagerfeste (cap_boost_neighbors): gibt Nachbarkarten +3 Kapazität
+  // Grid-Nachbarn (orthogonal, Rathaus idx=4 ausgenommen):
+  // 0↔1↔2, 0↔3, 2↔5, 3↔6, 5↔8, 6↔7↔8
   const neighbors = GRID_NEIGHBORS[idx] || [];
   let boost = 0;
   for (const ni of neighbors) {
     const nc = G.board[ni];
     if (nc && !G.plundered[ni] && nc.special_mechanic === 'cap_boost_neighbors') {
-      boost += 2;
+      boost += 3;
     }
   }
   return boost;
@@ -4618,9 +4630,14 @@ function freeCapacity(idx) {
 
 function capToast(idx) {
   const card = G.board[idx];
-  if (card?.infinite_cap) return; // sollte nie vorkommen
-  const cap = (card?.cap ?? 1) + getCapBoost(idx);
-  showToast(`Kapazität voll (max. ${cap} Upgrade${cap !== 1 ? 's' : ''})`);
+  if (card?.infinite_cap) return;
+  const boost = getCapBoost(idx);
+  const base  = card?.cap ?? 1;
+  const total = base + boost;
+  if (boost > 0)
+    showToast(`Kapazität voll (Basis ${base} + Lagerfeste +${boost} = max. ${total})`);
+  else
+    showToast(`Kapazität voll (max. ${total} Upgrade${total !== 1 ? 's' : ''})`);
 }
 
 // Badge direkt im DOM aktualisieren ohne renderGrid()
@@ -4633,7 +4650,7 @@ function updateVaultBadge(idx) {
   cell.querySelectorAll('.vault-badge-el').forEach(e => e.remove());
   const n = G.vaultCoins[idx] || 0;
   const safe = G.fortified[idx] || !!(G.board[idx]?.safe_vault);
-  const col  = safe ? '#2a7a20' : '#c8900a';
+  const col  = '#c8a020';
   if (n > 0) {
     const badge = document.createElement('div');
     badge.className = 'vault-badge-el';
