@@ -515,6 +515,7 @@ function revealDice() {
 // ══════════════════════════════════════════════════════
 const CARD_DESC_FALLBACK = {
   decoy:              'Verdeckt das darunterliegende Gebäude und schützt es (einmalig) vor Plünderung',
+  bekehrung:          'Wird durchbrochen: Karte entfernt, Spieler erhält sofort +1 Ritter — verwandelt einen Angreifer in einen Verbündeten',
   force_start:        'Überfall startet immer an dieser Position',
   force_dir_cw:       'Überfall läuft immer mit dem Uhrzeigersinn',
   force_dir_ccw:      'Überfall läuft immer gegen den Uhrzeigersinn',
@@ -1795,12 +1796,11 @@ function renderGrid(skipGlows) {
       cell.appendChild(topDiv);
       // Vault-Badge direkt an Zelle (nicht an topDiv) damit kein Clipping
       if (G.vaultCoins?.[i] > 0) {
-        const safe = G.fortified[i] || !!(G.board[i]?.safe_vault);
         const badge = document.createElement('div');
         badge.className = 'vault-badge-el';
         badge.style.cssText = `
           position:absolute; top:3px; left:3px; z-index:50;
-          background:'#c8a020';
+          background:#c8a020;
           color:#fff; border-radius:50%;
           min-width:24px; height:24px; padding:0 4px;
           display:flex; align-items:center; justify-content:center;
@@ -1811,6 +1811,21 @@ function renderGrid(skipGlows) {
         `;
         badge.textContent = G.vaultCoins[i];
         cell.appendChild(badge);
+      }
+
+      // Schloss-Icon wenn Kapazität voll
+      if (freeCapacity(i) === 0) {
+        const lock = document.createElement('div');
+        lock.className = 'cap-lock';
+        lock.innerHTML = `<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+          <rect x="2" y="7.5" width="12" height="8" rx="2" fill="#1a1a1a" opacity="0.75"/>
+          <rect x="2" y="7.5" width="12" height="8" rx="2" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="0.8"/>
+          <path d="M5 7.5 V5 a3 3 0 0 1 6 0 V7.5" fill="none" stroke="#1a1a1a" stroke-width="2.8" opacity="0.75"/>
+          <path d="M5 7.5 V5 a3 3 0 0 1 6 0 V7.5" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="1.2"/>
+          <circle cx="8" cy="11.5" r="1.5" fill="rgba(255,255,255,.7)"/>
+          <rect x="7.4" y="11.5" width="1.2" height="2" rx="0.4" fill="rgba(255,255,255,.7)"/>
+        </svg>`;
+        cell.appendChild(lock);
       }
 
       // Click-Handler immer registrieren (für Flip + Karte platzieren)
@@ -3340,6 +3355,13 @@ function startRaidSequence() {
             G.plundered[idx] = true;
             // G.boosted bleibt — Ritter sind permanent und verschwinden nicht bei Plünderung
 
+            // Bekehrung: 1 Angreifer wird sofort zum Ritter
+            if (G.board[idx]?.special_mechanic === 'bekehrung') {
+              G.knights = (G.knights || 0) + 1;
+              spawnColoredFloat(idx, '⚔→🗡 Bekehrt! +1 Ritter', '#6edd8a');
+              renderResources();
+            }
+
             // Vault-Münzen verloren wenn nicht geschützt
             if (G.vaultCoins[idx] > 0 && !(G.fortified[idx] || G.board[idx]?.safe_vault)) {
               const lost = G.vaultCoins[idx];
@@ -3555,6 +3577,7 @@ function clearSelection() {
 
 // Beschreibungen für Sonderkarten-Mechaniken
 const SPECIAL_MECHANIC_DESC = {
+  bekehrung:         'Durchbrochen → Karte entfernt, sofort +1 Ritter',
   free_build:        'Kostenlos bauen — zählt nicht zum Baulimit',
   minus2_attackers:  '−2 Angreifer vor dem Überfall',
   neighbor_defense:  'Nachbarkarten erhalten +1 Verteidigung',
@@ -4656,7 +4679,7 @@ function updateVaultBadge(idx) {
     badge.className = 'vault-badge-el';
     badge.style.cssText = `
       position:absolute; top:3px; left:3px; z-index:50;
-      background:${col};
+      background:#c8a020;
       color:#fff; border-radius:50%;
       min-width:24px; height:24px; padding:0 4px;
       display:flex; align-items:center; justify-content:center;
