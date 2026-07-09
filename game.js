@@ -24,6 +24,8 @@ const G = {
   selectedBarrierKey: null,
   score: 0,
   victoryPoints: 0,
+  seasonPoints: [0, 0, 0, 0],   // Punkte je Jahreszeit (für Endwertung + Simulation)
+  preHerbstSnapshot: null,       // Snapshot vor dem letzten Herbst-Überfall
   builtThisSeason: 0,  // max 5 pro Jahreszeit
   attackerOverride: null, // gesetzt wenn Champion Angreifer direkt überschreibt
   schildwall: null,    // Set von Schildtor-Zell-Indizes
@@ -237,7 +239,7 @@ const DICE_COLORS = ['yellow', 'blue', 'red'];
 
 // ── Tauschverhältnis — fest 2:1 ──
 const RATIO = 2;
-const VERSION = '1.3.2';
+const VERSION = '1.3.3';
 
 // ── Außenkanten-System für Barrieren ──────────────────────────────
 // 12 Außenkanten am 3×3-Grid: jedes Randfeld hat 1 (Kante) oder 2 (Ecke) Außenkanten.
@@ -2515,6 +2517,26 @@ function advancePhase() {
     G.phase  = nextPhase;
     G.season = nextSeason;
 
+    // ── Snapshot für "Das letzte Gefecht" Simulation ─────────────────
+    // Wird genau einmal gesetzt: beim Eintritt in Herbst-Überfall (phase 3, season 3).
+    // Zu diesem Zeitpunkt sind Würfel + Anführer aus der Gerüchte-Phase bereits gesetzt.
+    if (nextSeason === 3 && nextPhase === 3) {
+      G.preHerbstSnapshot = {
+        board:          G.board.map(c => c ? {...c} : null),
+        stacks:         G.stacks.map(s => s ? s.map(c => ({...c})) : null),
+        fortified:      [...G.fortified],
+        boosted:        [...G.boosted],
+        barriers:       new Set(G.barriers),
+        vaultCoins:     [...G.vaultCoins],
+        rathausLevel:   G.rathausLevel,
+        dice:           G.dice ? {...G.dice} : {yellow:0, blue:0, red:0},
+        attackDir:      G.attackDir    ? {...G.attackDir}    : null,
+        attackBlue:     G.attackBlue,
+        attackChampion: G.attackChampion,
+        seasonPoints:   [...G.seasonPoints],
+      };
+    }
+
     // Neue Jahreszeit: Würfel zurücksetzen
     if (isNewSeason) {
       G.diceRolled = false;
@@ -2605,6 +2627,127 @@ function getVisiblePhaseIndex(phase, season) {
   return phase;
 }
 
+// ── "Das letzte Gefecht" — What-If-Simulation ────────────────────────────────
+// Simuliert: Horde geht direkt zum Rathaus (1 Karte bei Rand, 2 bei Ecke).
+// Gibt { result, herbstScore, totalScore, priorScore } zurück oder null.
+function simulateLetztesGefecht() {
+  const snap = G.preHerbstSnapshot;
+  if (!snap || !snap.attackDir || !snap.attackBlue) return null;
+
+  const { board, stacks, fortified, boosted, barriers, vaultCoins,
+          rathausLevel, dice, attackDir, attackBlue, attackChampion, seasonPoints } = snap;
+
+  // ── Angreifer berechnen (G.dice temporär aus Snapshot) ──────────────
+  const savedDice = G.dice;
+  G.dice = dice;
+
+  let attackers = attackBlue.calc();
+  let effectiveStart     = attackDir.startCell;
+  let effectiveClockwise = attackDir.clockwise;
+
+  if (attackChampion) {
+    const rv = dice.red || 0;
+    switch (attackChampion.id) {
+      case 'C1': attackers += rv; break;
+      case 'C2': {
+        const ci = CLOCKWISE_ORDER.indexOf(attackDir.rawStartCell ?? effectiveStart);
+        effectiveStart = CLOCKWISE_ORDER[(ci + 4) % 8];
+        break;
+      }
+      case 'C3': effectiveClockwise = !effectiveClockwise; break;
+      case 'C4': attackers = Math.max(attackers, dice.blue || 0); effectiveClockwise = true; break;
+      case 'C7': {
+        G.dice = { ...dice, yellow: dice.blue, blue: dice.yellow };
+        attackers = attackBlue.calc();
+        break;
+      }
+      case 'C8': attackers += 6; break; // Herbst immer +6
+    }
+  }
+
+  G.dice = savedDice;
+
+  // Bogenwacht-Reduktion
+  const bogenwacht = board.reduce((sum, c, i) => {
+    if (!c || i === 4 || c.special_mechanic !== 'minus2_attackers') return sum;
+    return sum + ((stacks[i] && stacks[i].length) || 1);
+  }, 0);
+  attackers = Math.max(0, attackers - bogenwacht * 2);
+
+  if (effectiveStart === null || effectiveStart === undefined) return null;
+
+  // ── Pfad: Startfeld → [Zwischenfeld bei Ecke] → Rathaus ─────────────
+  const edgeCells = new Set([1, 3, 5, 7]);
+  const pathCells = [effectiveStart];
+  if (!edgeCells.has(effectiveStart)) {
+    const si = CLOCKWISE_ORDER.indexOf(effectiveStart);
+    const intermediate = effectiveClockwise
+      ? CLOCKWISE_ORDER[(si + 1) % 8]
+      : CLOCKWISE_ORDER[(si - 1 + 8) % 8];
+    pathCells.push(intermediate);
+  }
+  pathCells.push(4); // Rathaus immer am Ende
+
+  // ── Kampfsimulation ─────────────────────────────────────────────────
+  let rathausFallen = false;
+
+  for (let pi = 0; pi < pathCells.length; pi++) {
+    const idx = pathCells[pi];
+    if (attackers <= 0) break;
+
+    if (idx === 4) {
+      if (attackers > rathausLevel) rathausFallen = true;
+      break;
+    }
+
+    const card = board[idx];
+    if (!card) continue;
+
+    // Barrieren (vereinfacht)
+    if (pi === 0) {
+      const outerKey = OUTER_ENTRY_EDGE_FOR_ROUTE(idx, effectiveClockwise);
+      if (outerKey && barriers.has(outerKey)) attackers = Math.max(0, attackers - 1);
+    } else {
+      const ik = innerBarrierKey(pathCells[pi - 1], idx);
+      if (ik && barriers.has(ik)) attackers = Math.max(0, attackers - 1);
+    }
+    if (attackers <= 0) break;
+
+    const cardDef = fortified[idx] ? 0 : (card.def || 0);
+    const def = cardDef + (boosted[idx] || 0);
+    attackers = Math.max(0, attackers - def);
+  }
+
+  // ── Punkteberechnung ────────────────────────────────────────────────
+  const priorScore = (seasonPoints[0] || 0) + (seasonPoints[1] || 0) + (seasonPoints[2] || 0);
+
+  if (rathausFallen) {
+    return { result: 'fallen', herbstScore: 0, totalScore: 0, priorScore };
+  }
+
+  // Snapshot-Board temporär in G einsetzen → recomputeScoreFromBoard nutzen
+  const _board = G.board; const _stacks = G.stacks; const _fortified = G.fortified;
+  const _boosted = G.boosted; const _plundered = G.plundered;
+  const _vaultCoins = G.vaultCoins; const _rathausLevel = G.rathausLevel;
+  const _diceRolled = G.diceRolled; const _dice = G.dice;
+
+  G.board = board; G.stacks = stacks; G.fortified = fortified;
+  G.boosted = boosted; G.plundered = Array(9).fill(false);
+  G.vaultCoins = vaultCoins; G.rathausLevel = rathausLevel;
+  G.diceRolled = true; G.dice = snap.dice;
+
+  recomputeScoreFromBoard();
+  const herbstScore = G.score;
+
+  G.board = _board; G.stacks = _stacks; G.fortified = _fortified;
+  G.boosted = _boosted; G.plundered = _plundered;
+  G.vaultCoins = _vaultCoins; G.rathausLevel = _rathausLevel;
+  G.diceRolled = _diceRolled; G.dice = _dice;
+  recomputeScoreFromBoard();
+
+  return { result: 'survived', herbstScore, totalScore: priorScore + herbstScore, priorScore };
+}
+
 function showGameEnd() {
   const overlay = document.getElementById('gameover-overlay');
   document.getElementById('go-score-num').textContent = G.victoryPoints;
@@ -2625,7 +2768,49 @@ function showGameEnd() {
     : G.victoryPoints >= 25 ? 'Das Murmeltier blickt resigniert — aber es baut weiter.'
     : 'Die Horde war stärker. Nächstes Jahr wird besser.';
   document.getElementById('go-sub-text').textContent = msgs;
-  overlay.classList.add('show');
+
+  // ── Jahreszeit-Aufschlüsselung ────────────────────────────────────────
+  const sp = G.seasonPoints || [0, 0, 0, 0];
+  const breakdownEl = document.getElementById('go-season-breakdown');
+  if (breakdownEl) {
+    const rows = [
+      { icon: '❄', name: 'Winter',   pts: sp[0] },
+      { icon: '🌱', name: 'Frühling', pts: sp[1] },
+      { icon: '☀', name: 'Sommer',   pts: sp[2] },
+      { icon: '🍂', name: 'Herbst',   pts: sp[3] },
+    ];
+    breakdownEl.innerHTML = rows.map(r =>
+      `<div class="go-season-row">
+        <span class="go-season-icon">${r.icon}</span>
+        <span class="go-season-name">${r.name}</span>
+        <span class="go-season-pts">${r.pts}</span>
+      </div>`
+    ).join('');
+  }
+
+  // ── Rathausfinale-Simulation ──────────────────────────────────────────
+  const finaleEl = document.getElementById('go-rathaus-finale');
+  if (finaleEl) {
+    const sim = simulateLetztesGefecht();
+    if (sim) {
+      if (sim.result === 'fallen') {
+        finaleEl.innerHTML = `<div class="go-finale-header">⚔ Rathausfinale</div>
+          <div class="go-finale-result go-finale-fallen">🔥 Das Rathaus brennt — 0 Punkte gesamt</div>`;
+      } else {
+        const diff = sim.totalScore - G.victoryPoints;
+        const sign = diff >= 0 ? '+' : '';
+        const cls  = diff >= 0 ? 'go-finale-win' : 'go-finale-lose';
+        finaleEl.innerHTML = `<div class="go-finale-header">⚔ Rathausfinale</div>
+          <div class="go-finale-detail">Herbst: ${sim.herbstScore} · Gesamt: ${sim.totalScore}</div>
+          <div class="go-finale-result ${cls}">${sign}${diff} gegenüber normalem Spiel</div>`;
+      }
+      finaleEl.style.display = 'block';
+    } else {
+      finaleEl.style.display = 'none';
+    }
+  }
+
+  overlay.classList.add('show'); SFX.gameover();
 }
 
 // Score aus dem aktuellen Brettzustand neu berechnen.
@@ -2836,6 +3021,7 @@ function doScoringInternal() {
           () => headerEl.classList.remove('scoring-flash'), { once: true });
       }
       G.victoryPoints += points;
+      G.seasonPoints[G.season] = (G.seasonPoints[G.season] || 0) + points;
       const vpEl = document.getElementById('vp-value');
       if (vpEl) {
         vpEl.textContent = G.victoryPoints;
@@ -3514,9 +3700,11 @@ function restartGame() {
   G.barrierHand   = 0;
   G.towerHand     = 0;
   G.score         = 0;
-  G.lostPoints    = 0;
-  G.victoryPoints = 0;
-  G.builtThisSeason = 0;
+  G.lostPoints        = 0;
+  G.victoryPoints     = 0;
+  G.seasonPoints      = [0, 0, 0, 0];
+  G.preHerbstSnapshot = null;
+  G.builtThisSeason   = 0;
   G.rathausLevel  = 1;
   G.rathausStack  = [];
   G.coins         = 0;

@@ -2022,6 +2022,57 @@ header {
   color: rgba(245,237,224,0.6);
 }
 .go-lost-num { font-family: 'Pirata One', cursive; font-size: 1rem; color: #e05040; }
+
+/* Jahreszeit-Aufschlüsselung */
+.go-season-breakdown {
+  margin: 8px 0 4px;
+  width: 100%;
+  max-width: 220px;
+}
+.go-season-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 0;
+  font-family: 'Pirata One', cursive;
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.72);
+}
+.go-season-icon { font-size: 0.9rem; width: 18px; text-align: center; }
+.go-season-name { flex: 1; text-align: left; }
+.go-season-pts  { font-size: 0.95rem; color: #e8c840; min-width: 28px; text-align: right; }
+
+/* Rathausfinale What-If */
+.go-rathaus-finale {
+  margin: 4px 0 8px;
+  padding: 8px 12px;
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(200,150,50,0.3);
+  border-radius: 6px;
+  max-width: 240px;
+  width: 100%;
+  text-align: center;
+}
+.go-finale-header {
+  font-family: 'Pirata One', cursive;
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 0.06em;
+  margin-bottom: 3px;
+}
+.go-finale-detail {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 3px;
+}
+.go-finale-result {
+  font-family: 'Pirata One', cursive;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+.go-finale-win    { color: #6abf6a; }
+.go-finale-lose   { color: #e07050; }
+.go-finale-fallen { color: #c04040; }
 .go-sub {
   font-family: 'Crimson Text', serif;
   font-style: italic;
@@ -2931,7 +2982,9 @@ header.scoring-flash {
         <span class="go-lost-num" id="go-lost-num" style="color:#c04040;font-weight:700">0</span>
         <span class="go-lost-label"> Punkte</span>
       </div>
+      <div id="go-season-breakdown" class="go-season-breakdown"></div>
       <div class="go-divider"></div>
+      <div id="go-rathaus-finale" class="go-rathaus-finale" style="display:none;"></div>
       <div class="go-sub" id="go-sub-text">Das Tal dankt seinem Bürgermeister</div>
       <div class="go-sub" style="margin-top:8px; font-size:0.75em; opacity:0.6;">Eine Spielidee von Johannes Zirm</div>
       <button class="go-restart" id="go-restart">Neues Spiel</button>
