@@ -151,7 +151,7 @@ async function loadData() {
     if (res.ok) {
       data = await res.json();
     } else if (cfg.pat) {
-      res = await fetch(apiUrl, { headers:{'Authorization':`token ${cfg.pat}`,'Accept':'application/vnd.github.v3+json'} });
+      res = await fetch(apiUrl, { headers:{'Authorization':`Bearer ${cfg.pat}`,'Accept':'application/vnd.github.v3+json'} });
       if (!res.ok) throw new Error(res.status);
       const j = await res.json();
       data = JSON.parse(decodeURIComponent(escape(atob(j.content.replace(/\n/g,'')))));
@@ -352,7 +352,7 @@ async function confirmClear() {
   if (!cfg.pat) { setStatus('PAT erforderlich.', true); return; }
   try {
     const url = `https://api.github.com/repos/${cfg.owner}/${cfg.repo}/contents/analytics.json`;
-    const h = {'Authorization':`token ${cfg.pat}`,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'};
+    const h = {'Authorization':`Bearer ${cfg.pat}`,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'};
     const r = await fetch(url, {headers:h});
     if (!r.ok) throw new Error(r.status);
     const j = await r.json();

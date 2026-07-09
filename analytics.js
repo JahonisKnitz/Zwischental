@@ -22,7 +22,7 @@ const ZW_ANALYTICS = (() => {
   }
   function headers(cfg) {
     return {
-      'Authorization': `token ${cfg.pat}`,
+      'Authorization': `Bearer ${cfg.pat}`,
       'Accept': 'application/vnd.github.v3+json',
       'Content-Type': 'application/json',
     };
