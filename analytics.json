@@ -593,6 +593,110 @@
       "finale": "loss",
       "finaleTotal": 0,
       "finaleDiff": -142
+    },
+    {
+      "totalVP": 91,
+      "seasonPts": [
+        13,
+        0,
+        30,
+        48
+      ],
+      "lostPts": 47,
+      "rathausLevel": 5,
+      "specialsBuilt": 3,
+      "raidCount": 3,
+      "avgAttackersRaw": 7.3,
+      "avgAttackersNet": 5.3,
+      "towersPerSeason": [
+        0,
+        0,
+        1,
+        1
+      ],
+      "barriersPlayed": 2,
+      "knightsPlayed": 3,
+      "vaultCoinVP": 0,
+      "resourceProd": {
+        "holz": 6,
+        "nahrung": 6,
+        "glas": 2
+      },
+      "builtCards": [
+        {
+          "id": "W14",
+          "name": "Marktstand",
+          "cat": "winter"
+        },
+        {
+          "id": "W16",
+          "name": "verlassenes Gehöft",
+          "cat": "winter"
+        },
+        {
+          "id": "W18",
+          "name": "Bibliothek",
+          "cat": "winter"
+        },
+        {
+          "id": "W23",
+          "name": "Ort der Bekehrung",
+          "cat": "winter"
+        },
+        {
+          "id": "F11",
+          "name": "Wachposten",
+          "cat": "spring"
+        },
+        {
+          "id": "Z15",
+          "name": "Architekten-Salon",
+          "cat": "special"
+        },
+        {
+          "id": "F15",
+          "name": "Silberhändler",
+          "cat": "spring"
+        },
+        {
+          "id": "Z4",
+          "name": "Brückenhinterhalt",
+          "cat": "special"
+        },
+        {
+          "id": "Z11",
+          "name": "Bettler-Orden",
+          "cat": "special"
+        },
+        {
+          "id": "SO9",
+          "name": "reisender Veteran",
+          "cat": "summer"
+        },
+        {
+          "id": "SO4",
+          "name": "Händlerzunft",
+          "cat": "summer"
+        },
+        {
+          "id": "Z17",
+          "name": "Bogenwacht",
+          "cat": "special"
+        },
+        {
+          "id": "Z13",
+          "name": "Rote Residenz",
+          "cat": "special"
+        },
+        {
+          "id": "H6",
+          "name": "Residenz",
+          "cat": "autumn"
+        }
+      ],
+      "finale": "neutral",
+      "finaleTotal": 91,
+      "finaleDiff": 0
     }
   ]
 }
