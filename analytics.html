@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Zwischental · Analytics</title>
+  <link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Encode+Sans+Condensed:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0d1a26; color: #d8c898;
+      font-family: 'Encode Sans Condensed', sans-serif; font-weight: 300;
+      min-height: 100vh; padding: 24px 16px 64px;
+    }
+    h1 { font-family:'Pirata One',cursive; font-size:1.6rem; color:#c79a3f; margin-bottom:4px; }
+    h2 { font-family:'Pirata One',cursive; font-size:1.1rem; color:#a08050; margin:28px 0 12px; letter-spacing:.04em; }
+    .subtitle { font-size:.8rem; color:#7a6a4a; margin-bottom:24px; }
+
+    .toolbar { display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap; align-items:center; }
+    button { font-family:'Pirata One',cursive; font-size:.85rem; padding:6px 14px;
+             border-radius:4px; cursor:pointer; transition:opacity .15s; }
+    button:hover { opacity:.82; }
+    .btn-primary  { background:#c79a3f; color:#1a1208; border:none; }
+    .btn-secondary{ background:transparent; color:#c79a3f; border:1px solid #c79a3f55; }
+    .btn-danger   { background:transparent; color:#c04040; border:1px solid #c0404055; }
+
+    /* Summary Cards */
+    .summary-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:10px; margin-bottom:28px; }
+    .card { background:#152233; border:1px solid #c79a3f22; border-radius:6px; padding:10px 14px; }
+    .card .label { font-size:.68rem; color:#7a6a4a; text-transform:uppercase; letter-spacing:.06em; margin-bottom:3px; }
+    .card .value { font-family:'Pirata One',cursive; font-size:1.35rem; color:#e8c840; }
+    .card .sub   { font-size:.68rem; color:#6a7a6a; margin-top:2px; }
+
+    /* Config Panel */
+    .config-panel { background:#152233; border:1px solid #c79a3f33; border-radius:6px;
+                    padding:16px; margin-bottom:20px; display:none; }
+    .config-panel.visible { display:block; }
+    .config-panel label { display:block; font-size:.78rem; color:#a08050; margin:10px 0 4px; }
+    .config-panel label:first-child { margin-top:0; }
+    .config-panel input { width:100%; padding:6px 10px; background:#0d1a26;
+                          border:1px solid #c79a3f33; border-radius:4px;
+                          color:#d8c898; font-family:sans-serif; font-size:.88rem; }
+    .config-row { display:flex; gap:10px; margin-top:12px; }
+
+    /* Tabellen */
+    .table-wrap { overflow-x:auto; border-radius:6px; border:1px solid #c79a3f22; margin-bottom:8px; }
+    table { width:100%; border-collapse:collapse; font-size:.8rem; }
+    thead { background:#152233; }
+    th { font-family:'Pirata One',cursive; font-weight:400; font-size:.72rem; color:#a08050;
+         padding:9px 10px; text-align:right; white-space:nowrap; border-bottom:1px solid #c79a3f22; }
+    th:first-child { text-align:left; }
+    td { padding:7px 10px; text-align:right; border-bottom:1px solid #ffffff08; white-space:nowrap; }
+    td:first-child { text-align:left; }
+    tr:last-child td { border-bottom:none; }
+    tr:hover td { background:#ffffff05; }
+    .avg-row td { background:#1a2d3f; color:#e8c840; border-top:1px solid #c79a3f33; }
+
+    /* Season dots */
+    .sp { display:flex; gap:3px; justify-content:flex-end; }
+    .sp span { font-size:.7rem; }
+    .s0{color:#8eb4c8;} .s1{color:#7ab890;} .s2{color:#c8a050;} .s3{color:#b87840;}
+
+    /* Badges */
+    .badge { display:inline-block; padding:1px 6px; border-radius:3px; font-size:.7rem; }
+    .b-win    { background:#1a3a1a; color:#6abf6a; }
+    .b-loss   { background:#3a1a1a; color:#c04040; }
+    .b-neutral{ background:#2a2a1a; color:#a0a040; }
+    .b-none   { color:#4a4a4a; }
+
+    /* Top-5 Grid */
+    .top5-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; }
+    .top5-col { background:#152233; border:1px solid #c79a3f22; border-radius:6px; padding:12px; }
+    .top5-col h3 { font-family:'Pirata One',cursive; font-size:.85rem; color:#a08050; margin-bottom:8px; }
+    .top5-row { display:flex; justify-content:space-between; align-items:center;
+                padding:3px 0; font-size:.78rem; border-bottom:1px solid #ffffff06; }
+    .top5-row:last-child { border-bottom:none; }
+    .top5-count { color:#e8c840; font-family:'Pirata One',cursive; }
+
+    /* Türme per Saison */
+    .tower-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+    .tower-card { background:#152233; border:1px solid #c79a3f22; border-radius:6px; padding:10px 12px; text-align:center; }
+    .tower-card .season-name { font-size:.7rem; color:#7a6a4a; margin-bottom:4px; }
+    .tower-card .tower-val { font-family:'Pirata One',cursive; font-size:1.3rem; color:#e8c840; }
+
+    #status { font-size:.8rem; color:#7a8a7a; padding:6px 0; }
+    #status.error { color:#c04040; }
+    .empty-state { text-align:center; padding:48px 16px; color:#4a5a6a; }
+    .empty-state .big { font-size:2.5rem; margin-bottom:12px; }
+    .empty-state p { font-size:.85rem; line-height:1.6; }
+  </style>
+</head>
+<body>
+
+<h1>Zwischental · Analytics</h1>
+<div class="subtitle" id="subtitle">Lade Daten…</div>
+
+<div class="toolbar">
+  <button class="btn-primary" onclick="loadData()">↺ Aktualisieren</button>
+  <button class="btn-secondary" onclick="toggleConfig()">⚙ Konfiguration</button>
+  <button class="btn-danger" onclick="confirmClear()" id="btn-clear" style="display:none;">🗑 Reset</button>
+</div>
+
+<div class="config-panel" id="config-panel">
+  <label>GitHub Owner</label>
+  <input id="cfg-owner" placeholder="dein-username">
+  <label>Repository</label>
+  <input id="cfg-repo" placeholder="zwischental">
+  <label>Personal Access Token (nur für private Repos)</label>
+  <input id="cfg-pat" type="password" placeholder="ghp_...">
+  <div class="config-row">
+    <button class="btn-primary" onclick="saveConfig()">Speichern</button>
+    <button class="btn-secondary" onclick="toggleConfig()">Schließen</button>
+  </div>
+</div>
+
+<div id="status"></div>
+<div class="summary-grid" id="summary"></div>
+<div id="content"></div>
+
+<script>
+const CONFIG_KEY = 'zw_analytics_config';
+function getConfig() { try { return JSON.parse(localStorage.getItem(CONFIG_KEY))||{}; } catch { return {}; } }
+function saveConfig() {
+  const cfg = { owner: q('#cfg-owner').value.trim(), repo: q('#cfg-repo').value.trim(), pat: q('#cfg-pat').value.trim() };
+  localStorage.setItem(CONFIG_KEY, JSON.stringify(cfg));
+  setStatus('✓ Gespeichert'); toggleConfig(); loadData();
+}
+function toggleConfig() {
+  const p = q('#config-panel');
+  if (p.classList.toggle('visible')) {
+    const c = getConfig();
+    q('#cfg-owner').value = c.owner||''; q('#cfg-repo').value = c.repo||''; q('#cfg-pat').value = c.pat||'';
+  }
+}
+function q(sel) { return document.querySelector(sel); }
+function setStatus(msg, err=false) { q('#status').textContent=msg; q('#status').className=err?'error':''; }
+
+// ── Laden ──────────────────────────────────────────────────────
+async function loadData() {
+  const cfg = getConfig();
+  if (!cfg.owner || !cfg.repo) {
+    setStatus('Bitte Konfiguration ausfüllen.', true);
+    q('#config-panel').classList.add('visible');
+    return;
+  }
+  setStatus('Lade…');
+  try {
+    const rawUrl = `https://raw.githubusercontent.com/${cfg.owner}/${cfg.repo}/main/analytics.json`;
+    const apiUrl = `https://api.github.com/repos/${cfg.owner}/${cfg.repo}/contents/analytics.json`;
+    let data, res = await fetch(rawUrl);
+    if (res.ok) {
+      data = await res.json();
+    } else if (cfg.pat) {
+      res = await fetch(apiUrl, { headers:{'Authorization':`token ${cfg.pat}`,'Accept':'application/vnd.github.v3+json'} });
+      if (!res.ok) throw new Error(res.status);
+      const j = await res.json();
+      data = JSON.parse(decodeURIComponent(escape(atob(j.content.replace(/\n/g,'')))));
+    } else { throw new Error('Nicht erreichbar — PAT für private Repos nötig'); }
+    const games = data.games || [];
+    render(games);
+    q('#subtitle').textContent = `${cfg.owner}/${cfg.repo} · ${games.length} Spiele`;
+    q('#btn-clear').style.display = games.length ? 'inline-block' : 'none';
+    setStatus('');
+  } catch(e) {
+    setStatus(`Fehler: ${e.message}`, true);
+    q('#content').innerHTML = ''; q('#summary').innerHTML = '';
+  }
+}
+
+// ── Render ──────────────────────────────────────────────────────
+function num(v, dec=1) {
+  if (v == null || isNaN(v)) return '—';
+  return dec === 0 ? Math.round(v) : Math.round(v*10)/10;
+}
+function avg(games, fn) {
+  const vals = games.map(fn).filter(v => v != null && !isNaN(v));
+  return vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : null;
+}
+function maximum(games, fn) {
+  const vals = games.map(fn).filter(v => v != null && !isNaN(v));
+  return vals.length ? Math.max(...vals) : null;
+}
+
+function render(games) {
+  if (!games.length) {
+    q('#summary').innerHTML = '';
+    q('#content').innerHTML = `<div class="empty-state"><div class="big">🏰</div>
+      <p>Noch keine Spiele gespeichert.<br>Beende eine Partie — die Daten erscheinen hier.</p></div>`;
+    return;
+  }
+  renderSummary(games);
+  renderMainTable(games);
+  renderDefenseTable(games);
+  renderTop5(games);
+  renderTowersPerSeason(games);
+}
+
+function renderSummary(games) {
+  const wins   = games.filter(g => g.finale === 'win').length;
+  const losses = games.filter(g => g.finale === 'loss').length;
+  const avgVCVP = avg(games, g => g.vaultCoinVP);
+  q('#summary').innerHTML = [
+    { label:'Spiele', value: games.length, sub:'' },
+    { label:'Ø Siegpunkte', value: num(avg(games, g=>g.totalVP)), sub:'' },
+    { label:'Rekord', value: num(maximum(games, g=>g.totalVP),0), sub:'Siegpunkte' },
+    { label:'Ø Angriff (roh)', value: num(avg(games, g=>g.avgAttackersRaw)), sub:'vor Bogenwacht' },
+    { label:'Ø Angriff (netto)', value: num(avg(games, g=>g.avgAttackersNet)), sub:'nach Bogenwacht' },
+    { label:'Ø Geplündert', value: num(avg(games, g=>g.lostPts)), sub:'Punkte' },
+    { label:'Ø Vault VP', value: num(avgVCVP), sub:'durch Münzen' },
+    { label:'Rathausfinale', value: `${wins}✓`, sub:`${losses} Niederlagen`, valueColor:'#6abf6a' },
+  ].map(c => `<div class="card">
+    <div class="label">${c.label}</div>
+    <div class="value" ${c.valueColor?`style="color:${c.valueColor}"`:''}>${c.value}</div>
+    ${c.sub?`<div class="sub">${c.sub}</div>`:''}
+  </div>`).join('');
+}
+
+function renderMainTable(games) {
+  const rows = [...games].reverse().map((g, i) => {
+    const sp = g.seasonPts || [0,0,0,0];
+    const finale = g.finale==='win' ? `<span class="badge b-win">+${g.finaleDiff??'?'}</span>`
+      : g.finale==='loss' ? `<span class="badge b-loss">🔥 0</span>`
+      : g.finale==='neutral' ? `<span class="badge b-neutral">±0</span>`
+      : `<span class="b-none">—</span>`;
+    const res = g.resourceProd || {};
+    return `<tr>
+      <td>${games.length-i}</td>
+      <td><strong>${g.totalVP??'—'}</strong></td>
+      <td><div class="sp">
+        <span class="s0">${sp[0]??'—'}</span>·
+        <span class="s1">${sp[1]??'—'}</span>·
+        <span class="s2">${sp[2]??'—'}</span>·
+        <span class="s3">${sp[3]??'—'}</span>
+      </div></td>
+      <td>${g.lostPts??'—'}</td>
+      <td>${g.avgAttackersRaw??'—'}</td>
+      <td>${g.avgAttackersNet??'—'}</td>
+      <td>${res.holz??'—'} · ${res.nahrung??'—'} · ${res.glas??'—'}</td>
+      <td>${g.vaultCoinVP??'—'}</td>
+      <td>${g.rathausLevel??'—'}</td>
+      <td>${g.specialsBuilt??'—'}</td>
+      <td>${finale}</td>
+    </tr>`;
+  }).join('');
+
+  const sa = [0,1,2,3].map(i => {
+    const v = avg(games, g=>(g.seasonPts||[])[i]);
+    return v != null ? Math.round(v) : '—';
+  });
+  const rp = { holz: num(avg(games,g=>g.resourceProd?.holz)), nahrung: num(avg(games,g=>g.resourceProd?.nahrung)), glas: num(avg(games,g=>g.resourceProd?.glas)) };
+
+  const avgRow = `<tr class="avg-row">
+    <td>Ø</td>
+    <td>${num(avg(games,g=>g.totalVP))}</td>
+    <td><div class="sp">
+      <span class="s0">${sa[0]}</span>·<span class="s1">${sa[1]}</span>·<span class="s2">${sa[2]}</span>·<span class="s3">${sa[3]}</span>
+    </div></td>
+    <td>${num(avg(games,g=>g.lostPts))}</td>
+    <td>${num(avg(games,g=>g.avgAttackersRaw))}</td>
+    <td>${num(avg(games,g=>g.avgAttackersNet))}</td>
+    <td>${rp.holz} · ${rp.nahrung} · ${rp.glas}</td>
+    <td>${num(avg(games,g=>g.vaultCoinVP))}</td>
+    <td>${num(avg(games,g=>g.rathausLevel))}</td>
+    <td>${num(avg(games,g=>g.specialsBuilt))}</td>
+    <td>—</td>
+  </tr>`;
+
+  q('#content').innerHTML = `
+  <h2>Spielübersicht</h2>
+  <div class="table-wrap"><table>
+    <thead><tr>
+      <th>#</th><th>VP</th><th>❄·🌱·☀·🍂</th><th>Geplünd.</th>
+      <th>Angriff roh</th><th>Angriff netto</th>
+      <th>🪵·🌾·🫙 Res.</th><th>Vault VP</th>
+      <th>Rathaus</th><th>✦ Karten</th><th>Finale</th>
+    </tr></thead>
+    <tbody>${rows}${avgRow}</tbody>
+  </table></div>`;
+}
+
+function renderDefenseTable(games) {
+  const rows = [...games].reverse().map((g, i) => {
+    const tp = g.towersPerSeason || [0,0,0,0];
+    return `<tr>
+      <td>${games.length-i}</td>
+      <td>${g.barriersPlayed??'—'}</td>
+      <td>${g.knightsPlayed??'—'}</td>
+      <td>${tp[0]??0} · ${tp[1]??0} · ${tp[2]??0} · ${tp[3]??0}</td>
+      <td>${(tp[0]||0)+(tp[1]||0)+(tp[2]||0)+(tp[3]||0)}</td>
+    </tr>`;
+  }).join('');
+
+  const avgTpS = [0,1,2,3].map(i => num(avg(games, g=>(g.towersPerSeason||[])[i])));
+  const avgTot = num(avg(games, g=>(g.towersPerSeason||[0,0,0,0]).reduce((a,b)=>a+b,0)));
+  const avgRow = `<tr class="avg-row">
+    <td>Ø</td>
+    <td>${num(avg(games,g=>g.barriersPlayed))}</td>
+    <td>${num(avg(games,g=>g.knightsPlayed))}</td>
+    <td>${avgTpS[0]} · ${avgTpS[1]} · ${avgTpS[2]} · ${avgTpS[3]}</td>
+    <td>${avgTot}</td>
+  </tr>`;
+
+  q('#content').innerHTML += `
+  <h2>Verteidigung</h2>
+  <div class="table-wrap"><table>
+    <thead><tr>
+      <th>#</th><th>Barrieren</th><th>Ritter</th>
+      <th>Türme ❄·🌱·☀·🍂</th><th>Türme gesamt</th>
+    </tr></thead>
+    <tbody>${rows}${avgRow}</tbody>
+  </table></div>`;
+}
+
+function renderTop5(games) {
+  const cats = ['winter','spring','summer','autumn','special'];
+  const labels = { winter:'❄ Winter', spring:'🌱 Frühling', summer:'☀ Sommer', autumn:'🍂 Herbst', special:'✦ Spezial' };
+
+  const cols = cats.map(cat => {
+    const counts = {};
+    games.forEach(g => {
+      (g.builtCards||[]).filter(c=>c.cat===cat).forEach(c => {
+        counts[c.name] = (counts[c.name]||0)+1;
+      });
+    });
+    const sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    const rows = sorted.length
+      ? sorted.map(([name,n]) => `<div class="top5-row"><span>${name}</span><span class="top5-count">${n}×</span></div>`).join('')
+      : `<div class="top5-row" style="color:#4a5a6a">Keine Daten</div>`;
+    return `<div class="top5-col"><h3>${labels[cat]}</h3>${rows}</div>`;
+  }).join('');
+
+  q('#content').innerHTML += `<h2>Top 5 meistgebaute Karten</h2><div class="top5-grid">${cols}</div>`;
+}
+
+function renderTowersPerSeason(games) {
+  const seasons = ['❄ Winter','🌱 Frühling','☀ Sommer','🍂 Herbst'];
+  const totals = [0,1,2,3].map(i => {
+    const vals = games.map(g=>(g.towersPerSeason||[])[i]||0);
+    return vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : 0;
+  });
+  const cards = seasons.map((s,i) => `<div class="tower-card">
+    <div class="season-name">${s}</div>
+    <div class="tower-val">⌀ ${Math.round(totals[i]*10)/10}</div>
+  </div>`).join('');
+  q('#content').innerHTML += `<h2>Türme pro Jahreszeit (Ø)</h2><div class="tower-grid">${cards}</div>`;
+}
+
+// ── Löschen ────────────────────────────────────────────────────
+async function confirmClear() {
+  if (!confirm('Alle Daten löschen?')) return;
+  const cfg = getConfig();
+  if (!cfg.pat) { setStatus('PAT erforderlich.', true); return; }
+  try {
+    const url = `https://api.github.com/repos/${cfg.owner}/${cfg.repo}/contents/analytics.json`;
+    const h = {'Authorization':`token ${cfg.pat}`,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'};
+    const r = await fetch(url, {headers:h});
+    if (!r.ok) throw new Error(r.status);
+    const j = await r.json();
+    const empty = btoa(unescape(encodeURIComponent(JSON.stringify({games:[]},null,2))));
+    const d = await fetch(url, {method:'PUT',headers:h,body:JSON.stringify({message:'Analytics: Reset',content:empty,sha:j.sha})});
+    if (!d.ok) throw new Error(d.status);
+    setStatus('✓ Gelöscht'); loadData();
+  } catch(e) { setStatus(`Fehler: ${e.message}`, true); }
+}
+
+loadData();
+</script>
+</body>
+</html>

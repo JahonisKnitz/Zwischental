@@ -2988,12 +2988,25 @@ header.scoring-flash {
       <div class="go-sub" id="go-sub-text">Das Tal dankt seinem Bürgermeister</div>
       <div class="go-sub" style="margin-top:8px; font-size:0.75em; opacity:0.6;">Eine Spielidee von Johannes Zirm</div>
       <button class="go-restart" id="go-restart">Neues Spiel</button>
+      <div style="margin-top:12px; display:flex; gap:12px; justify-content:center; opacity:0.5;">
+        <a href="analytics.html" target="_blank"
+           style="color:#c79a3f; font-family:'Pirata One',cursive; font-size:0.75rem; text-decoration:none;">
+          📊 Analytics
+        </a>
+        <span style="color:#4a4a4a;">·</span>
+        <button onclick="window.zwAnalyticsSetup && window.zwAnalyticsSetup()"
+          style="background:none; border:none; color:#c79a3f; font-family:'Pirata One',cursive;
+                 font-size:0.75rem; cursor:pointer; padding:0;">
+          ⚙ Setup
+        </button>
+      </div>
     </div>
   </div>
 </div>
 
 <script src="cards.js"></script>
 <script src="rules.js"></script>
+<script src="analytics.js"></script>
 <script src="game.js"></script>
 </body>
 </html>

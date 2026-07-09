@@ -16,6 +16,7 @@ const G = {
   hand: [],
   barrierHand: 0,
   towerHand: 0,
+  builtInFortified: new Set(), // Positionen mit eingebautem Turm (Luftschloss) — zählt NICHT ins 2er-Limit und NICHT zur Kapazität
   selectedHandIdx: -1,
   selectedBarrier: false,
   selectedTower: false,
@@ -26,6 +27,15 @@ const G = {
   victoryPoints: 0,
   seasonPoints: [0, 0, 0, 0],   // Punkte je Jahreszeit (für Endwertung + Simulation)
   preHerbstSnapshot: null,       // Snapshot vor dem letzten Herbst-Überfall
+  usedSpecialIds: new Set(),     // Sonderkarten-IDs die bereits vergeben wurden
+  raidAttackers: [],             // Angreifer je Überfall NACH Bogenwacht (für Analytics)
+  raidAttackersRaw: [],          // Angreifer je Überfall VOR Bogenwacht (für Analytics)
+  towersPerSeason: [0,0,0,0],   // Türme je Jahreszeit
+  barriersPlayed: 0,             // Barrieren insgesamt
+  knightsPlayed: 0,              // Ritter insgesamt
+  vaultCoinVP: 0,                // VP durch Vault-Münzen (Münzen × 2)
+  builtCardsList: [],            // [{id, name, cat}] alle gebauten Karten
+  resourceProdTotal: {holz:0, nahrung:0, glas:0}, // Ressourcen-Summe über alle Jahreszeiten
   builtThisSeason: 0,  // max 5 pro Jahreszeit
   attackerOverride: null, // gesetzt wenn Champion Angreifer direkt überschreibt
   schildwall: null,    // Set von Schildtor-Zell-Indizes
@@ -92,7 +102,15 @@ const DRAFT = {
 function startDraft(season) {
   const comp       = DRAFT_COMPOSITION[season] || { normal: 6, special: 0 };
   const normalPool = [...SEASON_CARD_POOL[season]].sort(() => Math.random() - 0.5);
-  const specialPool = [...SPECIAL_BUILDINGS].sort(() => Math.random() - 0.5);
+
+  // Sonderkarten die bereits auf dem Brett liegen ODER von Bots gezogen wurden ausschließen
+  const placedSpecialIds = new Set([
+    ...G.board.filter(c => c && c.cat === 'special').map(c => c.id),
+    ...G.usedSpecialIds,
+  ]);
+  const specialPool = [...SPECIAL_BUILDINGS]
+    .filter(c => !placedSpecialIds.has(c.id))
+    .sort(() => Math.random() - 0.5);
 
   // 3 Hände à 6 Karten bauen
   DRAFT.hands = [[], [], []];
@@ -138,6 +156,10 @@ function advanceDraft() {
   for (let b = 1; b <= 2; b++) {
     if (DRAFT.hands[b].length > 0) {
       const pick = Math.floor(Math.random() * DRAFT.hands[b].length);
+      const pickedCard = DRAFT.hands[b][pick];
+      if (pickedCard && pickedCard.cat === 'special') {
+        G.usedSpecialIds.add(pickedCard.id);
+      }
       DRAFT.hands[b].splice(pick, 1);
     }
   }
@@ -2811,6 +2833,33 @@ function showGameEnd() {
   }
 
   overlay.classList.add('show'); SFX.gameover();
+
+  // Analytics asynchron speichern (kein await — blockiert UI nicht)
+  if (window.zwSaveAnalytics) {
+    const sim = G.preHerbstSnapshot ? simulateLetztesGefecht() : null;
+    const specialsBuilt = G.board.filter(c => c && c.cat === 'special').length;
+    const mkAvg = arr => arr.length
+      ? Math.round(arr.reduce((a,b) => a+b, 0) / arr.length * 10) / 10 : null;
+    window.zwSaveAnalytics({
+      totalVP:          G.victoryPoints,
+      seasonPts:        [...G.seasonPoints],
+      lostPts:          G.lostPoints,
+      rathausLevel:     G.rathausLevel,
+      specialsBuilt,
+      raidCount:        G.raidAttackers.length,
+      avgAttackersRaw:  mkAvg(G.raidAttackersRaw),
+      avgAttackersNet:  mkAvg(G.raidAttackers),
+      towersPerSeason:  [...G.towersPerSeason],
+      barriersPlayed:   G.barriersPlayed,
+      knightsPlayed:    G.knightsPlayed,
+      vaultCoinVP:      G.vaultCoinVP,
+      resourceProd:     {...G.resourceProdTotal},
+      builtCards:       [...G.builtCardsList],
+      finale:  sim ? (sim.result === 'fallen' ? 'loss' : sim.totalScore > G.victoryPoints ? 'win' : 'neutral') : 'none',
+      finaleTotal: sim ? sim.totalScore : null,
+      finaleDiff:  sim ? sim.totalScore - G.victoryPoints : null,
+    });
+  }
 }
 
 // Score aus dem aktuellen Brettzustand neu berechnen.
@@ -2923,6 +2972,20 @@ function doScoring() {
 
 function doScoringInternal() {
   if (G.phase !== 4) return;
+
+  // Analytics: Ressourcenproduktion und Vault-Coin-VP dieser Wertungsphase erfassen
+  if (G.resourceProdTotal) {
+    const prod = calcProduction();
+    G.resourceProdTotal.holz    += prod.holz;
+    G.resourceProdTotal.nahrung += prod.nahrung;
+    G.resourceProdTotal.glas    += prod.glas;
+  }
+  if (G.vaultCoinVP !== undefined) {
+    G.board.forEach((card, i) => {
+      if (!card || i === 4 || G.plundered[i]) return;
+      G.vaultCoinVP += (G.vaultCoins[i] || 0) * 2;
+    });
+  }
 
   const col = SEASON_COLORS[SEASON_KEYS[G.season]];
   const cells = document.querySelectorAll('.cell');
@@ -3404,11 +3467,17 @@ function startRaidSequence() {
     const stackSize = (G.stacks[i] && G.stacks[i].length) || 1;
     return sum + stackSize;
   }, 0);
+  // Analytics: Angreifer VOR Bogenwacht
+  if (G.raidAttackersRaw) G.raidAttackersRaw.push(attackers);
+
   if (bogenwachtCount > 0) {
     const reduction = bogenwachtCount * 2;
     attackers = Math.max(0, attackers - reduction);
     showToast(`Bogenwacht — ${reduction} Angreifer weniger`);
   }
+  // Analytics: effektive Angreifer NACH Bogenwacht
+  if (G.raidAttackers) G.raidAttackers.push(attackers);
+
   const startIdx = CLOCKWISE_ORDER.indexOf(effectiveStart);
   const route = [];
   for (let i = 0; i < 8; i++) {
@@ -3698,12 +3767,22 @@ function restartGame() {
   G.barriers      = new Set();
   G.hand          = [];
   G.barrierHand   = 0;
-  G.towerHand     = 0;
+  G.towerHand         = 0;
+  G.builtInFortified  = new Set();
   G.score         = 0;
   G.lostPoints        = 0;
   G.victoryPoints     = 0;
   G.seasonPoints      = [0, 0, 0, 0];
   G.preHerbstSnapshot = null;
+  G.usedSpecialIds      = new Set();
+  G.raidAttackers       = [];
+  G.raidAttackersRaw    = [];
+  G.towersPerSeason     = [0,0,0,0];
+  G.barriersPlayed      = 0;
+  G.knightsPlayed       = 0;
+  G.vaultCoinVP         = 0;
+  G.builtCardsList      = [];
+  G.resourceProdTotal   = {holz:0, nahrung:0, glas:0};
   G.builtThisSeason   = 0;
   G.rathausLevel  = 1;
   G.rathausStack  = [];
@@ -4107,6 +4186,7 @@ function commitPlacement() {
   if (!existing) {
     G.board[targetIdx]  = { ...newCard };
     G.stacks[targetIdx] = [{ ...newCard }];
+    if (G.builtCardsList) G.builtCardsList.push({ id: newCard.id, name: newCard.name, cat: newCard.cat });
     SFX.build();
 
   } else if (newCard.special_mechanic === 'decoy') {
@@ -4132,7 +4212,9 @@ function commitPlacement() {
     G.board[targetIdx]  = { ...newCard };
     G.stacks[targetIdx] = [{ ...newCard }];
     G.fortified[targetIdx] = false;
+    G.builtInFortified.delete(targetIdx); // eingebauter Turm weg wenn Karte abgerissen
     G.boosted[targetIdx]   = false;
+    if (G.builtCardsList) G.builtCardsList.push({ id: newCard.id, name: newCard.name, cat: newCard.cat });
     if (G.vaultCoins?.[targetIdx] > 0) {
       G.vaultCoins[targetIdx] = 0;
       showToast('Gebäude abgerissen — Münzen verloren');
@@ -4164,7 +4246,8 @@ function commitPlacement() {
     showToast('Schildtor — Nachbarn erhalten +2 Verteidigung');
   } else if (mech === 'indestructible') {
     G.fortified[targetIdx] = true;
-    showToast('Ewige Bastion — kann nie geplündert werden!');
+    G.builtInFortified.add(targetIdx); // eingebaut — zählt nicht ins 2-Türme-Limit und nicht zur Kapazität
+    showToast('Luftschloss — eingebaut befestigt, zählt nicht ins Turm-Limit!');
   } else if (mech === 'reveal_red' && G.diceConcealed?.has('red')) {
     G.diceConcealed.delete('red');
     showToast('Spion des Rates — Anführer aufgedeckt!');
@@ -4277,11 +4360,12 @@ function flashChip(key) {
 
 function placeTower(idx) {
   if (G.coins < RATIO || !G.board[idx] || G.fortified[idx]) return;
-  if (G.fortified.filter(Boolean).length >= 2) { showToast('Maximal 2 Türme pro Siedlung'); clearSelection(); G.mode = 'card'; renderGrid(); return; }
+  if (G.fortified.filter((v, i) => v && !G.builtInFortified.has(i)).length >= 2) { showToast('Maximal 2 Türme pro Siedlung'); clearSelection(); G.mode = 'card'; renderGrid(); return; }
   if (freeCapacity(idx) < 1) { capToast(idx); return; }
   G.coins -= RATIO;
   G.fortified[idx] = true;
   G.fortifiedNew.add(idx);
+  if (G.towersPerSeason) G.towersPerSeason[G.season] = (G.towersPerSeason[G.season] || 0) + 1;
   clearSelection();
   renderHand(); renderDefenseCta();
    renderGrid();
@@ -4300,6 +4384,7 @@ function placeKnight(idx) {
   if (freeCapacity(idx) < 1) { capToast(idx); return; }
   G.boosted[idx] = (G.boosted[idx] || 0) + 2;
   G.knights--;
+  if (G.knightsPlayed !== undefined) G.knightsPlayed++;
   clearSelection();
   renderHand(); renderDefenseCta();
    renderGrid();
@@ -4313,6 +4398,7 @@ function placeKnight(idx) {
 function placeBarrier(key) {
   G.barriers.add(key);
   G.barrierHand--;
+  if (G.barriersPlayed !== undefined) G.barriersPlayed++;
 
   renderEdgeZones(false);
   clearSelection();
@@ -4825,9 +4911,9 @@ function getCapBoost(idx) {
 }
 
 function usedCapacity(idx) {
-  const knights = Math.floor((G.boosted[idx] || 0) / 2); // je +2 Def = 1 Ritter
+  const knights = Math.floor((G.boosted[idx] || 0) / 2);
   const coins   = G.vaultCoins?.[idx] || 0;
-  const tower   = G.fortified[idx] ? 1 : 0;
+  const tower   = G.fortified[idx] && !G.builtInFortified?.has(idx) ? 1 : 0; // eingebauter Turm (Luftschloss) zählt nicht
   return knights + coins + tower;
 }
 

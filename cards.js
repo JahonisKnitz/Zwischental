@@ -53,7 +53,7 @@ const BUILDINGS = [
   {id:'W21', name:'Nachtwächter', cat:'winter', pts:1, def:3, res:null, upgrade:false, cap:3},
   {id:'W22', name:'Ausschank', cat:'winter', pts:3, def:2, res:null, upgrade:false, cap:2},
   {id:'W23', name:'Ort der Bekehrung', cat:'winter', pts:2, def:0, res:null, upgrade:false, fragile:true, special_mechanic:'bekehrung', cap:0},
-  {id:'W24', name:'offenes Stadttor', cat:'winter', pts:0, def:0, res:null, upgrade:false, fragile:true, special_mechanic:'force_start', cap:0},
+  {id:'W24', name:'offenes Stadttor', cat:'winter', pts:0, def:0, res:null, upgrade:false, fragile:true, special_mechanic:'force_start', cap:1},
   {id:'F1', name:'kleines Holzlager', cat:'spring', pts:3, def:1, res:'holz', upgrade:true, cap:1},
   {id:'F2', name:'kleines Holzlager', cat:'spring', pts:3, def:1, res:'holz', upgrade:true, cap:1},
   {id:'F3', name:'kleine Mühle', cat:'spring', pts:2, def:1, res:'nahrung', upgrade:true, cap:1},
