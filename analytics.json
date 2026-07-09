@@ -1,0 +1,98 @@
+{
+  "games": [
+    {
+      "totalVP": 86,
+      "seasonPts": [
+        0,
+        4,
+        37,
+        45
+      ],
+      "lostPts": 18,
+      "rathausLevel": 6,
+      "specialsBuilt": 5,
+      "raidCount": 3,
+      "avgAttackersRaw": 8.7,
+      "avgAttackersNet": 6.7,
+      "towersPerSeason": [
+        1,
+        0,
+        1,
+        0
+      ],
+      "barriersPlayed": 0,
+      "knightsPlayed": 3,
+      "vaultCoinVP": 18,
+      "resourceProd": {
+        "holz": 0,
+        "nahrung": 0,
+        "glas": 4
+      },
+      "builtCards": [
+        {
+          "id": "W24",
+          "name": "offenes Stadttor",
+          "cat": "winter"
+        },
+        {
+          "id": "W22",
+          "name": "Ausschank",
+          "cat": "winter"
+        },
+        {
+          "id": "W20",
+          "name": "Nachtwächter",
+          "cat": "winter"
+        },
+        {
+          "id": "F15",
+          "name": "Silberhändler",
+          "cat": "spring"
+        },
+        {
+          "id": "Z17",
+          "name": "Bogenwacht",
+          "cat": "special"
+        },
+        {
+          "id": "F7",
+          "name": "Glasmanufaktur",
+          "cat": "spring"
+        },
+        {
+          "id": "Z30",
+          "name": "Schildtor",
+          "cat": "special"
+        },
+        {
+          "id": "Z29",
+          "name": "Schildtor",
+          "cat": "special"
+        },
+        {
+          "id": "Z25",
+          "name": "Zollbrücke",
+          "cat": "special"
+        },
+        {
+          "id": "Z5",
+          "name": "Treppe zum Himmel",
+          "cat": "special"
+        },
+        {
+          "id": "Z6",
+          "name": "Ritterburg",
+          "cat": "special"
+        },
+        {
+          "id": "H9",
+          "name": "Schatzkammer",
+          "cat": "autumn"
+        }
+      ],
+      "finale": "loss",
+      "finaleTotal": 0,
+      "finaleDiff": -86
+    }
+  ]
+}
