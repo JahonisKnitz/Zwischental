@@ -145,17 +145,31 @@ async function loadData() {
   }
   setStatus('Lade…');
   try {
-    const rawUrl = `https://raw.githubusercontent.com/${cfg.owner}/${cfg.repo}/main/analytics.json`;
+    const h = cfg.pat ? {'Authorization':`Bearer ${cfg.pat}`,'Accept':'application/vnd.github.v3+json'} : {'Accept':'application/vnd.github.v3+json'};
     const apiUrl = `https://api.github.com/repos/${cfg.owner}/${cfg.repo}/contents/analytics.json`;
+
+    // Default-Branch ermitteln
+    let branch = 'main';
+    try {
+      const rr = await fetch(`https://api.github.com/repos/${cfg.owner}/${cfg.repo}`, {headers: h});
+      if (rr.ok) { const ri = await rr.json(); branch = ri.default_branch || 'main'; }
+    } catch {}
+
+    const rawUrl = `https://raw.githubusercontent.com/${cfg.owner}/${cfg.repo}/${branch}/analytics.json`;
+
     let data, res = await fetch(rawUrl);
     if (res.ok) {
       data = await res.json();
     } else if (cfg.pat) {
-      res = await fetch(apiUrl, { headers:{'Authorization':`Bearer ${cfg.pat}`,'Accept':'application/vnd.github.v3+json'} });
-      if (!res.ok) throw new Error(res.status);
-      const j = await res.json();
-      data = JSON.parse(decodeURIComponent(escape(atob(j.content.replace(/\n/g,'')))));
-    } else { throw new Error('Nicht erreichbar — PAT für private Repos nötig'); }
+      res = await fetch(apiUrl + `?ref=${branch}`, { headers: h });
+      if (res.status === 404) { data = { games: [] }; }
+      else if (!res.ok) throw new Error(`GitHub API ${res.status}`);
+      else {
+        const j = await res.json();
+        data = JSON.parse(decodeURIComponent(escape(atob(j.content.replace(/\n/g,'')))));
+      }
+    } else { throw new Error('Repo nicht erreichbar — PAT für private Repos nötig'); }
+
     const games = data.games || [];
     render(games);
     q('#subtitle').textContent = `${cfg.owner}/${cfg.repo} · ${games.length} Spiele`;

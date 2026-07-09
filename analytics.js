@@ -29,19 +29,26 @@ const ZW_ANALYTICS = (() => {
   }
 
   async function fetchAnalytics(cfg) {
-    const res = await fetch(apiUrl(cfg), { headers: headers(cfg) });
-    if (res.status === 404) return { data: { games: [] }, sha: null };
+    // Zuerst Default-Branch ermitteln
+    const repoRes = await fetch(`https://api.github.com/repos/${cfg.owner}/${cfg.repo}`, { headers: headers(cfg) });
+    if (!repoRes.ok) throw new Error(`Repo nicht gefunden (${repoRes.status}) — Owner/Repo-Name prüfen`);
+    const repoInfo = await repoRes.json();
+    const branch = repoInfo.default_branch || 'main';
+
+    const res = await fetch(apiUrl(cfg) + `?ref=${branch}`, { headers: headers(cfg) });
+    if (res.status === 404) return { data: { games: [] }, sha: null, branch };
     if (!res.ok) throw new Error(`GitHub API ${res.status}: ${await res.text()}`);
     const json = await res.json();
     const text = decodeURIComponent(escape(atob(json.content.replace(/\n/g, ''))));
-    return { data: JSON.parse(text), sha: json.sha };
+    return { data: JSON.parse(text), sha: json.sha, branch };
   }
 
-  async function writeAnalytics(cfg, data, sha) {
+  async function writeAnalytics(cfg, data, sha, branch = 'main') {
     const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
     const body = {
       message: `Analytics: Spiel ${data.games.length} — ${data.games.at(-1)?.totalVP ?? '?'} VP`,
       content,
+      branch,
       ...(sha ? { sha } : {}),
     };
     const res = await fetch(apiUrl(cfg), {
@@ -49,7 +56,10 @@ const ZW_ANALYTICS = (() => {
       headers: headers(cfg),
       body: JSON.stringify(body),
     });
-    if (!res.ok) throw new Error(`GitHub Write ${res.status}: ${await res.text()}`);
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error(`GitHub Write ${res.status}: ${errText}`);
+    }
   }
 
   // ── Setup Modal ───────────────────────────────────────────────
@@ -171,17 +181,13 @@ const ZW_ANALYTICS = (() => {
 
   async function doSave(cfg, gameData) {
     try {
-      const url = apiUrl(cfg);
-      const { data, sha } = await fetchAnalytics(cfg);
+      const { data, sha, branch } = await fetchAnalytics(cfg);
       data.games = data.games || [];
       data.games.push({ ...gameData });
-      await writeAnalytics(cfg, data, sha);
+      await writeAnalytics(cfg, data, sha, branch);
       showToastAnalytics('📊 Analytics gespeichert');
     } catch(e) {
-      console.error('[Analytics]', e);
-      // Zeige Owner/Repo zur Diagnose (kein Token!)
-      const safeUrl = `https://api.github.com/repos/${cfg.owner}/${cfg.repo}/contents/analytics.json`;
-      console.error('[Analytics] URL war:', safeUrl);
+      console.error('[Analytics]', e.message);
       showToastAnalytics(`⚠ ${e.message}`, true);
     }
   }
