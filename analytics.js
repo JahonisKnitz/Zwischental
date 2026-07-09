@@ -96,6 +96,11 @@ const ZW_ANALYTICS = (() => {
                    border-radius:4px; color:#a09070; cursor:pointer; font-family:inherit;">
             Abbrechen
           </button>
+          <button id="zwa-test"
+            style="padding:7px 16px; background:transparent; border:1px solid #c79a3f;
+                   border-radius:4px; color:#c79a3f; cursor:pointer; font-family:inherit;">
+            Verbindung testen
+          </button>
           <button id="zwa-save"
             style="padding:7px 16px; background:#c79a3f; border:none;
                    border-radius:4px; color:#1a1208; cursor:pointer; font-family:inherit; font-weight:700;">
@@ -123,6 +128,31 @@ const ZW_ANALYTICS = (() => {
       setTimeout(() => { modal.remove(); if (onSave) onSave({ owner, repo, pat }); }, 800);
     };
 
+    modal.querySelector('#zwa-test').onclick = async () => {
+      const owner = modal.querySelector('#zwa-owner').value.trim();
+      const repo  = modal.querySelector('#zwa-repo').value.trim();
+      const pat   = modal.querySelector('#zwa-pat').value.trim();
+      const statusEl = modal.querySelector('#zwa-status');
+      statusEl.style.color = '#a09070';
+      statusEl.textContent = 'Teste Verbindung…';
+      try {
+        const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
+          headers: { 'Authorization': `Bearer ${pat}`, 'Accept': 'application/vnd.github.v3+json' }
+        });
+        if (res.ok) {
+          statusEl.style.color = '#6abf6a';
+          statusEl.textContent = `✓ Repo gefunden: ${owner}/${repo}`;
+        } else {
+          const j = await res.json().catch(() => ({}));
+          statusEl.style.color = '#c04040';
+          statusEl.textContent = `✗ ${res.status}: ${j.message || 'Fehler'}`;
+        }
+      } catch(e) {
+        statusEl.style.color = '#c04040';
+        statusEl.textContent = `✗ Netzwerkfehler: ${e.message}`;
+      }
+    };
+
     modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
   }
 
@@ -141,6 +171,7 @@ const ZW_ANALYTICS = (() => {
 
   async function doSave(cfg, gameData) {
     try {
+      const url = apiUrl(cfg);
       const { data, sha } = await fetchAnalytics(cfg);
       data.games = data.games || [];
       data.games.push({ ...gameData });
@@ -148,7 +179,10 @@ const ZW_ANALYTICS = (() => {
       showToastAnalytics('📊 Analytics gespeichert');
     } catch(e) {
       console.error('[Analytics]', e);
-      showToastAnalytics('⚠ Analytics Fehler — siehe Konsole', true);
+      // Zeige Owner/Repo zur Diagnose (kein Token!)
+      const safeUrl = `https://api.github.com/repos/${cfg.owner}/${cfg.repo}/contents/analytics.json`;
+      console.error('[Analytics] URL war:', safeUrl);
+      showToastAnalytics(`⚠ ${e.message}`, true);
     }
   }
 
