@@ -697,6 +697,115 @@
       "finale": "neutral",
       "finaleTotal": 91,
       "finaleDiff": 0
+    },
+    {
+      "totalVP": 92,
+      "seasonPts": [
+        0,
+        30,
+        24,
+        38
+      ],
+      "lostPts": 67,
+      "rathausLevel": 6,
+      "specialsBuilt": 5,
+      "raidCount": 3,
+      "avgAttackersRaw": 10,
+      "avgAttackersNet": 10,
+      "towersPerSeason": [
+        0,
+        1,
+        1,
+        0
+      ],
+      "barriersPlayed": 2,
+      "knightsPlayed": 3,
+      "vaultCoinVP": 2,
+      "resourceProd": {
+        "holz": 7,
+        "nahrung": 8,
+        "glas": 6
+      },
+      "builtCards": [
+        {
+          "id": "W14",
+          "name": "Marktstand",
+          "cat": "winter"
+        },
+        {
+          "id": "W15",
+          "name": "Wohnhaus",
+          "cat": "winter"
+        },
+        {
+          "id": "W8",
+          "name": "Kräuterhütte",
+          "cat": "winter"
+        },
+        {
+          "id": "W13",
+          "name": "Glasmanufaktur",
+          "cat": "winter"
+        },
+        {
+          "id": "W5",
+          "name": "Holzfäller",
+          "cat": "winter"
+        },
+        {
+          "id": "F8",
+          "name": "Marktstand",
+          "cat": "spring"
+        },
+        {
+          "id": "Z8",
+          "name": "Speicherstadt",
+          "cat": "special"
+        },
+        {
+          "id": "F15",
+          "name": "Silberhändler",
+          "cat": "spring"
+        },
+        {
+          "id": "F9",
+          "name": "verlassenes Gut",
+          "cat": "spring"
+        },
+        {
+          "id": "Z3",
+          "name": "Gezeiten-Kloster",
+          "cat": "special"
+        },
+        {
+          "id": "Z10",
+          "name": "Kristallpalast",
+          "cat": "special"
+        },
+        {
+          "id": "Z2",
+          "name": "Lagerfeste",
+          "cat": "special"
+        },
+        {
+          "id": "H9",
+          "name": "Schatzkammer",
+          "cat": "autumn"
+        },
+        {
+          "id": "Z33",
+          "name": "Spiegelturm",
+          "cat": "special"
+        },
+        {
+          "id": "Z20",
+          "name": "Luftschloss",
+          "cat": "special"
+        }
+      ],
+      "finale": "loss",
+      "finaleTotal": 0,
+      "finaleDiff": -92
     }
   ]
 }
