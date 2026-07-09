@@ -276,6 +276,115 @@
       "finale": "win",
       "finaleTotal": 142,
       "finaleDiff": 3
+    },
+    {
+      "totalVP": 117,
+      "seasonPts": [
+        14,
+        36,
+        21,
+        46
+      ],
+      "lostPts": 19,
+      "rathausLevel": 6,
+      "specialsBuilt": 5,
+      "raidCount": 3,
+      "avgAttackersRaw": 10,
+      "avgAttackersNet": 10,
+      "towersPerSeason": [
+        0,
+        1,
+        1,
+        0
+      ],
+      "barriersPlayed": 2,
+      "knightsPlayed": 5,
+      "vaultCoinVP": 8,
+      "resourceProd": {
+        "holz": 5,
+        "nahrung": 6,
+        "glas": 6
+      },
+      "builtCards": [
+        {
+          "id": "W18",
+          "name": "Bibliothek",
+          "cat": "winter"
+        },
+        {
+          "id": "W14",
+          "name": "Marktstand",
+          "cat": "winter"
+        },
+        {
+          "id": "W13",
+          "name": "Glasmanufaktur",
+          "cat": "winter"
+        },
+        {
+          "id": "W4",
+          "name": "Holzfäller",
+          "cat": "winter"
+        },
+        {
+          "id": "W8",
+          "name": "Kräuterhütte",
+          "cat": "winter"
+        },
+        {
+          "id": "F18",
+          "name": "offenes Stadttor",
+          "cat": "spring"
+        },
+        {
+          "id": "F12",
+          "name": "Wachturm",
+          "cat": "spring"
+        },
+        {
+          "id": "Z10",
+          "name": "Kristallpalast",
+          "cat": "special"
+        },
+        {
+          "id": "F8",
+          "name": "Marktstand",
+          "cat": "spring"
+        },
+        {
+          "id": "Z34",
+          "name": "Elfenbeinturm",
+          "cat": "special"
+        },
+        {
+          "id": "Z29",
+          "name": "Schildtor",
+          "cat": "special"
+        },
+        {
+          "id": "H7",
+          "name": "Burg",
+          "cat": "autumn"
+        },
+        {
+          "id": "Z16",
+          "name": "Außenposten",
+          "cat": "special"
+        },
+        {
+          "id": "Z6",
+          "name": "Ritterburg",
+          "cat": "special"
+        },
+        {
+          "id": "Z18",
+          "name": "Schildtor",
+          "cat": "special"
+        }
+      ],
+      "finale": "win",
+      "finaleTotal": 122,
+      "finaleDiff": 5
     }
   ]
 }
