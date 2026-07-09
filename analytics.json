@@ -182,6 +182,100 @@
       "finale": "win",
       "finaleTotal": 168,
       "finaleDiff": 39
+    },
+    {
+      "totalVP": 139,
+      "seasonPts": [
+        9,
+        8,
+        39,
+        83
+      ],
+      "lostPts": 18,
+      "rathausLevel": 6,
+      "specialsBuilt": 6,
+      "raidCount": 3,
+      "avgAttackersRaw": 6.7,
+      "avgAttackersNet": 6.7,
+      "towersPerSeason": [
+        0,
+        1,
+        1,
+        0
+      ],
+      "barriersPlayed": 4,
+      "knightsPlayed": 0,
+      "vaultCoinVP": 20,
+      "resourceProd": {
+        "holz": 6,
+        "nahrung": 1,
+        "glas": 12
+      },
+      "builtCards": [
+        {
+          "id": "W11",
+          "name": "Glasschmelze",
+          "cat": "winter"
+        },
+        {
+          "id": "W13",
+          "name": "Glasmanufaktur",
+          "cat": "winter"
+        },
+        {
+          "id": "W19",
+          "name": "Bronzehändler",
+          "cat": "winter"
+        },
+        {
+          "id": "Z18",
+          "name": "Schildtor",
+          "cat": "special"
+        },
+        {
+          "id": "F18",
+          "name": "offenes Stadttor",
+          "cat": "spring"
+        },
+        {
+          "id": "Z25",
+          "name": "Zollbrücke",
+          "cat": "special"
+        },
+        {
+          "id": "F1",
+          "name": "kleines Holzlager",
+          "cat": "spring"
+        },
+        {
+          "id": "Z1",
+          "name": "Holzfestung",
+          "cat": "special"
+        },
+        {
+          "id": "Z34",
+          "name": "Elfenbeinturm",
+          "cat": "special"
+        },
+        {
+          "id": "Z33",
+          "name": "Spiegelturm",
+          "cat": "special"
+        },
+        {
+          "id": "Z13",
+          "name": "Rote Residenz",
+          "cat": "special"
+        },
+        {
+          "id": "H1",
+          "name": "Vorratsfeste",
+          "cat": "autumn"
+        }
+      ],
+      "finale": "win",
+      "finaleTotal": 142,
+      "finaleDiff": 3
     }
   ]
 }
