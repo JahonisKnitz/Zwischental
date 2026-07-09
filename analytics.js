@@ -167,15 +167,11 @@ const ZW_ANALYTICS = (() => {
   }
 
   // ── Hauptfunktion: Spiel speichern ───────────────────────────
+  // Nur speichern wenn Config bereits vorhanden — kein Modal im Spiel selbst.
+  // Setup nur über analytics.html → ⚙ Konfiguration.
   async function save(gameData) {
-    let cfg = getConfig();
-
-    if (!cfg || !cfg.owner || !cfg.repo || !cfg.pat) {
-      showSetupModal(async (newCfg) => {
-        await doSave(newCfg, gameData);
-      });
-      return;
-    }
+    const cfg = getConfig();
+    if (!cfg || !cfg.owner || !cfg.repo || !cfg.pat) return; // still überspringen
     await doSave(cfg, gameData);
   }
 

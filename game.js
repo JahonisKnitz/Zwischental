@@ -501,13 +501,9 @@ function rollDice() {
   // Richtung: Bag-Karte unabhängig; gelber Würfelwert bestimmt Drehrichtung
   G.attackDir = calcAttackDirection();
 
-  // all_hidden: alle drei Würfel verborgen
-  if (G.attackChampion.id === 'C7') {
-    G.diceConcealed = new Set(['yellow', 'blue', 'red']);
-  } else {
-    const maxVal = Math.max(...DICE_COLORS.map(c => G.dice[c]));
-    G.diceConcealed = new Set(DICE_COLORS.filter(c => G.dice[c] === maxVal));
-  }
+  // Gerüchte: höchster Würfelwert wird verborgen — Champion-Effekte (z.B. C7 Tausch) greifen erst beim Überfall
+  const maxVal = Math.max(...DICE_COLORS.map(c => G.dice[c]));
+  G.diceConcealed = new Set(DICE_COLORS.filter(c => G.dice[c] === maxVal));
 
   // Z21 (Fernkundschafter) / Z22 (Zahlmeister): liegen sie auf dem Brett,
   // wird der entsprechende verborgene Würfel sofort aufgedeckt.
@@ -4202,6 +4198,7 @@ function commitPlacement() {
     const oldPts = calcCardPts(G.board[targetIdx]);
     G.stacks[targetIdx] = [...(G.stacks[targetIdx] || [existing]), { ...newCard }];
     G.board[targetIdx]  = { ...newCard };
+    if (G.builtCardsList) G.builtCardsList.push({ id: newCard.id, name: newCard.name, cat: newCard.cat });
     const diff = calcCardPts(newCard) - oldPts;
     if (diff !== 0) spawnColoredFloat(targetIdx, `${diff >= 0 ? '+' : ''}${diff}`, diff >= 0 ? 'var(--ink)' : '#c04040');
     SFX.upgrade();
