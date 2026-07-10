@@ -925,6 +925,100 @@
       "finale": "loss",
       "finaleTotal": 0,
       "finaleDiff": -30
+    },
+    {
+      "totalVP": 94,
+      "seasonPts": [
+        11,
+        4,
+        29,
+        50
+      ],
+      "lostPts": 84,
+      "rathausLevel": 6,
+      "specialsBuilt": 6,
+      "raidCount": 3,
+      "avgAttackersRaw": 7,
+      "avgAttackersNet": 6.3,
+      "towersPerSeason": [
+        1,
+        1,
+        0,
+        0
+      ],
+      "barriersPlayed": 0,
+      "knightsPlayed": 0,
+      "vaultCoinVP": 10,
+      "resourceProd": {
+        "holz": 0,
+        "nahrung": 0,
+        "glas": 4
+      },
+      "builtCards": [
+        {
+          "id": "W19",
+          "name": "Bronzehändler",
+          "cat": "winter"
+        },
+        {
+          "id": "W13",
+          "name": "Glasmanufaktur",
+          "cat": "winter"
+        },
+        {
+          "id": "W24",
+          "name": "offenes Stadttor",
+          "cat": "winter"
+        },
+        {
+          "id": "W22",
+          "name": "Ausschank",
+          "cat": "winter"
+        },
+        {
+          "id": "Z3",
+          "name": "Gezeiten-Kloster",
+          "cat": "special"
+        },
+        {
+          "id": "Z34",
+          "name": "Elfenbeinturm",
+          "cat": "special"
+        },
+        {
+          "id": "F9",
+          "name": "verlassenes Gut",
+          "cat": "spring"
+        },
+        {
+          "id": "Z20",
+          "name": "Luftschloss",
+          "cat": "special"
+        },
+        {
+          "id": "Z19",
+          "name": "Luftschloss",
+          "cat": "special"
+        },
+        {
+          "id": "Z31",
+          "name": "Champion-Arena",
+          "cat": "special"
+        },
+        {
+          "id": "SO12",
+          "name": "Goldhändler",
+          "cat": "summer"
+        },
+        {
+          "id": "Z27",
+          "name": "Bogenwacht",
+          "cat": "special"
+        }
+      ],
+      "finale": "loss",
+      "finaleTotal": 0,
+      "finaleDiff": -94
     }
   ]
 }
