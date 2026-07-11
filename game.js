@@ -144,24 +144,65 @@ function startDraft(season) {
 
 /**
  * Wird aufgerufen nachdem der Spieler eine Karte gewählt hat (placeCard).
- * Bots wählen zufällig, dann rotieren die Hände.
+ * Bots wählen Karten, dann rotieren die Hände.
+ * Bot 1 (strategisch): wählt immer die geschätzt wertvollste Karte.
+ * Bot 2 (zufällig):    wählt zufällig.
  */
+
+// Schätzt den Kartenwert für Bot 1 ohne vollen Game-State
+function estimateBotCardValue(card) {
+  if (!card) return 0;
+  const p = card.pts;
+  if (typeof p === 'number') return p;
+  if (!p || !p.type) return 1;
+  const AVG_DICE = 3.5;
+  const AVG_RES  = 2;
+  const AVG_LVL  = 3;
+  switch (p.type) {
+    case 'dice+':      return AVG_DICE + (p.bonus   || 0);
+    case 'dice*':      return AVG_DICE * (p.factor  || 1);
+    case 'dice+dice':  return AVG_DICE * 2;
+    case 'dice_sum*':  return AVG_DICE * 2 * (p.factor || 1);
+    case 'res*':       return AVG_RES  * (p.factor  || 1);
+    case 'inno*':      return AVG_LVL  * (p.factor  || 1);
+    case 'def_sum':    return 8;
+    case 'season*':    return 2 * (p.factor || 1);
+    case 'season_table': return Math.max(...(p.table || [0]));
+    case 'blue*':
+    case 'green*':     return 3 * (p.factor || 1);
+    case 'sonder_count': return 6;
+    case 'deact*':     return 4 * (p.factor || 1);
+    case 'sole_survivor': return 12; // Hochrisiko — hoch bewerten
+    default:           return 3;
+  }
+}
 function advanceDraft() {
   if (!DRAFT.active) return;
 
   // Verbleibende Karten zurückschreiben (null-Slots raus)
   DRAFT.hands[0] = G.hand.filter(c => c !== null);
 
-  // Bots ziehen zufällig
+  // Bots ziehen — Bot 1 strategisch (wertvollste), Bot 2 zufällig
   for (let b = 1; b <= 2; b++) {
-    if (DRAFT.hands[b].length > 0) {
-      const pick = Math.floor(Math.random() * DRAFT.hands[b].length);
-      const pickedCard = DRAFT.hands[b][pick];
-      if (pickedCard && pickedCard.cat === 'special') {
-        G.usedSpecialIds.add(pickedCard.id);
+    if (DRAFT.hands[b].length === 0) continue;
+    let pick;
+    if (b === 1) {
+      // Bot 1: wertvollste Karte wählen
+      pick = 0;
+      let bestVal = estimateBotCardValue(DRAFT.hands[1][0]);
+      for (let i = 1; i < DRAFT.hands[1].length; i++) {
+        const val = estimateBotCardValue(DRAFT.hands[1][i]);
+        if (val > bestVal) { bestVal = val; pick = i; }
       }
-      DRAFT.hands[b].splice(pick, 1);
+    } else {
+      // Bot 2: zufällig
+      pick = Math.floor(Math.random() * DRAFT.hands[b].length);
     }
+    const pickedCard = DRAFT.hands[b][pick];
+    if (pickedCard && pickedCard.cat === 'special') {
+      G.usedSpecialIds.add(pickedCard.id);
+    }
+    DRAFT.hands[b].splice(pick, 1);
   }
 
   DRAFT.round++;
@@ -1308,8 +1349,8 @@ function renderDefenseCta() {
     {
       cls: 'cta-btn-turm',
       icon: '💰', label: 'Turm',
-      sub: G.fortified.filter(Boolean).length >= 2 ? 'Limit erreicht (max. 2)' : G.coins >= RATIO ? `${Math.floor(G.coins / RATIO)} baubar (${G.coins} Münzen)` : 'zu wenig Münzen',
-      disabled: G.coins < RATIO || G.fortified.filter(Boolean).length >= 2,
+      sub: G.fortified.filter((v,i) => v && !G.builtInFortified.has(i)).length >= 2 ? 'Limit erreicht (max. 2)' : G.coins >= RATIO ? `${Math.floor(G.coins / RATIO)} baubar (${G.coins} Münzen)` : 'zu wenig Münzen',
+      disabled: G.coins < RATIO || G.fortified.filter((v,i) => v && !G.builtInFortified.has(i)).length >= 2,
       active: G.selectedTower,
       onClick: () => onTowerHandClick()
     },
@@ -1589,10 +1630,10 @@ function getCardPlayability(card) {
 
   // Sonderkarte: Slot-Kapazität prüfen (Rathaus Level = max. Sonderkarten auf dem Feld)
   if (card.cat === 'special') {
-    const sonderCount = G.board.filter((c, i) =>
-      c && i !== 4 && c.cat === 'special'
-      && c.special_mechanic !== 'free_build'
-    ).length;
+    const sonderCount = G.board.reduce((sum, c, i) => {
+      if (!c || i === 4 || c.cat !== 'special' || c.special_mechanic === 'free_build') return sum;
+      return sum + ((G.stacks[i] && G.stacks[i].length) || 1);
+    }, 0);
     if (sonderCount >= G.rathausLevel) {
       return {
         playable: false,
@@ -2094,7 +2135,10 @@ function renderHand() {
     if (G.phase === 1 && G.hand.some(c => c)) {
       const actionsLeft = 5 - G.builtThisSeason;
       const levelDots = '●'.repeat(G.rathausLevel - 1) + '○'.repeat(6 - G.rathausLevel);
-      const sonderOnBoard = G.board.filter((c, i) => c && i !== 4 && c.cat === 'special' && !G.plundered[i]).length;
+      const sonderOnBoard = G.board.reduce((sum, c, i) => {
+        if (!c || i === 4 || c.cat !== 'special' || G.plundered[i]) return sum;
+        return sum + ((G.stacks[i] && G.stacks[i].length) || 1);
+      }, 0);
       const sonderMax = G.rathausLevel;
       let pipHtml = '';
       for (let i = 0; i < sonderMax; i++) {
@@ -2708,6 +2752,7 @@ function simulateLetztesGefecht() {
 
   // ── Kampfsimulation ─────────────────────────────────────────────────
   let rathausFallen = false;
+  const simPlundered = Array(9).fill(false); // Welche Karten werden auf dem Weg geplündert?
 
   for (let pi = 0; pi < pathCells.length; pi++) {
     const idx = pathCells[pi];
@@ -2731,8 +2776,14 @@ function simulateLetztesGefecht() {
     }
     if (attackers <= 0) break;
 
-    const cardDef = fortified[idx] ? 0 : (card.def || 0);
-    const def = cardDef + (boosted[idx] || 0);
+    // Turm (fortified) setzt Verteidigung auf 0 — Karte ist unplünderbar, blockiert Horde aber nicht
+    const def = (fortified[idx] ? 0 : (card.def || 0)) + (boosted[idx] || 0);
+
+    // Geplündert wenn Angreifer die Verteidigung übersteigen UND kein Turm
+    if (attackers > def && !fortified[idx]) {
+      simPlundered[idx] = true;
+    }
+
     attackers = Math.max(0, attackers - def);
   }
 
@@ -2744,13 +2795,14 @@ function simulateLetztesGefecht() {
   }
 
   // Snapshot-Board temporär in G einsetzen → recomputeScoreFromBoard nutzen
+  // simPlundered statt Array(9).fill(false) — Karten auf dem Weg zählen nicht!
   const _board = G.board; const _stacks = G.stacks; const _fortified = G.fortified;
   const _boosted = G.boosted; const _plundered = G.plundered;
   const _vaultCoins = G.vaultCoins; const _rathausLevel = G.rathausLevel;
   const _diceRolled = G.diceRolled; const _dice = G.dice;
 
   G.board = board; G.stacks = stacks; G.fortified = fortified;
-  G.boosted = boosted; G.plundered = Array(9).fill(false);
+  G.boosted = boosted; G.plundered = simPlundered;
   G.vaultCoins = vaultCoins; G.rathausLevel = rathausLevel;
   G.diceRolled = true; G.dice = snap.dice;
 
@@ -3986,7 +4038,7 @@ function onBarrierHandClick() {
 function onTowerHandClick() {
   if (!isPhaseAllowed('tower')) { showToast('Türme nur in der Verteidigungs-Phase'); return; }
   if (G.coins < RATIO) { showToast(`Nicht genug Münzen (${RATIO} benötigt)`); return; }
-  if (G.fortified.filter(Boolean).length >= 2) { showToast('Maximal 2 Türme pro Siedlung'); return; }
+  if (G.fortified.filter((v,i) => v && !G.builtInFortified.has(i)).length >= 2) { showToast('Maximal 2 Türme pro Siedlung'); return; }
   if (G.selectedTower) { clearSelection(); setHint('Karte wählen'); renderHand(); renderDefenseCta();
    renderGrid(); renderDefenseCta(); return; }
   clearSelection();
