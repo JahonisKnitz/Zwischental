@@ -109,7 +109,7 @@ const SPECIAL_BUILDINGS = [
   {id:'Z31', name:'Champion-Arena', cat:'special', pts:{type:'dice*',color:'red',factor:3}, def:3, res:null, upgrade:false, diceColor:'red', cap:2},
   {id:'Z33', name:'Spiegelturm', cat:'special', pts:3, def:2, res:null, upgrade:false, special_mechanic:'zwillingsturm', diceColor:'yellow', cap:3},
   {id:'Z34', name:'Elfenbeinturm', cat:'special', pts:{type:'inno*',factor:3}, def:2, res:null, upgrade:false, diceColor:'blue', cap:1},
-  {id:'Z4', name:'Brückenhinterhalt', cat:'special', pts:{type:'def_sum'}, def:0, res:null, upgrade:false, fragile:true, diceColor:'yellow', cap:1},
+  {id:'Z4', name:'Brückenhinterhalt', cat:'special', pts:{type:'def_sum'}, def:0, res:null, upgrade:false, fragile:true, diceColor:'yellow', cap:0},
   {id:'Z5', name:'Treppe zum Himmel', cat:'special', pts:{type:'deact*',factor:3}, def:0, res:null, upgrade:false, fragile:true, diceColor:'red', cap:3},
   {id:'Z6', name:'Ritterburg', cat:'special', pts:6, def:2, res:null, upgrade:false, special_mechanic:'direct_knight', diceColor:'red', cap:3},
   {id:'Z7', name:'stärkende Säulen', cat:'special', pts:4, def:1, res:null, upgrade:false, special_mechanic:'schutzpatronin', diceColor:'yellow', cap:0},
