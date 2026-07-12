@@ -2410,6 +2410,21 @@ header.scoring-flash {
   padding: 4px 0;
 }
 .splash-demo-link:hover { color: #ffe980; }
+.splash-pdf-link {
+  margin-top: 20px;
+  color: var(--ink);
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 6px;
+  padding: 7px 20px;
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: background 0.2s, color 0.2s;
+}
+.splash-pdf-link:hover {
+  color: var(--ink);
+  background: rgba(255,255,255,0.16);
+}
 #splash-screen.fade-out {
   animation: splashFadeOut 0.5s ease-in forwards;
 }
@@ -2804,9 +2819,12 @@ header.scoring-flash {
         <div class="splash-title">Talwacht</div>
         <div class="splash-subtitle">Bauen. Plündern. Bauen.</div>
         <button class="splash-start" id="splash-start">Spiel starten</button>
-        <a href="kampagne.html" class="splash-demo-link">📜 Solo-Kampagne</a>
-        <a href="angriff-simulation.html" class="splash-demo-link">⚔ Angriff-Demo</a>
+        <a href="https://raw.githubusercontent.com/JahonisKnitz/Zwischental/main/zwischental-regelwerk.pdf"
+           download="Talwacht-Anleitung.pdf"
+           class="splash-demo-link splash-pdf-link">⬇ Anleitung (PDF)</a>
         <a href="zwischental-anleitung.html" class="splash-demo-link">📖 Spielanleitung</a>
+        <a href="angriff-simulation.html" class="splash-demo-link">⚔ Angriff-Demo</a>
+        <a href="kampagne.html" class="splash-demo-link">📜 Solo-Kampagne</a>
         <a href="analytics.html" class="splash-demo-link">📊 Analytics</a>
       </div>
       <div class="splash-version" id="splash-version"></div>
