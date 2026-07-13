@@ -1346,6 +1346,115 @@
       "finale": "win",
       "finaleTotal": 111,
       "finaleDiff": 10
+    },
+    {
+      "totalVP": 91,
+      "seasonPts": [
+        9,
+        7,
+        26,
+        49
+      ],
+      "lostPts": 35,
+      "rathausLevel": 6,
+      "specialsBuilt": 3,
+      "raidCount": 3,
+      "avgAttackersRaw": 8.7,
+      "avgAttackersNet": 8.7,
+      "towersPerSeason": [
+        0,
+        1,
+        1,
+        0
+      ],
+      "barriersPlayed": 2,
+      "knightsPlayed": 7,
+      "vaultCoinVP": 8,
+      "resourceProd": {
+        "holz": 7,
+        "nahrung": 14,
+        "glas": 16
+      },
+      "builtCards": [
+        {
+          "id": "W13",
+          "name": "Glasmanufaktur",
+          "cat": "winter"
+        },
+        {
+          "id": "W14",
+          "name": "Marktstand",
+          "cat": "winter"
+        },
+        {
+          "id": "W11",
+          "name": "Glasschmelze",
+          "cat": "winter"
+        },
+        {
+          "id": "W8",
+          "name": "Kräuterhütte",
+          "cat": "winter"
+        },
+        {
+          "id": "W24",
+          "name": "offenes Stadttor",
+          "cat": "winter"
+        },
+        {
+          "id": "Z9",
+          "name": "Alchemisten-Turm",
+          "cat": "special"
+        },
+        {
+          "id": "F8",
+          "name": "Marktstand",
+          "cat": "spring"
+        },
+        {
+          "id": "F6",
+          "name": "Glasschmelze",
+          "cat": "spring"
+        },
+        {
+          "id": "F2",
+          "name": "kleines Holzlager",
+          "cat": "spring"
+        },
+        {
+          "id": "F3",
+          "name": "kleine Mühle",
+          "cat": "spring"
+        },
+        {
+          "id": "Z16",
+          "name": "Außenposten",
+          "cat": "special"
+        },
+        {
+          "id": "H3",
+          "name": "Müllergilde",
+          "cat": "autumn"
+        },
+        {
+          "id": "H7",
+          "name": "Burg",
+          "cat": "autumn"
+        },
+        {
+          "id": "Z30",
+          "name": "Schildtor",
+          "cat": "special"
+        },
+        {
+          "id": "H1",
+          "name": "Vorratsfeste",
+          "cat": "autumn"
+        }
+      ],
+      "finale": "neutral",
+      "finaleTotal": 91,
+      "finaleDiff": 0
     }
   ]
 }
