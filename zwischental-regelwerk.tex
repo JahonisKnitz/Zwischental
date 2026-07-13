@@ -1,0 +1,635 @@
+\documentclass[11pt]{article}
+\usepackage{Lumen}
+
+\title{Zwischental}
+\author{1 Siedlung. 20 Karten. 7200 Gefahren.}
+\date{Version 1.3}
+
+\begin{document}
+
+\begin{lumenpage}
+\maketitle
+
+\begin{lumenquote}
+Willkommen bei der Talwacht. Seit Jahrhunderten ringen vier Königreiche um die Vorherrschaft. Zwischen ihnen liegt das immergrüne Zwischental, das vierteljährlich zum Schauplatz von Überfällen und Plünderungen wird. Als Wächter über eine kleine Siedlung liegt es an euch, diesen Ort zu schützen und ihn zu einer blühenden Metropole auszubauen.
+\lumenquotesource{Chroniken der Talwacht}
+\end{lumenquote}
+
+Über vier Jahreszeiten spielst du jeweils 5 Karten, um neue Produktions-, Sonder- und Verteidigungsgebäude zu errichten  in einem \textbf{3×3-Raster} mit dem \textbf{Rathaus} im Zentrum. Gebäude bringen dir Siegpunkte, wertvolle Rohstoffe oder Gold für die kommende Wertung. Doch nach jeder Jahreszeit ziehen punktehungrige Plünderer durch das Tal. Jedes geplünderte Gebäude zählt bei der folgenden Wertung nicht mit --- baue klug, platziere Ritter, Barrieren und Türme und werde zur Legende der Talwacht.
+
+\begin{lumenexample}
+Wer nach vier Jahreszeiten die meisten \lumenVP\textbf{Siegpunkte} durch Gebäude und Münzen gesammelt hat, gewinnt das Spiel.
+\end{lumenexample}
+
+\par\vspace{4pt}
+
+\lumenasidelabel{Symbole in der Anleitung}
+\lumenVP\textbf{ Siegpunkte}\par
+\lumenDef\textbf{ Verteidigung} --- hält eine Anzahl an Plünderern auf\par
+\lumenPlundered\textbf{ geplündert} --- bringt 0\lumenVP\textbf{} am Ende der Jahreszeit, bringt wieder \lumenVP\textbf{} in der nächsten Jahreszeit\par
+
+\chapter{Spielmaterial}
+
+110 Gebäudekarten,
+25 Überfallkarten,
+24 Münzen,
+16 Ritter,
+16 Barrieren,
+8 Türme,
+3 Würfel,
+4 Zählscheiben
+
+\par\vspace{4pt}
+\par\noindent
+\IfFileExists{ATAL-Material.png}{\includegraphics[width=\linewidth]{ATAL-Material.png}}{%
+\fbox{\parbox[c][\linewidth][c]{\linewidth}{\centering\small\color{LumenGray400}Grafik 8,6 × 4,3\,cm}}}%
+%\par{\fontsize{8.5}{11}\selectfont\color{LumenGray400}Bildunterschrift, sehr klein und im Kontrast reduziert.}\par
+
+\chapter{Spielaufbau}
+
+Sortiere alle Karten nach Rückseite und mische die Stapel:
+\begin{enumerate}
+\item \textbf{Gebäudekarten} --- 4 Jahreszeiten + 1 Sondergebäude (lila) verdeckt bereitlegen.
+\item \textbf{Überfallkarten \& Würfel} --- Die 3 Stapel (gelb, blau, rot) verdeckt in die Mitte legen. Den passenden Würfel unter jeden Stapel legen.
+\end{enumerate}
+
+Lege das restliche Spielmaterial bereit:
+\begin{enumerate}\addtocounter{enumi}{2}
+\item \textbf{Token \& Münzen} --- Ritter, Barrieren, Türme und Münzen als gemeinsamen Vorrat bereithalten.
+\item \textbf{Zählscheibe} --- Du bekommst eine Rathauskarte und eine Zählscheibe.
+\end{enumerate}
+
+Lege dein \textbf{Rathaus} vor dich als Zentrum deiner Siedlung.
+
+\par\vspace{4pt}
+\par\noindent
+\IfFileExists{ATAL-Spielaufbau.png}{\includegraphics[width=\linewidth]{ATAL-Spielaufbau.png}}{%
+\fbox{\parbox[c][\linewidth][c]{\linewidth}{\centering\small\color{LumenGray400}Grafik 8,6 × 4,3\,cm}}}%
+\par{\fontsize{8.5}{11}\selectfont\color{LumenGray400}Links: Überfall-Setup / Rechts: Rathaus + Platz für Gebäude}\par
+
+\subsection*{Drafting vorbereiten}
+
+Jede Jahreszeit beginnt mit einem Drafting. Vorbereitung: Für jeden Spielenden jeweils 6 Karten verdeckt ziehen als Starthand, bestehend aus Jahreszeitkarten + Sonderkarten (je nach Jahreszeit - siehe Tabelle).
+
+\begin{lumentable}{llll}
+ & Jahreszeit & Sonder & Drafting-Richtung \\
+ Winter & 6 & 0 & $\circlearrowright$ immer \\
+ Frühling & 5 & 1 & $\circlearrowright$ / $\circlearrowleft$ per Gelb \\
+ Sommer & 4 & 2 & $\circlearrowright$ / $\circlearrowleft$ per Gelb \\
+ Herbst & 3 & 3 & $\circlearrowright$ / $\circlearrowleft$ per Gelb \\
+\end{lumentable}
+
+Drafting-Richtung ab Frühling:
+Gelber Würfel \textbf{gerade} $\circlearrowright$
+Gelber Würfel \textbf{ungerade} $\circlearrowleft$.
+
+\par\vspace{4pt}
+\par\noindent
+\IfFileExists{ATAL-Drafting.png}{\includegraphics[width=\linewidth]{ATAL-Drafting.png}}{%
+\fbox{\parbox[c][\linewidth][c]{\linewidth}{\centering\small\color{LumenGray400}Grafik 8,6 × 4,3\,cm}}}%
+\par{\fontsize{8.5}{11}\selectfont\color{LumenGray400}Starthand für Drafting pro Siedlung pro Jahreszeit}\par
+
+\chapter{Ablauf einer Jahreszeit}
+
+Jede Jahreszeit läuft in 5 Phasen ab. (Im Winter 3)
+
+\begin{enumerate}
+\item \textbf{Gerüchte} --- Es kursieren Gerüchte, wieviele, von wo und mit welcher Fähigkeiten die Räuber kommen. Aber mindestens ein Detail bleibt ein Geheimnis.
+\item \textbf{Drafting \& Bauen} --- Ziehe und baue fünf Karten aus einer rotierenden Auswahl.
+\item \textbf{Rüsten} --- Sammle \textit{Rohstoffe} von grünen Gebäuden und platziere \textit{Aufwertungen}.
+\item \textbf{Überfall} --- Verdeckte Überfallkarte(n) aufdecken, Überfall durchführen.
+\item \textbf{Wertung} --- Punkte der nicht \lumenPlundered\textbf{ geplünderten}  Gebäude + Münzen zählen und als \lumenVP\textbf{} notieren.
+\end{enumerate}
+
+\begin{lumeninfo}
+Im \textbf{Winter} gibt es \textbf{keine} \textit{Gerüchte} (1) und \textbf{keinen} \textit{Überfall} (4)
+\end{lumeninfo}
+
+\chapter{1. Gerüchte}
+
+\begin{lumenquote}
+Ein Bote reitet atemlos ins Tor — aus dem \textcolor{LumenGold}{Osten}, mit dem Uhrzeigersinn, eine \textcolor{blue}{unbekannte Anzahl} Plünderer nähert sich unserem Tal. Ihr \textcolor{LumenClayDark}{Anführer}: Brandstifter.\lumenquotesource{Späher-Krähe der Talwacht}
+\end{lumenquote}
+
+Zu Beginn jeder Jahreszeit werden alle drei Würfel geworfen.
+Die oberste Überfallkarte von jedem Stapel --- \textcolor{LumenGold}{Gelb}, \textcolor{blue}{Blau}, \textcolor{LumenClayDark}{Rot} - wird aufgedeckt,\textbf{ außer die Farbe mit dem höchsten Würfelwert.} Diese Farbe bleibt verdeckt bis zum Überfall.\\
+Zeigen mehrere Würfel denselben Höchstwert, bleiben alle diese Karten verborgen.
+
+\begin{enumerate}
+\item \textbf{\textcolor{LumenGold}{Gelb} — Startfeld \& Laufrichtung} --- Die gelbe Karte verrät, auf welchem der 8 Außenfelder der Siedlung der Überfall startet. Bei gerader Zahl: $\circlearrowright$ Räuber laufen im Uhrzeigersinn. Bei ungerader Zahl: $\circlearrowleft$ diebische Meute läuft gegen Uhrzeigersinn durch die Siedlung.
+\item \textbf{\textcolor{blue}{Blau} — Anzahl} --- Die blaue Karte zeigt, wie viele Übeltäter durch die Siedlung ziehen. Das kann eine feste Anzahl sein oder durch den blauen Würfelwert beeinflusst.
+\item \textbf{\textcolor{LumenClayDark}{Rot} — Champion} --- Die rote Karte zeigt den Champion der Plünderer. Er bringt eine Sonderfähigkeit mit und macht den Überfall noch herausfordernder.
+\end{enumerate}
+
+\begin{lumenwarning}
+Die Fähigkeit des Champions wird erst zu Beginn des Überfalls ausgeführt, selbst wenn die rote Karte als Gerücht offen liegt.
+\end{lumenwarning}
+
+\par\vspace{4pt}
+\par\noindent
+\IfFileExists{ATAL-Rumor.png}{\includegraphics[width=\linewidth]{ATAL-Rumor.png}}{%
+\fbox{\parbox[c][\linewidth][c]{\linewidth}{\centering\small\color{LumenGray400}Grafik 8,6 × 4,3\,cm}}}%
+\par{\fontsize{8.5}{11}\selectfont\color{LumenGray400}Beispiel: \textcolor{LumenGold}{Gelb} verrät, der Überfall startet im \textcolor{LumenGold}{Osten} und läuft \textcolor{LumenGold}{mit dem Uhrzeigersinn}. \textcolor{blue}{Blau} zeigt den höchsten Würfelwert — \textcolor{blue}{die Anzahl} der Plünderer bleibt \textbf{verborgen}. \textcolor{LumenClayDark}{Rot} verrät, der Anführer ist der \textit{Brandstifter} --- \textcolor{LumenClayDark}{die Startkarte wird \textcolor{LumenGold}{\textbf{\textit{fragil}}}.}}\par
+
+\begin{lumentip}
+Ist das Startfeld des Überfalls bekannt, lege deine Zählscheibe neben die entsprechende Karte in deiner Siedlung. So hast du den voraussichtlichen Überfall-Start beim Bauen immer vor Augen.
+\end{lumentip}
+
+\par\vspace{4pt}
+
+\chapter{2. Drafting \& Bauen}
+
+Bereite die verdeckte Starthand für jeden Spielenden vor, bestehend aus \textbf{6 Karten} (Jahreszeitenkarten + Sonderkarten).
+\textbf{Das Kartenziehen und Bauen kann beginnen.} 
+
+\par\vspace{4pt}
+
+\textbf{Wähle eine Karte} aus deiner Starthand und gib die restlichen Karten in Drafting-Richtung weiter. Deine gewählte Karte spielst du sofort (oder du wirfst sie ab).
+
+\textbf{Karte spielen: Bis zu 4 Möglichkeiten:}
+
+\begin{enumerate}
+\item \textbf{Bauen} --- Karte auf \textit{leeres} Feld legen.
+\item \textbf{Ersetzen} --- Karte auf \textit{belegtes} Feld legen — alte abwerfen.
+\item \textbf{Stapeln} (nur Karten mit Stapel-Icon) --- Karten, welche gleichen Rohstoff produzieren (Holz, Nahrung, Glas) \textit{aufeinander} stapeln. Gebäude produziert so viele Einheiten des Rohstoffs, wie Karten im Stapel sind.
+\item \textbf{Siedlungs-Level} --- Karte \textit{verdeckt unter Rathaus schieben} $\rightarrow$ Level der Siedlung steigt +1 und du erhältst 1 Münze sofort. Siedlungs-Level entspricht der Höhe des Stapels inklusive Rathaus (Max. 6).
+\end{enumerate}
+
+\textcolor{LumenSonder}{\textbf{\textit{ Siedlungs-Level}}} --- Beschreibt Anzahl von Sondergebäuden (lila), die in Siedlung stehen dürfen. \textbf{(Max 6)}\\
+
+Karte wählen, Rest weitergeben, Karte spielen — wiederhole das, bis du \textbf{die fünfte Karte} genutzt hast.
+
+\begin{lumenimportant}
+Jede Karte muss \textbf{sofort} gespielt werden wie zuvor beschrieben. Erst wenn die aktuelle Karte gespielt ist, darf die nächste Kartensammlung aufgenommen werden.
+\end{lumenimportant}
+
+\par\vspace{4pt}
+\par\noindent
+\IfFileExists{ATAL-Carduse.png}{\includegraphics[width=\linewidth]{ATAL-Carduse.png}}{%
+\fbox{\parbox[c][\linewidth][c]{\linewidth}{\centering\small\color{LumenGray400}Grafik 8,6 × 4,3\,cm}}}%
+\par{\fontsize{8.5}{11}\selectfont\color{LumenGray400}1. Bauen / 2. Ersetzen / 3. Stapeln / 4. Siedlungs-Level}\par
+
+\begin{lumentip}
+\textbf{Kartenarten, Kartenaufbau \& Symbole} sind im \textbf{Anhang} erläutert.
+\end{lumentip}
+\par\vspace{4pt}
+
+Sind fünf Karten genutzt, wird die sechste Karte abgeworfen und die Bauphase ist beendet.
+\par\vspace{4pt}
+
+\chapter{3. Rüsten: Sammeln \& Aufwerten}
+
+\begin{lumenquote}
+Rüstet euch, Bewohner, rüstet euch! Die Horde kommt! Nehmt Holz und platziert es als Barrieren, ernährt Ritter und stationiert sie als Verteidigung, verkauft Waren und finanziert den Turmbau, nehmt Münzen und versteckt sie als Reichtum. Rüstet euch, Bewohner, rüstet euch! Die Horde kommt!
+\lumenquotesource{Handbuch der Talwacht}
+\end{lumenquote}
+
+\lumenasidelabel{Rohstoffe sammeln \& umwandeln}
+Alle Gebäude produzieren ihre abgebildeten Rohstoffe (Holz, Nahrung oder Glas). Gestapelte Gebäude produzieren so viele, wie Karten im Stapel sind.
+
+Zähle die Rohstoffe in deiner Siedlung, wandle sie 2:1 in \textbf{Aufwertungen} um und nimm dir die entsprechenden Token (Barrieren, Ritter, Münzen, Türme) aus dem Vorrat. Ein einzelner Rohstoff kann nicht umgewandelt werden und verfällt.
+\par\vspace{6pt}
+
+\lumeniconexplain{res-holz.png}{\textbf{Holz} --- 2 Holz $\rightarrow$ 1 Barriere}
+\lumeniconexplain{res-nahrung.png}{\textbf{Nahrung} --- 2 Nahrung $\rightarrow$ 1 Ritter}
+\lumeniconexplain{res-glas.png}{\textbf{Glas} --- 2 Glas $\rightarrow$ 1 Münze}
+\lumeniconexplain{res-muenze.png}{\textbf{Münze} --- 2 Münzen $\rightarrow$ 1 Turm}
+
+\par\vspace{4pt}
+\par\noindent
+\IfFileExists{ATAL-Collect.png}{\includegraphics[width=\linewidth]{ATAL-Collect.png}}{%
+\fbox{\parbox[c][\linewidth][c]{\linewidth}{\centering\small\color{LumenGray400}Grafik 8,6 × 4,3\,cm}}}%
+\par{\fontsize{8.5}{11}\selectfont\color{LumenGray400}Dieses Beispiel produziert 4 Holz (2er-Stapel+1+1), 1 Nahrung und 2 Glas. Das entspricht 2 Barrieren und einer Münze. Für einen Ritter ist nicht genug Nahrung vorhanden.}\par
+\par\vspace{8pt}
+
+\lumenasidelabel{Aufwertungen platzieren}
+
+\textbf{Aufwertungen} (Barrieren, Ritter, Münzen, Türme) kannst du in der aktuellen Rüstphase in deiner Siedlung platzieren oder in deinem persönlichen Vorrat für eine andere Jahreszeit aufheben.\\
+Mit Ausnahme von Barrieren werden Aufwertungen direkt auf Gebäude platziert. Beachte dabei die \textbf{Kapazität des Gebäudes}. \textcolor{LumenGray400}{(Mehr unter \textit{Kapazität})}
+
+\par\vspace{8pt}
+
+\begin{lumenwarning}
+Platzierte Aufwertungen können nicht zurückgenommen oder umplatziert werden.
+\end{lumenwarning}
+
+\par\vspace{8pt}
+
+\lumeniconexplain{def-barriere.png}{\textbf{Barriere} --- +1 \lumenDef\textbf{ Verteidigung}. Max. 1 pro Kante.\textcolor{LumenGold}{\textbf{\textit{ Fragil}}}. Platziert zwischen zwei Karten: Zieht Horde von Karte zu Karte \textbf{über} Barriere $\rightarrow$ stoppt 1 Plünderer während Übergang. Platziert an Außenkante einer Karte: Wenn diese Karte = Startfeld $\rightarrow$ stoppt 1 Plünderer bei Betreten der Siedlung.}
+\lumeniconexplain{def-ritter.png}{\textbf{Ritter} --- +2 \lumenDef\textbf{ Verteidigung} für eine Karte. Bleibt solange Karte liegt.}
+\lumeniconexplain{res-muenze.png}{\textbf{Münze} --- + 2 \lumenVP\textbf{ Siegpunkte} für eine Karte. Bleibt solange Karte liegt.\textcolor{LumenGold}{\textbf{\textit{ Fragil}}}}
+\lumeniconexplain{def-turm.png}{\textbf{Turm} --- Karte permanent \textcolor{LumenPetrol}{\textbf{\textit{ unplünderbar}}}. Bleibt solange Karte liegt. \textcolor{LumenClay}{\textbf{\textit{MAX 2 pro Siedlung}}}}
+
+\par\vspace{4pt}
+
+\textcolor{LumenPetrol}{\textbf{\textit{Unplünderbar}}} --- \lumenVP\textbf{} können nicht gestohlen werden und zählen \textbf{immer}, auch wenn Karte überrannt wurde.\\
+\\
+\textcolor{LumenGold}{\textbf{\textit{Fragil}}} --- \textit{Fragile} Objekte (Karten, Münzen, Barrieren) werden \textbf{sofort} aus Siedlung entfernt, wenn sie überrannt wurden.
+
+\par\vspace{4pt}
+
+\chapter{4. Überfall}
+
+\begin{lumenquote}
+Der Würfel ruft, wir kennen’s Spiel,
+Gelb, Rot, Blau - das alte Leid!
+Die Punkte sind das teure Ziel.
+Die Horde kommt - wir steh’n bereit!
+\\
+Refrain:
+Und jährlich grüßt das Zwischental,
+wir bauen, wir rüsten, allemal!
+\\
+Der Würfel zeigt, bei Gelb sie starten,
+der Würfel Blau, wie stark sie sind.
+Ein roter Zorn wird euch erwarten -
+die Punkte fliegen wie im Wind.
+\\
+Refrain:
+Und jährlich grüßt das Zwischental,
+wir bauen, wir rüsten, allemal!
+\lumenquotesource{Lied der Talwacht}
+\end{lumenquote}
+
+\lumenasidelabel{NUR HERBST: Rathaus-Alarm auslösen}
+
+Du kannst \textbf{vor dem Überfall} Alarm läuten. \textcolor{LumenGray400}{(Siehe \textit{Alarm})}
+
+\lumenasidelabel{Überfall aufdecken}
+
+Decke zuerst die noch verdeckten Überfallkarten auf. Falls die \textcolor{LumenClayDark}{Champion-Fähigkeit} sich auf Würfel oder Überfallkarten bezieht, führe sie jetzt durch.\\
+
+\par\vspace{4pt}
+
+\textbf{Alle Details des Überfalls sind jetzt klar:} \textcolor{LumenGold}{Startfeld} und \textcolor{LumenGold}{Laufrichtung}, \textcolor{blue}{Anzahl Plünderer} und \textcolor{LumenClayDark}{Champion-Effekt}.
+
+\par\vspace{4pt}
+\par\noindent
+\IfFileExists{ATAL-Plunder.png}{\includegraphics[width=\linewidth]{ATAL-Plunder.png}}{%
+\fbox{\parbox[c][\linewidth][c]{\linewidth}{\centering\small\color{LumenGray400}Grafik 8,6 × 4,3\,cm}}}%
+\par{\fontsize{8.5}{11}\selectfont\color{LumenGray400}Beispiel: \textcolor{LumenGold}{Osten / Uhrzeigersinn}, \textcolor{blue}{7 Plünderer}, \textcolor{LumenClayDark}{ohne Anführer}}\par
+\par\vspace{8pt}
+
+\lumenasidelabel{Überfall durchführen}
+
+Nimm dir deine Zählscheibe und stelle sie auf die Anzahl der Plünderer. Sie hilft dir zu zählen, wie weit die räuberische Horde kommt.
+
+Beginnend mit dem Startfeld zieht die diebische Horde Karte für Karte in Laufrichtung um das Rathaus durch deine Siedlung. Bei jeder Karte:
+
+\begin{enumerate}
+\item \textbf{Verteidigung prüfen} --- \textit{Gebäude hat \textbf{gleich oder mehr} \lumenDef\textbf{ Verteidigung} als noch Räuber übrig sind?} Verteidigt! Überfall beendet.\\
+\textit{Gebäude hat \textbf{weniger} \lumenDef\textbf{} als noch Diebe übrig sind?} \lumenPlundered\textbf{ Geplündert} --- \lumenVP\textbf{} zählen nicht. Schiebe die Karte etwas weg vom Rathaus, um zu zeigen, dass sie in der nächsten Wertung ignoriert wird. Reduziere die Zählscheibe um den Verteidigungswert.
+\item \textbf{Nächste Karte} --- Die restlichen Räuber ziehen weiter zum nächsten Gebäude in Laufrichtung.
+\end{enumerate}
+
+Wiederhole alle Schritte, bis deine \textbf{Zählscheibe 0} zeigt und somit keine Diebe übrig sind.\\
+
+\begin{lumenwarning}[Achtung]
+Denke daran, \lumenPlundered\textbf{geplünderte} Münzen und \textcolor{LumenGold}{\textbf{\textit{fragile}}} Karten, sowie benutzte Barrieren vor der Wertung aus der Siedlung zu entfernen.
+\end{lumenwarning}
+
+\par\noindent
+\IfFileExists{ATAL-Wertung.png}{\includegraphics[width=\linewidth]{ATAL-Wertung.png}}{%
+\fbox{\parbox[c][\linewidth][c]{\linewidth}{\centering\small\color{LumenGray400}Grafik 8,6 × 4,3\,cm}}}%
+%\par{\fontsize{8.5}{11}\selectfont\color{LumenGray400}Beispiel Winterwertung mit 14 Punkten}\par
+
+\chapter{5. Wertung}
+
+Zähle die Punkte auf allen noch aktiven Gebäuden und auf allen \lumenPlundered\textbf{geplünderten} Karten mit Turm + 2 \lumenVP\textbf{} pro Münze auf einer Karte und notiere sie.
+
+\begin{lumenwarning}[Wichtig]
+\lumenPlundered\textbf{ Geplünderte} Gebäude verlieren nur Punkte, nicht ihre Funktion.
+\end{lumenwarning}
+
+Danach: Alle geplünderten Gebäude sind wieder aktiv — die nächste Jahreszeit beginnt.
+
+\chapter{Spielende}
+
+\textbf{Nach der Herbst-Wertung endet das Spiel sofort.} Wer die meisten \lumenVP\textbf{Siegpunkte} hat, \textbf{gewinnt das Spiel} und wird zur Legende der Talwacht.
+
+\par\vspace{4pt}
+
+\begin{lumeninfo}[Du hast es fast geschafft]
+Du kennst 95\% der Regeln und bist startklar für dein 1. Spiel. Nimm ab Spiel 2 die letzten 5\% hinzu: Kapazität und Alarm. (Seite 5)
+\end{lumeninfo}
+
+\par\noindent
+\IfFileExists{ATAL-Victory.png}{\includegraphics[width=\linewidth]{ATAL-Victory.png}}{%
+\fbox{\parbox[c][\linewidth][c]{\linewidth}{\centering\small\color{LumenGray400}Grafik 8,6 × 4,3\,cm}}}%
+%\par{\fontsize{8.5}{11}\selectfont\color{LumenNavy}Willkommen bei der Talwacht}\par
+
+\par\vspace{16pt}
+
+\chapter{Kapazität \& Alarm}
+
+\lumenasidelabel{Kapazität von Gebäuden}
+
+Jede Karte hat eine \textbf{Kapazität}. Sie begrenzt, wie viele Aufwertungen insgesamt auf diesem Gebäude Platz haben --- Ritter, Münzen und Turm.
+
+\par\noindent
+\IfFileExists{ATAL-Victory.png}{\includegraphics[width=\linewidth]{ATAL-Kapa.png}}{%
+\fbox{\parbox[c][\linewidth][c]{\linewidth}{\centering\small\color{LumenGray400}Grafik 8,6 × 4,3\,cm}}}%
+%\par{\fontsize{8.5}{11}\selectfont\color{LumenNavy}Willkommen bei der Talwacht}\par
+
+\begin{lumentip}[Tipp]
+Rohstoffgebäude und Gebäude mit besonders starken Effekten sind meist ausgelastet (Kapazität 0–1). Wohnhäuser und verlassene Gebäude bieten mehr Platz und eignen sich besonders gut zum Verstecken von Münzen oder Stationieren von Rittern.
+\end{lumentip}
+
+\lumenasidelabel{Das Finale: Alarm läuten}
+
+\textbf{Bevor} die Überfallkarten im Herbst aufgedeckt werden, kannst du entscheiden, den \textcolor{LumenClay}{\textbf{\textit{ Alarm zu läuten}}}. Dreht dafür deine Rathauskarte auf die Alarm-Seite. Dein Rathaus wird zur letzten Festung.\\
+Diese Entscheidung ist unwiderruflich.
+
+\begin{lumenquote}
+Manchmal ist der einzige Weg zum Sieg, die Niederlage zu riskieren.\\
+Manchmal ist der einzige Weg nach vorn, durch die Hintertür.
+\lumenquotesource{Weisheit der Talwacht}
+\end{lumenquote}
+
+\textbf{Alarm-Modus --- Alles oder Nichts:} Das Rathaus wird zum plünderbaren Gebäude und hat eine \lumenDef\textbf{ Verteidigung} in Höhe des aktuellen Siedlungs-Levels. Die Horde zieht vom Startfeld in Laufrichtung direkt zum Rathaus.
+
+\begin{lumenlist}
+\item Überlebt das Rathaus den Überfall, findet eine normale Wertung statt. Da das Rathaus die Diebe auf sich gezogen hat, bleiben alle anderen Gebäude (bis auf die Startkarte) verschont und können gewertet werden --- die Chance auf maximale \lumenVP\textbf{ Siegpunkte}.
+\item Fällt das Rathaus, sind alle Reichtümer aller vergangenen Jahreszeiten verloren. Die Horde raubt ALLE gesammelten \lumenVP\textbf{ Siegpunkte}.
+\end{lumenlist}
+
+\par\vspace{4pt}
+\par\noindent
+\IfFileExists{ATAL-Alarm.png}{\includegraphics[width=\linewidth]{ATAL-Alarm.png}}{%
+\fbox{\parbox[c][\linewidth][c]{\linewidth}{\centering\small\color{LumenGray400}Grafik 8,6 × 4,3\,cm}}}%
+\par{\fontsize{8.5}{11}\selectfont\color{LumenGray400}Nur ein Gebäude \lumenPlundered\textbf{geplündert}, Überfall im Rathaus}\par
+
+\begin{lumeninfo}[Hinweis]
+Das Rathaus kann nur über angrenzende Kanten betreten werden. Kommt die Horde aus Norden/Süden/Osten/Westen, zieht sie direkt auf das Rathaus. Andernfalls muss sie zwei Karten überwinden.
+\end{lumeninfo}
+
+\par\vspace{8pt}
+
+\begin{lumenquote}
+Geniale Falle oder absoluter Wahnsinn? Ist die Chance auf zusätzliche Reichtümer es wert? Entscheide selbst!
+\lumenquotesource{Chroniken der Talwacht}
+\end{lumenquote}
+
+\section{Anhang: Symbole \& Karten}
+
+\lumenasidelabel{Aufbau einer Karte}
+
+\par\vspace{4pt}
+\par\noindent
+\IfFileExists{ATAL-Cardlayout.png}{\includegraphics[width=\linewidth]{ATAL-Cardlayout.png}}{%
+\fbox{\parbox[c][\linewidth][c]{\linewidth}{\centering\small\color{LumenGray400}Grafik 8,6 × 4,3\,cm}}}%
+%\par{\fontsize{8.5}{11}\selectfont\color{LumenGray400}Aufbau einer Karte}\par
+
+\par\vspace{4pt}
+
+\lumenasidelabel{Kartenarten}
+
+\par\vspace{4pt}
+\par\noindent
+\IfFileExists{ATAL-Cards.png}{\includegraphics[width=\linewidth]{ATAL-Cards.png}}{%
+\fbox{\parbox[c][\linewidth][c]{\linewidth}{\centering\small\color{LumenGray400}Grafik 8,6 × 4,3\,cm}}}%
+%\par{\fontsize{8.5}{11}\selectfont\color{LumenGray400}Bildunterschrift, sehr klein und im Kontrast reduziert.}\par
+
+\textbf{Blau} --- Standardgebäude mit Kapazität --- werte sie auf mit Ritter und/oder Münzen ganz nach deiner Taktik.\par
+\textbf{Grün} --- Rohstoffgebäude für Holz, Nahrung und Glas, stapelbare Kartenart (mit "Stapelbar"-Icon).\par
+\textbf{Gelb} --- Verteidigungsgebäude manipulieren den Überfall zu deinen Gunsten, \textcolor{LumenGold}{\textbf{\textit{fragil}}} -- Karte wird nach Plünderung entfernt.\par
+\textbf{Lila} --- Sondergebäude für starke Effekte und legendäre \lumenVP\textbf{} mit Bau-Limit (= Siedlungs-Level) \textbf{Level 6 = max).}\par
+
+\chapter{Symbole}
+
+\lumeniconexplain{icon-vp.png}{\textbf{Siegpunkte} --- Punktwert des Gebäudes.}
+\lumeniconexplain{icon-defense.png}{\textbf{Verteidigung} --- Wie viele Angreifer ein Gebäude aufhalten kann.}
+\lumeniconexplain{icon-plundered.png}{\textbf{Geplündert} --- Wurde überrannt. Liefert keine Siegpunkte in der Jahreszeitenwertung --- Funktion und Rohstoffe bleiben aktiv.}
+\lumeniconexplain{icon-fragile.png}{\textbf{Fragil} --- Wird das Gebäude geplündert, wird es vor der Jahreszeitenwertung aus der Siedlung entfernt.}
+\lumeniconexplain{icon-special.png}{\textbf{Sondergebäude} --- Lilafarbene Gebäude mit einzigartigen Fähigkeiten --- Siedlung kann maximal so viele Sondergebäude enthalten wie das Siedlungs-Level.}
+\lumeniconexplain{icon-rathaus-level.png}{\textbf{Siedlungs-Level} --- Stufe 1--6. Erhöhen: Karte unters Rathaus schieben $\rightarrow$ +1 Level, +1 Münze.}
+\lumeniconexplain{icon-free-build.png}{\textbf{Ohne Limit} --- Kann jederzeit gebaut werden und ignoriert das Baulimit für Sondergebäude durch das Siedlungs-Level.}
+\lumeniconexplain{icon-neighbor.png}{\textbf{Nachbarfeld} --- Direkt angrenzend --- horizontal und/oder vertikal.}
+\lumeniconexplain{icon-raid-start.png}{\textbf{Startfeld} --- 1 der 8 Außenfelder in dem 3x3-Raster, von dem der Überfall startet. Bestimmt durch die gelbe Überfallkarte.}
+\lumeniconexplain{icon-raid-dir.png}{\textbf{Laufrichtung} --- Richtung in der Horde um die Siedlung läuft. Gelber Würfel gerade = $\circlearrowright$, ungerade = $\circlearrowleft$.}
+\lumeniconexplain{icon-def-sum.png}{\textbf{Summe Verteidigung} --- Summe der gesamten Verteidigung aller Gebäude in der Siedlung (ohne Ritter/ohne Barrieren).}
+\lumeniconexplain{res-holz.png}{\textbf{Holz} --- Rohstoff. 2 Holz $\rightarrow$ 1 Barriere.}
+\lumeniconexplain{res-nahrung.png}{\textbf{Nahrung} --- Rohstoff. 2 Nahrung $\rightarrow$ 1 Ritter.}
+\lumeniconexplain{res-glas.png}{\textbf{Glas} --- Rohstoff. 2 Glas $\rightarrow$ 1 Münze (Währung).}
+\lumeniconexplain{res-muenze.png}{\textbf{Münze} --- Währung/Aufwertung. 2 Münzen $\rightarrow$ 1 Turm. Erhöht Wert eines Gebäudes +2.}
+\lumeniconexplain{def-barriere.png}{\textbf{Barriere} --- Holzwall zwischen/neben Karten. Stoppt einen Plünderer, wenn Horde darüber zieht. Fragil.}
+\lumeniconexplain{def-ritter.png}{\textbf{Ritter} --- Aufwertung. +2 Verteidigung auf einem Gebäude. Bleibt solange die Karte liegt.}
+\lumeniconexplain{def-turm.png}{\textbf{Turm} --- Aufwertung. Gebäude permanent unplünderbar (= Siegpunkte werden auch dann gewertet, wenn Meute die Verteidigung der Karte überwunden hat). Bleibt solange die Karte liegt.}
+\lumeniconexplain{icon-kapa.png}{\textbf{Kapazität} --- Anzahl der Aufwertungen, die eine Karte aufnehmen kann.}
+\lumeniconexplain{icon-stapel.png}{\textbf{stapelbar} --- Kann auf Karte mit gleichem Rohstoff/Effekt gelegt werden und spart somit Platz in der Siedlung. Produziert so viele Rohstoffe/Effekte wie Karten im Stapel.}
+\lumeniconexplain{icon-neu.png}{\textbf{Erneuern} --- Neue Karte ziehen oder Würfel neu würfeln.}
+\lumeniconexplain{icon-horde.png}{\textbf{Horde} --- Plünderer. Anzahl wird bestimmt durch blaue Überfallkarte und blauen Würfel.}
+\lumeniconexplain{icon-season-winter.png}{\textbf{Winter} --- 1. Jahreszeit (Spielrunde). Ohne Gerüchte und ohne Überfall}
+\lumeniconexplain{icon-season-frühling.png}{\textbf{Frühling} --- 2. Jahreszeit (Spielrunde).}
+\lumeniconexplain{icon-season-sommer.png}{\textbf{Sommer} --- 3. Jahreszeit (Spielrunde).}
+\lumeniconexplain{icon-season-herbst.png}{\textbf{Herbst} --- 4. Jahreszeit (Spielrunde). Letzte Wertung im Spiel. Alarm läuten vor Überfall möglich.}
+
+\chapter{Karten}
+
+\lumenwidebreak
+
+\lumenfooteroff
+
+%%%\lumenflavor{„Was einst Wald war, ist nun Asche.“}
+
+\begin{lumencardgrid}
+%%%Reihe 1
+\lumencatalogcard{W1}{W2 - Holz - stapelbar}
+ & \lumencatalogcard{W3}{W4 - W5 - Holz - stapelbar}
+ & \lumencatalogcard{F1}{F2 - Holz - stapelbar}
+ & \lumencatalogcard{SO1}{SO2 - Holz - stapelbar}
+ & \lumencatalogcard{SO6}{Holz - 2\lumenVP\textbf{} pro Holz in Siedlung - stapelbar}
+ & \lumencatalogcard{H2}{Holz - 3\lumenVP\textbf{} pro Holz in Siedlung - stapelbar}\\
+%%%Reihe 2
+\lumencatalogcard{W6}{W7 - Nahrung - stapelbar}
+ & \lumencatalogcard{W8}{W9 - Nahrung - stapelbar}
+ & \lumencatalogcard{F3}{F4 - Nahrung - stapelbar}
+ & \lumencatalogcard{SO3}{ - Nahrung - stapelbar}
+ & \lumencatalogcard{SO7}{Nahrung - 2\lumenVP\textbf{} pro Nahrung in Siedlung - stapelbar}
+ & \lumencatalogcard{H3}{Nahrung - 3\lumenVP\textbf{} pro Nahrung in Siedlung - stapelbar}\\
+%%%Reihe 3
+\lumencatalogcard{W14}{F8 Nahrung + Holz}
+ & \lumencatalogcard{SO4}{Nahrung + Holz}
+ & \lumencatalogcard{H1}{Nahrung + Holz}
+ &  \lumencatalogcard{W10}{Glas - stapelbar}
+ & \lumencatalogcard{W11}{W12 - F5 - F6 - Glas - stapelbar}
+ & \lumencatalogcard{SO5}{Glas - stapelbar}
+ & \lumencatalogcard{W13}{F7 - 2 Glas} \\
+\end{lumencardgrid}
+
+\begin{lumencardgrid}
+%%%Reihe 1
+\lumencatalogcard{W17}{}
+ & \lumencatalogcard{W22}{}
+ & \lumencatalogcard{W15}{}
+ & \lumencatalogcard{W18}{}
+  & \lumencatalogcard{W16}{}
+ &  \lumencatalogcard{F9}{}
+ & \lumencatalogcard{SO11}{}\\
+%%%Reihe 2
+\lumencatalogcard{W20}{W21}
+ & \lumencatalogcard{F10}{}
+ & \lumencatalogcard{F11}{}
+ & \lumencatalogcard{F12}{}
+ & \lumencatalogcard{W19}{}
+ & \lumencatalogcard{F15}{}
+ & \lumencatalogcard{SO12}{}\\
+%%%Reihe 3
+ \lumencatalogcard{F13}{Gelber Würfel + 2 = \lumenVP\textbf{}}
+  & \lumencatalogcard{F14}{Blauer Würfel + 2 = \lumenVP\textbf{}}
+  & \lumencatalogcard{SO9}{Roter Würfel + 3 = \lumenVP\textbf{}}
+  & \lumencatalogcard{H4}{Gelber Würfel + 4 = \lumenVP\textbf{}}
+  & \lumencatalogcard{H5}{Blauer Würfel + 4 = \lumenVP\textbf{}}
+  & \lumencatalogcard{SO10}{}
+  & \lumencatalogcard{H8}{}\\
+\end{lumencardgrid}
+
+\begin{lumencardgrid}
+%%%Reihe 1
+ \lumencatalogcard{H7}{}
+  & \lumencatalogcard{H6}{}
+  & \lumencatalogcard{H9}{}\\
+  %%%Reihe 2
+\lumencatalogcard{F17}{SO13 - H10 - Auf bereits gebaute Karte legen --- "versteckt" diese vor Dieben --- \textcolor{LumenGold}{\textbf{\textit{fragil}}}}
+& \lumencatalogcard{W23}{F16 - Bei Plünderung -1 Dieb \& sofort 1 Ritter erhalten (für nächste Rüstphase) --- \textcolor{LumenGold}{\textbf{\textit{fragil}}}}
+& \lumencatalogcard{W24}{F18 - SO14 - Überfall startet definitv auf dieser Karte (gelbe Karte ignoriert) --- \textcolor{LumenGold}{\textbf{\textit{fragil}}}}
+& \lumencatalogcard{F19}{SO15 - H11 - Laufrichtung definitv MIT Uhrzeigersinn (gelber Würfel ignoriert) --- \textcolor{LumenGold}{\textbf{\textit{fragil}}}}
+& \lumencatalogcard{F20}{SO16 - H12 - Laufrichtung definitv GEGEN Uhrzeigersinn (gelber Würfel ignoriert) --- \textcolor{LumenGold}{\textbf{\textit{fragil}}}}\\
+%%%Reihe 3
+\lumencatalogcard{Z6}{Erhalte einmalig sofort 2 Ritter (für nächste Rüstphase)}
+& \lumencatalogcard{Z7}{Alle fragilen Karten in Siedlung sind NICHT fragil und erhalten 3 \lumenDef\textbf{ Verteidigung}}
+& \lumencatalogcard{Z8}{Unbegrenzt Kapazität}
+& \lumencatalogcard{Z3}{\lumenVP\textbf{} je Jahreszeit: 0/4/8/12}
+& \lumencatalogcard{Z9}{3\lumenVP\textbf{} pro Glas in Siedlung}
+& \lumencatalogcard{Z10}{\textcolor{LumenGold}{\textbf{\textit{fragil}}}}
+& \lumencatalogcard{Z11}{8\lumenVP\textbf{} wenn \lumenPlundered\textbf{ geplündert} --- 0 \lumenVP\textbf{} wenn aktiv} \\
+\end{lumencardgrid}
+
+\begin{lumencardgrid}
+%%%Reihe 1
+\lumencatalogcard{Z13}{\lumenVP\textbf{} = Roter Würfel + 7}
+& \lumencatalogcard{Z14}{\lumenVP\textbf{} = (Gelber Würfel + Blauer Würfel) × 2}
+& \lumencatalogcard{Z15}{2\lumenVP\textbf{} pro Sondergebäude in der Siedlung (diese Karte inkl.)}
+& \lumencatalogcard{Z16}{Zählt nicht zum Baulimit für Sonderkarten (Siedlungs-Level)}
+& \lumencatalogcard{Z17}{Z27 - Z28 - Stoppt 2 Plünderer, bevor diese die Siedlung erreichen - stapelbar}
+& \lumencatalogcard{Z31}{\lumenVP\textbf{} = Roter Würfel × 3}
+&  \lumencatalogcard{Z33}{\lumenVP\textbf{} auf den Nachbarkarten zählen doppelt}\\
+%%%Reihe 1
+\lumencatalogcard{Z19}{Abgebildeter Turm macht Karte unplünderbar. Zählt nicht zum 2-Turm-Limit der Siedlung.}
+& \lumencatalogcard{Z21}{Gelber Würfel * 1 = \lumenVP\textbf{} --- sieh dir gelbe Überfallkarte an falls verdeckt}
+& \lumencatalogcard{Z22}{Blauer Würfel * 1 = \lumenVP\textbf{} --- sieh dir blaue Überfallkarte an falls verdeckt}
+& \lumencatalogcard{Z23}{in Katakomben versteckte Münzen werden nicht gestohlen, selbst wenn die Karte \lumenPlundered\textbf{}}
+& \lumencatalogcard{Z24}{Erhalte einmalig sofort 2 Münzen}
+& \lumencatalogcard{Z25}{Erhalte pro Jahreszeit 0/1/2/3 Münzen}
+& \lumencatalogcard{Z34}{Siedlungs-Level * 3 = \lumenVP\textbf{}}\\
+%%%Reihe 1
+\lumencatalogcard{Z26}{Grüne Gebäude * 3 = \lumenVP\textbf{}}
+& \lumencatalogcard{Z32}{48\lumenVP\textbf{} falls einziges nicht \lumenPlundered\textbf{geplündertes} Gebäude}
+& \lumencatalogcard{Z29}{Z30 - Z18 - Nachbargebäude erhalten +2\lumenDef\textbf{} }
+& \lumencatalogcard{Z1}{Erhalte einmalig sofort 2 Barrieren (für nächste Rüstphase)}
+& \lumencatalogcard{Z2}{Nachbargebäude erhalten +2 Kapazität}
+& \lumencatalogcard{Z4}{Summe \lumenDef\textbf{} auf allen Karten (inkl. Ritter / exkl. Barrieren) = \lumenVP\textbf{}}
+& \lumencatalogcard{Z5}{3\lumenVP\textbf{} pro \lumenPlundered\textbf{geplündertes} Gebäude in Siedlung} \\
+\end{lumencardgrid}
+
+\lumenraidheading{LumenPetrol}{Blaue Karten — Stärke der Horde (A1–A8)}
+
+\begin{lumenraidgrid}
+\lumenraidcard{A1}{7 Angreifer}
+& \lumenraidcard{A2}{Angreifer = 5 + höchster Würfelwert}
+& \lumenraidcard{A3}{Angreifer = Blauer Würfel + je nach Jahreszeit 0/2/3/5}
+& \lumenraidcard{A4}{Angreifer = 5 + Siedlungs-Level}
+& \lumenraidcard{A5}{Angreifer = 3 + blauer Würfel}
+& \lumenraidcard{A6}{6} \\[16pt]
+
+\lumenraidcard{A7}{Angreifer = Blauer Würfel + Gelber Würfel}
+& \lumenraidcard{A8}{Angreifer = 4 + Anzahl Sondergebäude in Siedlung}
+& & & & \\
+\end{lumenraidgrid}
+
+\newpage
+
+\lumenraidheading{LumenClayDark}{Rote Karten — Champions (C1–C9)}
+
+\begin{lumenraidgrid}
+\lumenraidcard{C1}{zusätzliche Angreifer in Höhe von Rotem Würfel}
+& \lumenraidcard{C2}{Aktuelle Gelbe Karte durch neue Gelbe Karte vor Überfall ersetzen}
+& \lumenraidcard{C3}{Gelben Würfel vor Überfall neu würfeln}
+& \lumenraidcard{C4}{Alle Würfel werden auf 6 gesetzt}
+& \lumenraidcard{C5}{Barrikaden wirkungslos (werden dennoch entfernt wenn überrannt)}
+& \lumenraidcard{C6}{kein Champion-Effekt} \\[16pt]
+
+\lumenraidcard{C7}{Blau und Gelb tauschen Würfelwert}
+& \lumenraidcard{C8}{Sommer: −3 Angreifer · Frühling/Herbst: +6}
+& \lumenraidcard{C9}{Startkarte wird \textcolor{LumenGold}{\textbf{\textit{fragil}}} und nach Überfall entfernt}
+& & & \\
+\end{lumenraidgrid}
+
+\lumenwideresume
+\lumenfooteron
+
+\chapter{Regelfragen (FAQ)}
+
+\subsection*{Drafting \& Bauen}
+
+\textbf{F: Muss ich jede Karte sofort spielen?}\\
+Ja. Erst wenn die aktuelle Karte gespielt oder abgeworfen ist, darf die nächste Kartenauswahl aufgenommen werden.
+
+\textbf{F: Kann ich eine Karte einfach abwerfen ohne sie zu spielen?}\\
+Ja. Wenn du keine Karte bauen, stapeln, ersetzen oder unter das Rathaus schieben möchtest (oder darfst).
+
+\textbf{F: Was passiert, wenn die Siedlung voll ist und ich keine sinnvolle Karte habe?}\\
+Jede Karte kann unter das Rathaus geschoben werden, um das Siedlungs-Level zu erhöhen. Ist dieses bereits auf Level 6 (5 Karten unter dem Rathaus), kannst du eine Karte ungenutzt abwerfen.
+
+\textbf{F: Kann ich verschiedene Rohstoffkarten auf demselben Feld stapeln?}\\
+Nein. Nur Karten desselben Rohstofftyps können gestapelt werden. Karten, die zwei Rohstoffe gleichzeitig produzieren, können nicht gestapelt werden.
+
+\textbf{F: Der Anführer „Brandstifter“ (C9) macht die Karte auf dem der Überfall startet \textcolor{LumenGold}{\textbf{\textit{fragil}}}. Gilt das auch für Karten mit Turm und Luftschlösser (Z19, Z20)?}\\
+Nein. Ein Turm überschreibt die \lumenDef\textbf{ Verteidigung} einer Karte und ist deswegen nicht betroffen von allen Effekten auf die \lumenDef\textbf{ Verteidigung}, inklusive \textcolor{LumenGold}{\textbf{\textit{fragil}}}.
+
+\textbf{F: Wann und wie oft kann ich den Effekt von Kartograph (Z21) und Wahrsagerpalast (Z22) nutzen?}\\
+Solange sich die Karte in deiner Siedlung befindet, kannst du den Effekt jederzeit und unbegrenzt häufig nutzen. Du darfst beide Karten auch gleichzeitig besitzen.
+
+\subsection*{Rüsten}
+
+\textbf{F: Kann ich Aufwertungen aus der aktuellen Rüstphase für später aufheben?}\\
+Ja. Alle Aufwertungen die du nicht platzierst, bleiben in deinem persönlichen Vorrat.
+
+\textbf{F: Kann ich eine Aufwertung nach dem Platzieren noch umsetzen?}\\
+Nein. Platzierte Aufwertungen sind permanent --- bis die Karte darunter entfernt wird. Münzen auf einer \lumenPlundered\textbf{ geplünderter} Karte werden vor der Wertung entfernt (sie wurden ebenfalls gestohlen).
+
+\textbf{F: Produzieren \lumenPlundered\textbf{ geplünderte} Gebäude Rohstoffe?}\\
+Ja. Nur \lumenVP\textbf{ Siegpunkte} gehen verloren. Rohstoffe und alle Fähigkeiten bleiben aktiv.
+
+\subsection*{Überfall}
+
+\textbf{F: Was passiert, wenn die Horde auf ein leeres Feld trifft?}\\
+Sie zieht weiter ohne Verluste. Leere Felder halten keine Plünderer auf.
+
+\textbf{F: Kann ich zwei gelbe Karten mit gleicher Überfall-Manipulations-Mechanik gleichzeitig in der Siedlung haben?}\\
+Nein. Karten mit der gleichen Mechanik-Gruppe (z.B. zwei „Startfeld erzwingen") schließen sich gegenseitig aus. Die zweite Karte kann nicht gespielt werden, solange die erste aktiv ist.
+
+\textbf{F: Wann werden \textcolor{LumenGold}{\textbf{\textit{fragile}}} Karten, gestohlene Münzen und benutzte Barrieren entfernt?}\\
+Nach dem Überfall, vor der Wertung.
+
+\textbf{F: Werden \textcolor{LumenGold}{\textbf{\textit{fragile}}} Karten neben einem Schildtor (Z29, Z30) weiterhin entfernt, wenn sie \lumenPlundered\textbf{ geplündert} wurden?}\\
+Ja. Die \textcolor{LumenGold}{\textbf{\textit{fragilen}}} Gebäude erhalten temporär lediglich +2 \lumenDef\textbf{ Verteidigung} und werden nach einer erfolgreichen Plünderung dennoch entfernt — der \textcolor{LumenGold}{\textbf{\textit{fragile}}} Status bleibt bestehen. Das gilt auch wenn ein Ritter auf einer fragilen Karte liegt: +2 \lumenDef\textbf{}, aber weiterhin \textcolor{LumenGold}{\textbf{\textit{fragil}}}.
+
+\subsection*{Wertung}
+
+\textbf{F: Erholen sich \lumenPlundered\textbf{ geplünderte} Gebäude zur nächsten Jahreszeit?}\\
+Ja. Nach der Wertung sind alle Gebäude wieder aktiv.
+
+\textbf{F: Wann zählen Münzen als \lumenVP\textbf{ Siegpunkte}?}\\
+Wenn sie zum Zeitpunkt einer Wertung als Aufwertung auf einer Karte liegen (sie wurden dort "versteckt").
+
+\textbf{F: Zählt der Aussenposten (Z16) zum Sondergebäude-Limit des Siedlungs-Levels?}\\
+Nein. Der Aussenposten ignoriert das Baulimit vollständig.
+
+\lumenwidebreak
+
+\lumenwideresume
+
+\end{lumenpage}
+
+\end{document}
