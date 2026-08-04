@@ -1455,6 +1455,115 @@
       "finale": "neutral",
       "finaleTotal": 91,
       "finaleDiff": 0
+    },
+    {
+      "totalVP": 82,
+      "seasonPts": [
+        8,
+        0,
+        17,
+        57
+      ],
+      "lostPts": 56,
+      "rathausLevel": 6,
+      "specialsBuilt": 5,
+      "raidCount": 3,
+      "avgAttackersRaw": 12.3,
+      "avgAttackersNet": 12.3,
+      "towersPerSeason": [
+        0,
+        0,
+        1,
+        0
+      ],
+      "barriersPlayed": 1,
+      "knightsPlayed": 0,
+      "vaultCoinVP": 6,
+      "resourceProd": {
+        "holz": 11,
+        "nahrung": 2,
+        "glas": 2
+      },
+      "builtCards": [
+        {
+          "id": "W1",
+          "name": "Holzfällerruine",
+          "cat": "winter"
+        },
+        {
+          "id": "W5",
+          "name": "Holzfäller",
+          "cat": "winter"
+        },
+        {
+          "id": "W18",
+          "name": "Bibliothek",
+          "cat": "winter"
+        },
+        {
+          "id": "W2",
+          "name": "Holzfällerruine",
+          "cat": "winter"
+        },
+        {
+          "id": "F8",
+          "name": "Marktstand",
+          "cat": "spring"
+        },
+        {
+          "id": "F12",
+          "name": "Wachturm",
+          "cat": "spring"
+        },
+        {
+          "id": "F7",
+          "name": "Glasmanufaktur",
+          "cat": "spring"
+        },
+        {
+          "id": "F15",
+          "name": "Silberhändler",
+          "cat": "spring"
+        },
+        {
+          "id": "Z33",
+          "name": "Spiegelturm",
+          "cat": "special"
+        },
+        {
+          "id": "Z2",
+          "name": "Lagerfeste",
+          "cat": "special"
+        },
+        {
+          "id": "SO2",
+          "name": "Sägemühle",
+          "cat": "summer"
+        },
+        {
+          "id": "SO8",
+          "name": "Wachturm",
+          "cat": "summer"
+        },
+        {
+          "id": "Z30",
+          "name": "Schildtor",
+          "cat": "special"
+        },
+        {
+          "id": "Z19",
+          "name": "Luftschloss",
+          "cat": "special"
+        },
+        {
+          "id": "Z18",
+          "name": "Schildtor",
+          "cat": "special"
+        }
+      ],
+      "finale": "loss",
+      "finaleTotal": 0,
+      "finaleDiff": -82
     }
   ]
 }
