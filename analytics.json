@@ -1678,6 +1678,125 @@
       "finale": "neutral",
       "finaleTotal": 97,
       "finaleDiff": 0
+    },
+    {
+      "totalVP": 54,
+      "seasonPts": [
+        4,
+        14,
+        36,
+        0
+      ],
+      "lostPts": 40,
+      "rathausLevel": 4,
+      "specialsBuilt": 3,
+      "raidCount": 3,
+      "avgAttackersRaw": 9.7,
+      "avgAttackersNet": 8.3,
+      "towersPerSeason": [
+        0,
+        1,
+        1,
+        0
+      ],
+      "barriersPlayed": 4,
+      "knightsPlayed": 0,
+      "vaultCoinVP": 8,
+      "resourceProd": {
+        "holz": 17,
+        "nahrung": 1,
+        "glas": 5
+      },
+      "builtCards": [
+        {
+          "id": "W5",
+          "name": "Holzfäller",
+          "cat": "winter"
+        },
+        {
+          "id": "W24",
+          "name": "offenes Stadttor",
+          "cat": "winter"
+        },
+        {
+          "id": "W3",
+          "name": "Holzfäller",
+          "cat": "winter"
+        },
+        {
+          "id": "W20",
+          "name": "Nachtwächter",
+          "cat": "winter"
+        },
+        {
+          "id": "W10",
+          "name": "alter Ofen",
+          "cat": "winter"
+        },
+        {
+          "id": "Z11",
+          "name": "Bettler-Orden",
+          "cat": "special"
+        },
+        {
+          "id": "F1",
+          "name": "kleines Holzlager",
+          "cat": "spring"
+        },
+        {
+          "id": "F12",
+          "name": "Wachturm",
+          "cat": "spring"
+        },
+        {
+          "id": "F5",
+          "name": "Glasschmelze",
+          "cat": "spring"
+        },
+        {
+          "id": "F2",
+          "name": "kleines Holzlager",
+          "cat": "spring"
+        },
+        {
+          "id": "SO8",
+          "name": "Wachturm",
+          "cat": "summer"
+        },
+        {
+          "id": "SO12",
+          "name": "Goldhändler",
+          "cat": "summer"
+        },
+        {
+          "id": "SO6",
+          "name": "Holzbörse",
+          "cat": "summer"
+        },
+        {
+          "id": "SO4",
+          "name": "Händlerzunft",
+          "cat": "summer"
+        },
+        {
+          "id": "Z27",
+          "name": "Bogenwacht",
+          "cat": "special"
+        },
+        {
+          "id": "Z20",
+          "name": "Luftschloss",
+          "cat": "special"
+        },
+        {
+          "id": "Z17",
+          "name": "Bogenwacht",
+          "cat": "special"
+        }
+      ],
+      "finale": "loss",
+      "finaleTotal": 0,
+      "finaleDiff": -54
     }
   ]
 }
