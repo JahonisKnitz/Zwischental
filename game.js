@@ -302,7 +302,7 @@ const DICE_COLORS = ['yellow', 'blue', 'red'];
 
 // ── Tauschverhältnis — fest 2:1 ──
 const RATIO = 2;
-const VERSION = '1.3.3';
+const VERSION = '1.3.4';
 
 // ── Außenkanten-System für Barrieren ──────────────────────────────
 // 12 Außenkanten am 3×3-Grid: jedes Randfeld hat 1 (Kante) oder 2 (Ecke) Außenkanten.
@@ -1348,9 +1348,9 @@ function renderDefenseCta() {
     },
     {
       cls: 'cta-btn-turm',
-      icon: '💰', label: 'Turm',
-      sub: G.fortified.filter((v,i) => v && !G.builtInFortified.has(i)).length >= 2 ? 'Limit erreicht (max. 2)' : G.coins >= RATIO ? `${Math.floor(G.coins / RATIO)} baubar (${G.coins} Münzen)` : 'zu wenig Münzen',
-      disabled: G.coins < RATIO || G.fortified.filter((v,i) => v && !G.builtInFortified.has(i)).length >= 2,
+      icon: '🪵', label: 'Turm',
+      sub: G.fortified.filter((v,i) => v && !G.builtInFortified.has(i)).length >= 2 ? 'Limit erreicht (max. 2)' : (G.barrierHand || 0) >= RATIO ? `${Math.floor((G.barrierHand || 0) / RATIO)} baubar (${G.barrierHand || 0} Barrieren)` : 'zu wenig Barrieren',
+      disabled: (G.barrierHand || 0) < RATIO || G.fortified.filter((v,i) => v && !G.builtInFortified.has(i)).length >= 2,
       active: G.selectedTower,
       onClick: () => onTowerHandClick()
     },
@@ -2285,25 +2285,26 @@ function renderResources() {
     row.appendChild(pair);
   });
 
-  // Turm-Chip separat (Münzen → Turm, kein direkter Rohstoff)
+  // Turm-Chip separat (Barrieren → Turm, kein direkter Rohstoff)
   const towerPair = document.createElement('div');
   const towerAllowed = isPhaseAllowed('tower');
+  const barrForTower = G.barrierHand || 0;
   towerPair.className = 'res-pair' + (isBuildPhase ? ' dim-def' : '');
   towerPair.dataset.defKey = 'tower';
   towerPair.innerHTML = `
     <div class="res-pair-raw">
-      ${coinIcon}
-      <span class="raw-count ${G.coins < RATIO ? 'zero' : ''}" style="font-size:0.55rem;opacity:0.5">×${RATIO}</span>
+      ${barrierIcon}
+      <span class="raw-count ${barrForTower < RATIO ? 'zero' : ''}" style="font-size:0.55rem;opacity:0.5">×${RATIO}</span>
     </div>
     <span class="res-pair-arrow">›</span>
     <div class="res-pair-def">
-      <span style="opacity:${G.coins >= RATIO ? '1' : '0.3'}">${towerIcon}</span>
+      <span style="opacity:${barrForTower >= RATIO ? '1' : '0.3'}">${towerIcon}</span>
     </div>`;
-  // Turm-Chip: in Rüstphase direkt platzieren (2 Münzen → Turm auf Karte)
-  // Kein Inventar mehr — Münzen werden direkt beim Platzieren abgezogen
-  if (towerAllowed && G.coins >= RATIO) {
+  // Turm-Chip: in Rüstphase direkt platzieren (2 Barrieren → Turm auf Karte)
+  // Kein Inventar mehr — Barrieren werden direkt beim Platzieren abgezogen
+  if (towerAllowed && barrForTower >= RATIO) {
     towerPair.style.cursor = 'pointer';
-    towerPair.title = `${RATIO} Münzen → Turm auf Karte platzieren`;
+    towerPair.title = `${RATIO} Barrieren → Turm auf Karte platzieren`;
     towerPair.addEventListener('click', onTowerHandClick);
     towerPair.addEventListener('touchend', (e) => { e.preventDefault(); onTowerHandClick(); }, {passive:false});
   }
@@ -4037,14 +4038,14 @@ function onBarrierHandClick() {
 
 function onTowerHandClick() {
   if (!isPhaseAllowed('tower')) { showToast('Türme nur in der Verteidigungs-Phase'); return; }
-  if (G.coins < RATIO) { showToast(`Nicht genug Münzen (${RATIO} benötigt)`); return; }
+  if ((G.barrierHand || 0) < RATIO) { showToast(`Nicht genug Barrieren (${RATIO} benötigt)`); return; }
   if (G.fortified.filter((v,i) => v && !G.builtInFortified.has(i)).length >= 2) { showToast('Maximal 2 Türme pro Siedlung'); return; }
   if (G.selectedTower) { clearSelection(); setHint('Karte wählen'); renderHand(); renderDefenseCta();
    renderGrid(); renderDefenseCta(); return; }
   clearSelection();
   G.selectedTower = true;
   G.mode = 'tower';
-  setHint(`Tippe ein Gebäude zum Befestigen (−${RATIO} Münzen)`, true);
+  setHint(`Tippe ein Gebäude zum Befestigen (−${RATIO} Barrieren)`, true);
   renderHand(); renderDefenseCta();
    renderGrid(true); renderDefenseCta();
 }
@@ -4408,10 +4409,10 @@ function flashChip(key) {
 }
 
 function placeTower(idx) {
-  if (G.coins < RATIO || !G.board[idx] || G.fortified[idx]) return;
+  if ((G.barrierHand || 0) < RATIO || !G.board[idx] || G.fortified[idx]) return;
   if (G.fortified.filter((v, i) => v && !G.builtInFortified.has(i)).length >= 2) { showToast('Maximal 2 Türme pro Siedlung'); clearSelection(); G.mode = 'card'; renderGrid(); return; }
   if (freeCapacity(idx) < 1) { capToast(idx); return; }
-  G.coins -= RATIO;
+  G.barrierHand -= RATIO;
   G.fortified[idx] = true;
   G.fortifiedNew.add(idx);
   if (G.towersPerSeason) G.towersPerSeason[G.season] = (G.towersPerSeason[G.season] || 0) + 1;
@@ -4422,10 +4423,10 @@ function placeTower(idx) {
   flashChip('tower');
   const cells = document.querySelectorAll('.cell');
   if (cells[idx]) spawnColorBurst(cells[idx], '#7a40c0'); SFX.tower();
-  setHint(G.coins >= RATIO ? `Tippe ein Gebäude zum Befestigen (−${RATIO} Münzen)` : 'Nicht genug Münzen für weiteren Turm', G.coins >= RATIO);
-  showToast(`Gebäude befestigt · noch ${G.coins} Münzen`);
-  // Modus beenden wenn keine Münzen mehr
-  if (G.coins < RATIO) { clearSelection(); G.mode = 'card'; renderGrid(); }
+  setHint((G.barrierHand || 0) >= RATIO ? `Tippe ein Gebäude zum Befestigen (−${RATIO} Barrieren)` : 'Nicht genug Barrieren für weiteren Turm', (G.barrierHand || 0) >= RATIO);
+  showToast(`Gebäude befestigt · noch ${G.barrierHand} Barrieren`);
+  // Modus beenden wenn keine Barrieren mehr
+  if ((G.barrierHand || 0) < RATIO) { clearSelection(); G.mode = 'card'; renderGrid(); }
 }
 
 function placeKnight(idx) {
