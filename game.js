@@ -302,7 +302,7 @@ const DICE_COLORS = ['yellow', 'blue', 'red'];
 
 // ── Tauschverhältnis — fest 2:1 ──
 const RATIO = 2;
-const VERSION = '1.3.4';
+const VERSION = '1.3.5';
 
 // ── Außenkanten-System für Barrieren ──────────────────────────────
 // 12 Außenkanten am 3×3-Grid: jedes Randfeld hat 1 (Kante) oder 2 (Ecke) Außenkanten.
