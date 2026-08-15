@@ -1891,6 +1891,115 @@
       "finale": "neutral",
       "finaleTotal": 39,
       "finaleDiff": -13
+    },
+    {
+      "totalVP": 141,
+      "seasonPts": [
+        16,
+        35,
+        47,
+        43
+      ],
+      "lostPts": 18,
+      "rathausLevel": 6,
+      "specialsBuilt": 3,
+      "raidCount": 3,
+      "avgAttackersRaw": 8.3,
+      "avgAttackersNet": 5.7,
+      "towersPerSeason": [
+        0,
+        0,
+        0,
+        2
+      ],
+      "barriersPlayed": 1,
+      "knightsPlayed": 3,
+      "vaultCoinVP": 20,
+      "resourceProd": {
+        "holz": 13,
+        "nahrung": 8,
+        "glas": 0
+      },
+      "builtCards": [
+        {
+          "id": "W15",
+          "name": "Wohnhaus",
+          "cat": "winter"
+        },
+        {
+          "id": "W19",
+          "name": "Bronzehändler",
+          "cat": "winter"
+        },
+        {
+          "id": "W14",
+          "name": "Marktstand",
+          "cat": "winter"
+        },
+        {
+          "id": "W7",
+          "name": "Bauernhofruine",
+          "cat": "winter"
+        },
+        {
+          "id": "W5",
+          "name": "Holzfäller",
+          "cat": "winter"
+        },
+        {
+          "id": "Z10",
+          "name": "Kristallpalast",
+          "cat": "special"
+        },
+        {
+          "id": "F11",
+          "name": "Wachposten",
+          "cat": "spring"
+        },
+        {
+          "id": "F8",
+          "name": "Marktstand",
+          "cat": "spring"
+        },
+        {
+          "id": "Z17",
+          "name": "Bogenwacht",
+          "cat": "special"
+        },
+        {
+          "id": "Z27",
+          "name": "Bogenwacht",
+          "cat": "special"
+        },
+        {
+          "id": "SO6",
+          "name": "Holzbörse",
+          "cat": "summer"
+        },
+        {
+          "id": "SO2",
+          "name": "Sägemühle",
+          "cat": "summer"
+        },
+        {
+          "id": "Z19",
+          "name": "Luftschloss",
+          "cat": "special"
+        },
+        {
+          "id": "H1",
+          "name": "Vorratsfeste",
+          "cat": "autumn"
+        },
+        {
+          "id": "Z33",
+          "name": "Spiegelturm",
+          "cat": "special"
+        }
+      ],
+      "finale": "loss",
+      "finaleTotal": 0,
+      "finaleDiff": -141
     }
   ]
 }
